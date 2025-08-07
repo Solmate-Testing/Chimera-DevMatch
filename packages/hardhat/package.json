@@ -22,8 +22,11 @@
     "verify": "hardhat etherscan-verify"
   },
   "dependencies": {
+    "@chainlink/contracts": "^1.4.0",
     "@inquirer/password": "^4.0.2",
-    "@openzeppelin/contracts": "~5.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@oasisprotocol/sapphire-contracts": "^0.2.14",
+    "@openzeppelin/contracts": "^5.4.0",
     "@typechain/ethers-v6": "~0.5.1",
     "dotenv": "~16.4.5",
     "envfile": "~7.1.0",
@@ -48,7 +51,7 @@
     "eslint": "~9.23.0",
     "eslint-config-prettier": "~10.1.1",
     "eslint-plugin-prettier": "~5.2.4",
-    "ethers": "~6.13.2",
+    "ethers": "^6.15.0",
     "hardhat": "~2.22.10",
     "hardhat-deploy": "^1.0.4",
     "hardhat-deploy-ethers": "~0.4.2",
