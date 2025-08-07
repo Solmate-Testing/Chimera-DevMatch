@@ -1,113 +1,117 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@oasisprotocol/sapphire-contracts/contracts/Sapphire.sol";
-import "@chainlink/contracts/src/v0.8/FunctionsClient.sol";
+// ✅ CORRECTED IMPORT PATHS
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";  // security -> utils
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-contract Marketplace is Sapphire, ReentrancyGuard, FunctionsClient {
+contract Marketplace is ReentrancyGuard, Ownable {
     struct Product {
+        uint256 id;
+        address creator;
         string name;
         string description;
+        uint256 price; // in wei
         string category;
-        address creator;
-        uint256 stakeAmount;
-        uint256 totalStaked;
-        uint256 loves;
-        bytes32 apiKeyHash;
         bool active;
+        uint256 createdAt;
     }
 
+    uint256 private productCount;
     mapping(uint256 => Product) public products;
-    mapping(uint256 => mapping(address => uint256)) public userStakes;
-    mapping(uint256 => mapping(address => bool)) public userLoves;
-    mapping(bytes32 => uint256) public modelRequests; // requestId => productId
+    mapping(address => uint256[]) public creatorProducts;
     
-    uint256 public productCount;
-    IERC20 public paymentToken;
+    // Platform fee (2.5%)
+    uint256 public platformFee = 250; // 250 / 10000 = 2.5%
+    uint256 public constant FEE_DENOMINATOR = 10000;
     
-    event ProductListed(uint256 indexed productId, address indexed creator, string name, string category);
-    event StakeAdded(uint256 indexed productId, address indexed user, uint256 amount);
-    event ProductLoved(uint256 indexed productId, address indexed user);
-    event ModelResult(uint256 indexed productId, address indexed user, bytes result);
+    event ProductListed(
+        uint256 indexed id, 
+        address indexed creator, 
+        string name, 
+        uint256 price,
+        string category
+    );
+    
+    event ProductPurchased(
+        uint256 indexed id, 
+        address indexed buyer, 
+        address indexed creator,
+        uint256 price
+    );
 
-    constructor(address _functionsRouter, address _paymentToken) 
-        FunctionsClient(_functionsRouter) {
-        paymentToken = IERC20(_paymentToken);
-    }
+    constructor() Ownable(msg.sender) {}
 
     function listProduct(
-        string calldata name,
-        string calldata description,
-        string calldata category,
-        bytes calldata encryptedApiKey,
-        uint256 stakeAmount
-    ) external {
-        // Critical Oasis security requirement
-        require(Sapphire.randomBytes(1).length > 0, "ROFL: Must run in TEE");
+        string memory _name,
+        string memory _description,
+        uint256 _price,
+        string memory _category
+    ) public nonReentrant {
+        require(bytes(_name).length > 0, "Name cannot be empty");
+        require(_price > 0, "Price must be greater than 0");
         
-        // Store encrypted API key in ROFL (TEE-protected)
-        bytes32 apiKeyHash = keccak256(abi.encodePacked(msg.sender, productCount, block.timestamp));
-        
-        // Store in TEE-protected storage
-        Sapphire.encrypt(abi.encode(apiKeyHash), encryptedApiKey, "");
-        
+        productCount++;
         products[productCount] = Product({
-            name: name,
-            description: description,
-            category: category,
+            id: productCount,
             creator: msg.sender,
-            stakeAmount: stakeAmount,
-            totalStaked: 0,
-            loves: 0,
-            apiKeyHash: apiKeyHash,
-            active: true
+            name: _name,
+            description: _description,
+            price: _price,
+            category: _category,
+            active: true,
+            createdAt: block.timestamp
         });
         
-        emit ProductListed(productCount, msg.sender, name, category);
-        productCount++;
+        creatorProducts[msg.sender].push(productCount);
+        
+        emit ProductListed(productCount, msg.sender, _name, _price, _category);
     }
 
-    function stakeToUseProduct(uint256 productId) external payable nonReentrant {
-        require(products[productId].active, "Product not active");
-        require(msg.value >= products[productId].stakeAmount, "Insufficient stake");
+    function purchaseProduct(uint256 _id) public payable nonReentrant {
+        Product storage product = products[_id];
+        require(product.active, "Product not active");
+        require(msg.value >= product.price, "Insufficient payment");
+        require(product.creator != msg.sender, "Cannot purchase own product");
         
-        userStakes[productId][msg.sender] += msg.value;
-        products[productId].totalStaked += msg.value;
+        product.active = false;
         
-        // Send payment to creator
-        payable(products[productId].creator).transfer(msg.value);
+        // Calculate platform fee
+        uint256 fee = (product.price * platformFee) / FEE_DENOMINATOR;
+        uint256 creatorAmount = product.price - fee;
         
-        emit StakeAdded(productId, msg.sender, msg.value);
+        // Transfer to creator and platform
+        payable(product.creator).transfer(creatorAmount);
+        payable(owner()).transfer(fee);
+        
+        // Refund excess
+        if (msg.value > product.price) {
+            payable(msg.sender).transfer(msg.value - product.price);
+        }
+        
+        emit ProductPurchased(_id, msg.sender, product.creator, product.price);
     }
-
-    function loveProduct(uint256 productId) external {
-        require(products[productId].active, "Product not active");
-        require(!userLoves[productId][msg.sender], "Already loved");
-        require(userStakes[productId][msg.sender] > 0, "Must stake to love");
-        
-        userLoves[productId][msg.sender] = true;
-        products[productId].loves++;
-        
-        emit ProductLoved(productId, msg.sender);
+    
+    function getProduct(uint256 _id) public view returns (Product memory) {
+        return products[_id];
     }
-
-    // Placeholder for Chainlink Functions integration
-    function runModel(uint256 productId, string calldata input) external {
-        require(Sapphire.randomBytes(1).length > 0, "ROFL: Must run in TEE");
-        require(userStakes[productId][msg.sender] > 0, "Must stake to use");
-        
-        // This will be implemented with Chainlink Functions
-        // For hackathon demo, emit mock result
-        emit ModelResult(productId, msg.sender, abi.encode("Mock AI Result"));
+    
+    function getCreatorProducts(address _creator) public view returns (uint256[] memory) {
+        return creatorProducts[_creator];
     }
-
-    function getProduct(uint256 productId) external view returns (Product memory) {
-        return products[productId];
+    
+    function getProductCount() public view returns (uint256) {
+        return productCount;
     }
-
-    function getUserStake(uint256 productId, address user) external view returns (uint256) {
-        return userStakes[productId][user];
+    
+    // Owner functions
+    function setPlatformFee(uint256 _newFee) public onlyOwner {
+        require(_newFee <= 1000, "Fee cannot exceed 10%"); // Max 10%
+        platformFee = _newFee;
+    }
+    
+    function withdrawPlatformFees() public onlyOwner {
+        payable(owner()).transfer(address(this).balance);
     }
 }

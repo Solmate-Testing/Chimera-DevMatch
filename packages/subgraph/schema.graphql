@@ -1,0 +1,42 @@
+type Product @entity {
+  id: ID!
+  name: String!
+  description: String!
+  category: String!
+  creator: Bytes!
+  stakeAmount: BigInt!
+  totalStaked: BigInt!
+  loves: Int!
+  apiKeyHash: Bytes!
+  active: Boolean!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+  
+  stakes: [Stake!]! @derivedFrom(field: "product")
+  loveEvents: [LoveEvent!]! @derivedFrom(field: "product")
+}
+
+type Stake @entity {
+  id: ID!
+  product: Product!
+  user: Bytes!
+  amount: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LoveEvent @entity {
+  id: ID!
+  product: Product!
+  user: Bytes!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type User @entity {
+  id: ID!
+  address: Bytes!
+  totalStaked: BigInt!
+  productsLoved: [LoveEvent!]! @derivedFrom(field: "user")
+  stakes: [Stake!]! @derivedFrom(field: "user")
+}
