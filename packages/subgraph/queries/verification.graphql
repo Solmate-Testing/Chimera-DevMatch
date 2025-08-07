@@ -1,0 +1,141 @@
+# ✅ EXACT QUERY REQUIREMENTS - Senior Data Engineer Implementation
+# Required: products(orderBy: totalStaked, orderDirection: desc)
+
+# ✅ REQUIREMENT #1: Products ordered by totalStaked (descending)
+query ProductsByStakeRanking {
+  products(orderBy: totalStaked, orderDirection: desc, first: 10) {
+    id
+    name
+    totalStaked
+    loves
+    category
+    rankingScore
+    creator
+  }
+}
+
+# ✅ REQUIREMENT #2: Products ordered by ranking score (for verification)
+query ProductsByRankingScore {
+  products(orderBy: rankingScore, orderDirection: desc, first: 10) {
+    id
+    name
+    totalStaked
+    loves
+    category
+    rankingScore
+    creator
+  }
+}
+
+# ✅ REQUIREMENT #3: Categories filter correctly
+query ProductsByCategory($category: String!) {
+  products(where: { category: $category }, orderBy: totalStaked, orderDirection: desc) {
+    id
+    name
+    totalStaked
+    loves
+    category
+    rankingScore
+  }
+}
+
+# ✅ VERIFICATION QUERY: Top products match stake × loves formula
+query TopProductsVerification {
+  products(orderBy: rankingScore, orderDirection: desc, first: 5) {
+    id
+    name
+    totalStaked
+    loves
+    category
+    rankingScore
+    # Verify formula: (totalStaked / 1e18) + (loves * 0.1)
+    stakes(orderBy: timestamp, orderDirection: desc, first: 3) {
+      id
+      user
+      amount
+      timestamp
+    }
+    productLoves(orderBy: timestamp, orderDirection: desc, first: 3) {
+      id
+      user
+      timestamp
+    }
+  }
+}
+
+# ✅ REAL-TIME UPDATE VERIFICATION (30-second requirement)
+query RecentActivity {
+  # Recent stakes (should appear within 30 seconds)
+  stakes(orderBy: timestamp, orderDirection: desc, first: 5) {
+    id
+    product {
+      id
+      name
+      totalStaked
+      rankingScore
+    }
+    user
+    amount
+    timestamp
+  }
+  
+  # Recent loves (should appear within 30 seconds)
+  loves(orderBy: timestamp, orderDirection: desc, first: 5) {
+    id
+    product {
+      id
+      name
+      loves
+      rankingScore
+    }
+    user
+    timestamp
+  }
+}
+
+# ✅ CATEGORY FILTERING VERIFICATION
+query AIAgentProducts {
+  products(where: { category: "AI Agent" }, orderBy: totalStaked, orderDirection: desc) {
+    id
+    name
+    totalStaked
+    loves
+    category
+    rankingScore
+  }
+}
+
+query MCPProducts {
+  products(where: { category: "MCP" }, orderBy: totalStaked, orderDirection: desc) {
+    id
+    name
+    totalStaked
+    loves
+    category
+    rankingScore
+  }
+}
+
+query CopyTradingBotProducts {
+  products(where: { category: "Copy Trading Bot" }, orderBy: totalStaked, orderDirection: desc) {
+    id
+    name
+    totalStaked
+    loves
+    category
+    rankingScore
+  }
+}
+
+# ✅ RANKING FORMULA VALIDATION QUERY
+query RankingFormulaValidation {
+  products(orderBy: rankingScore, orderDirection: desc) {
+    id
+    name
+    totalStaked
+    loves
+    rankingScore
+    # Manual calculation verification:
+    # expectedScore = (totalStaked / 1000000000000000000) + (loves * 0.1)
+  }
+}

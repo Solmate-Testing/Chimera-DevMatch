@@ -1,0 +1,18 @@
+{
+  "name": "@scaffold-eth/subgraph",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "graph build",
+    "clean": "rm -rf build",
+    "codegen": "graph codegen",
+    "create-local": "graph create --node http://localhost:8020/ chimera-devmatch/marketplace",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 chimera-devmatch/marketplace",
+    "dev": "yarn codegen && yarn build && yarn create-local && yarn deploy-local",
+    "remove-local": "graph remove --node http://localhost:8020/ chimera-devmatch/marketplace",
+    "test": "echo 'Running subgraph verification tests...' && node test/verify-rankings.js"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.69.0",
+    "@graphprotocol/graph-ts": "^0.31.0"
+  }
+}

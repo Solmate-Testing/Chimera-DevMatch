@@ -1,42 +1,82 @@
+# CHIMERA DEVMATCH SUBGRAPH SCHEMA - EXACT REQUIREMENTS
+# Senior Data Engineer Implementation
+
+# ✅ REQUIRED ENTITY #1: Product (EXACT fields as specified)
 type Product @entity {
-  id: ID!
-  name: String!
-  description: String!
-  category: String!
-  creator: Bytes!
-  stakeAmount: BigInt!
-  totalStaked: BigInt!
-  loves: Int!
-  apiKeyHash: Bytes!
-  active: Boolean!
-  createdAt: BigInt!
-  updatedAt: BigInt!
+  id: ID! # Product ID from contract (EXACT)
+  name: String! # Product name (EXACT)
+  totalStaked: BigInt! # Total ETH staked on this product (EXACT)
+  loves: Int! # Number of loves (EXACT)
+  category: String! # AI Agent, MCP, Copy Trading Bot (EXACT)
   
+  # Additional required fields for functionality
+  creator: Bytes! # Creator address
+  description: String # Product description
+  price: BigInt! # Price in wei
+  active: Boolean! # Product status
+  createdAt: BigInt! # Block timestamp
+  
+  # ✅ RANKING ALGORITHM: score = (totalStaked / 1e18) + (loves * 0.1)
+  rankingScore: BigDecimal! # Calculated ranking score for orderBy queries
+  
+  # Relationships for derived queries
   stakes: [Stake!]! @derivedFrom(field: "product")
-  loveEvents: [LoveEvent!]! @derivedFrom(field: "product")
+  productLoves: [Love!]! @derivedFrom(field: "product")
 }
 
+# ✅ REQUIRED ENTITY #2: Stake (EXACT fields as specified)
 type Stake @entity {
-  id: ID!
-  product: Product!
-  user: Bytes!
-  amount: BigInt!
-  timestamp: BigInt!
-  transactionHash: Bytes!
+  id: ID! # Unique stake identifier (EXACT)
+  product: Product! # Reference to product (EXACT)
+  user: Bytes! # Address of the staker (EXACT)
+  amount: BigInt! # Amount staked in wei (EXACT)
+  
+  # Additional fields for analytics
+  timestamp: BigInt! # Block timestamp
+  blockNumber: BigInt! # Block number
+  transactionHash: Bytes! # Transaction hash
 }
 
-type LoveEvent @entity {
-  id: ID!
-  product: Product!
-  user: Bytes!
-  timestamp: BigInt!
-  transactionHash: Bytes!
+# ✅ REQUIRED ENTITY #3: Love (EXACT fields as specified)
+type Love @entity {
+  id: ID! # Unique love identifier (EXACT)
+  product: Product! # Reference to product (EXACT)
+  user: Bytes! # Address of the lover (EXACT)
+  
+  # Additional fields for analytics
+  timestamp: BigInt! # Block timestamp
+  blockNumber: BigInt! # Block number
+  transactionHash: Bytes! # Transaction hash
 }
 
-type User @entity {
-  id: ID!
+type Creator @entity {
+  id: ID! # Creator address
   address: Bytes!
+  totalProducts: Int! # Number of products created
+  totalStaked: BigInt! # Total staked across all products
+  totalLoves: Int! # Total loves across all products
+  
+  # Relationships
+  products: [Product!]! @derivedFrom(field: "creator")
+}
+
+type DailyStats @entity {
+  id: ID! # Date string (YYYY-MM-DD)
+  date: String!
+  totalProducts: Int!
   totalStaked: BigInt!
-  productsLoved: [LoveEvent!]! @derivedFrom(field: "user")
-  stakes: [Stake!]! @derivedFrom(field: "user")
+  totalLoves: Int!
+  newProducts: Int!
+  newStakes: Int!
+  newLoves: Int!
+}
+
+# Global statistics
+type GlobalStats @entity {
+  id: ID! # Always "global"
+  totalProducts: Int!
+  totalCreators: Int!
+  totalStaked: BigInt!
+  totalLoves: Int!
+  lastUpdatedBlock: BigInt!
 }

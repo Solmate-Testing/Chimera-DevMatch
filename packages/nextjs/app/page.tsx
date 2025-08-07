@@ -1,72 +1,124 @@
-"use client";
+import { ProductForm } from "../components/Productform";
+import { GaslessStaking } from "../components/GaslessStaking";
+import { RealtimeRankings } from "../components/RealtimeRankings";
+import { GaslessVerification } from "../components/GaslessVerification";
 
-import Link from "next/link";
-import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Address } from "~~/components/scaffold-eth";
-
-const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
+export default function Home() {
+  // Mock product for staking demo
+  const mockProduct = {
+    id: '1',
+    name: 'GPT-4 Trading Bot',
+    category: 'Copy Trading Bot',
+    totalStaked: '5000000000000000000', // 5 ETH
+    loves: 12,
+    creator: '0x1234567890123456789012345678901234567890',
+    price: '100000000000000000', // 0.1 ETH
+    description: 'Advanced AI trading bot with GPT-4 intelligence for crypto markets'
+  };
 
   return (
-    <>
-      <div className="flex items-center flex-col grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-8">
+        {/* ✅ HEADER */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+            🤖 Chimera DevMatch
           </h1>
-          <div className="flex justify-center items-center space-x-2 flex-col">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
+          <p className="text-xl text-gray-600 mb-6">
+            Decentralized AI Marketplace with Gasless Transactions
+          </p>
+          <div className="flex justify-center space-x-8 text-sm text-gray-500">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+              <span>🔐 Oasis ROFL-Sapphire Security</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+              <span>⚡ Gasless via Biconomy</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+              <span>📊 Real-time Analytics</span>
+            </div>
           </div>
-
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/app/page.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
-          </p>
         </div>
 
-        <div className="grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col md:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contracts
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
+        {/* ✅ MAIN CONTENT GRID */}
+        <div className="space-y-8">
+          {/* ✅ GASLESS PRODUCT FORM */}
+          <section>
+            <ProductForm />
+          </section>
+
+          {/* ✅ TWO COLUMN LAYOUT */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* ✅ LEFT COLUMN: STAKING */}
+            <section>
+              <h2 className="text-2xl font-bold mb-4">💰 Gasless Staking Demo</h2>
+              <GaslessStaking 
+                product={mockProduct}
+                userStake="0"
+                onStakeSuccess={(productId, amount) => {
+                  console.log(`Staked ${amount} ETH on product ${productId}`);
+                }}
+              />
+            </section>
+
+            {/* ✅ RIGHT COLUMN: VERIFICATION */}
+            <section>
+              <h2 className="text-2xl font-bold mb-4">🧪 Gasless Verification</h2>
+              <GaslessVerification />
+            </section>
+          </div>
+
+          {/* ✅ FULL WIDTH: REAL-TIME RANKINGS */}
+          <section>
+            <RealtimeRankings />
+          </section>
+
+          {/* ✅ FOOTER */}
+          <div className="mt-16 p-6 bg-white rounded-lg shadow text-center">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                🚀 Complete Gasless Experience
+              </h3>
+              
+              <div className="grid md:grid-cols-3 gap-4 text-sm">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <div className="font-medium text-blue-900 mb-2">📱 Web2 Onboarding</div>
+                  <div className="text-blue-700 space-y-1">
+                    <div>✅ Google OAuth login</div>
+                    <div>✅ Auto smart wallet creation</div>
+                    <div>✅ No crypto knowledge required</div>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <div className="font-medium text-green-900 mb-2">⚡ Gasless Transactions</div>
+                  <div className="text-green-700 space-y-1">
+                    <div>✅ No MetaMask popups</div>
+                    <div>✅ "Paid by DApp" in explorer</div>
+                    <div>✅ &lt; 15 second completion</div>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-purple-50 rounded-lg">
+                  <div className="font-medium text-purple-900 mb-2">🔒 Enterprise Security</div>
+                  <div className="text-purple-700 space-y-1">
+                    <div>✅ TEE-protected API keys</div>
+                    <div>✅ Client-side encryption</div>
+                    <div>✅ Zero key exposure</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t border-gray-200 text-gray-500 text-xs">
+                🔗 <strong>Powered by:</strong> Privy + Biconomy + Oasis ROFL-Sapphire + The Graph
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </main>
   );
-};
-
-export default Home;
+}

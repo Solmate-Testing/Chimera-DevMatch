@@ -1,0 +1,38 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Marketplace
+    network: localhost # Updated for chimera-devmatch
+    source:
+      address: "0x0000000000000000000000000000000000000000" # Will be updated after deployment
+      abi: Marketplace
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        # ✅ EXACT REQUIRED ENTITIES
+        - Product
+        - Stake  
+        - Love
+        # Additional analytics entities
+        - Creator
+        - DailyStats
+        - GlobalStats
+      abis:
+        - name: Marketplace
+          file: ./abis/Marketplace.json
+      eventHandlers:
+        # ✅ REAL-TIME EVENT HANDLERS FOR 30-SECOND UPDATES
+        - event: ProductListed(indexed uint256,indexed address,string,uint256,string)
+          handler: handleProductListed
+        - event: StakeAdded(indexed uint256,indexed address,uint256)
+          handler: handleStakeAdded
+        - event: ProductLoved(indexed uint256,indexed address)
+          handler: handleProductLoved
+        - event: ProductPurchased(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleProductPurchased
+      file: ./src/mapping.ts
