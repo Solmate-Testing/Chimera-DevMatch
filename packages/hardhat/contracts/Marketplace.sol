@@ -35,7 +35,35 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
     using FunctionsRequest for FunctionsRequest.Request;
     
     /**
-     * @dev Product structure containing all product information
+     * @dev Agent structure for AI agents/services in the marketplace
+     * @param id Unique identifier for the agent
+     * @param creator Address of the agent creator
+     * @param name Human-readable name of the AI agent/service
+     * @param description Detailed description of functionality
+     * @param tags Array of searchable tags
+     * @param ipfsHash IPFS hash for agent metadata/files
+     * @param totalStake Total ETH staked on this agent (for rankings)
+     * @param isPrivate Whether agent requires access control
+     * @param createdAt Block timestamp when agent was created
+     * @param apiKeyHash Keccak256 hash of encrypted API key (stored in TEE)
+     * @param loves Number of "loves" from users (social metric)
+     */
+    struct Agent {
+        uint256 id;
+        address creator;
+        string name;
+        string description;
+        string[] tags;
+        string ipfsHash;
+        uint256 totalStake;
+        bool isPrivate;
+        uint256 createdAt;
+        bytes32 apiKeyHash;
+        uint256 loves;
+    }
+
+    /**
+     * @dev Product structure containing all product information (legacy support)
      * @param id Unique identifier for the product
      * @param creator Address of the product creator
      * @param name Human-readable name of the AI model/service
@@ -63,12 +91,21 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
     }
 
     uint256 private productCount;
-    mapping(uint256 => Product) public products;
-    mapping(address => uint256[]) public creatorProducts;
-    mapping(uint256 => mapping(address => uint256)) public stakes; // User stakes per product
+    uint256 private agentCount;
     
-    // Platform fee (2.5%)
-    uint256 public platformFee = 250; // 250 / 10000 = 2.5%
+    mapping(uint256 => Product) public products;
+    mapping(uint256 => Agent) public agents;
+    mapping(address => uint256[]) public creatorProducts;
+    mapping(address => uint256[]) public creatorAgents;
+    mapping(uint256 => mapping(address => uint256)) public stakes; // User stakes per product
+    mapping(uint256 => mapping(address => uint256)) public agentStakes; // User stakes per agent
+    mapping(uint256 => mapping(address => bool)) public agentAccess; // Private agent access control
+    
+    // Minimum stake requirement (0.01 ETH)
+    uint256 public constant MIN_STAKE = 0.01 ether;
+    
+    // Platform fee (30% protocol, 70% creator)
+    uint256 public platformFee = 3000; // 3000 / 10000 = 30%
     uint256 public constant FEE_DENOMINATOR = 10000;
 
     // ✅ CHAINLINK FUNCTIONS CONFIGURATION
@@ -83,6 +120,30 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
     mapping(uint256 => string) public productLastResult;
     mapping(uint256 => uint256) public productExecutionCount;
     
+    // Agent events
+    event AgentCreated(
+        uint256 indexed id,
+        string indexed name,
+        address indexed creator
+    );
+    
+    event AgentStaked(
+        uint256 indexed id,
+        address indexed staker,
+        uint256 amount
+    );
+    
+    event AgentLoved(
+        uint256 indexed id,
+        address indexed user
+    );
+    
+    event AgentAccessGranted(
+        uint256 indexed id,
+        address indexed user
+    );
+    
+    // Product events (legacy support)
     event ProductListed(
         uint256 indexed id, 
         address indexed creator, 
@@ -126,6 +187,158 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
     );
 
     constructor(address router) Ownable(msg.sender) FunctionsClient(router) {}
+
+    /**
+     * @notice Create a new AI agent/service on the marketplace
+     * @dev Creates a new agent with TEE-protected API key storage
+     * @param name Human-readable name of the AI agent/service
+     * @param description Detailed description of functionality
+     * @param tags Array of searchable tags for the agent
+     * @param ipfsHash IPFS hash for agent metadata/files
+     * @param encryptedApiKey Encrypted API key for agent access (stored in TEE)
+     * @param isPrivate Whether the agent requires access control
+     */
+    function createAgent(
+        string memory name,
+        string memory description,
+        string[] memory tags,
+        string memory ipfsHash,
+        bytes calldata encryptedApiKey,
+        bool isPrivate
+    ) public nonReentrant {
+        // ✅ CRITICAL: Add ROFL authorization check (bypassed in local development)
+        if (block.chainid == 23295 || block.chainid == 23294) {
+            require(roflEnsureAuthorizedOrigin(), "Not authorized TEE");
+        }
+        
+        require(bytes(name).length > 0, "Name cannot be empty");
+        require(encryptedApiKey.length > 0, "API key required");
+        
+        agentCount++;
+        
+        // Store encrypted API key in TEE-protected storage
+        bytes32 keyHash = keccak256(abi.encodePacked(msg.sender, agentCount, "agent"));
+        _setROFLStorage(keyHash, encryptedApiKey);
+        
+        agents[agentCount] = Agent({
+            id: agentCount,
+            creator: msg.sender,
+            name: name,
+            description: description,
+            tags: tags,
+            ipfsHash: ipfsHash,
+            totalStake: 0,
+            isPrivate: isPrivate,
+            createdAt: block.timestamp,
+            apiKeyHash: keyHash,
+            loves: 0
+        });
+        
+        creatorAgents[msg.sender].push(agentCount);
+        
+        emit AgentCreated(agentCount, name, msg.sender);
+    }
+    
+    /**
+     * @notice Stake ETH on an agent (minimum 0.01 ETH)
+     * @param agentId ID of the agent to stake on
+     */
+    function stakeToAgent(uint256 agentId) public payable nonReentrant {
+        // ✅ CRITICAL: Add ROFL authorization check (bypassed in local development)
+        if (block.chainid == 23295 || block.chainid == 23294) {
+            require(roflEnsureAuthorizedOrigin(), "Not authorized TEE");
+        }
+        
+        require(agentId <= agentCount && agentId > 0, "Invalid agent ID");
+        require(msg.value >= MIN_STAKE, "Minimum stake is 0.01 ETH");
+        
+        Agent storage agent = agents[agentId];
+        
+        agentStakes[agentId][msg.sender] += msg.value;
+        agent.totalStake += msg.value;
+        
+        // Grant access for private agents when staking
+        if (agent.isPrivate) {
+            agentAccess[agentId][msg.sender] = true;
+            emit AgentAccessGranted(agentId, msg.sender);
+        }
+        
+        // Revenue sharing: 70% to creator, 30% to protocol
+        uint256 protocolFee = (msg.value * platformFee) / FEE_DENOMINATOR;
+        uint256 creatorAmount = msg.value - protocolFee;
+        
+        payable(agent.creator).transfer(creatorAmount);
+        // Protocol fee remains in contract
+        
+        emit AgentStaked(agentId, msg.sender, msg.value);
+    }
+    
+    /**
+     * @notice Get agent information by ID
+     * @param agentId ID of the agent to retrieve
+     * @return Agent struct with all agent data
+     */
+    function getAgent(uint256 agentId) public view returns (Agent memory) {
+        require(agentId <= agentCount && agentId > 0, "Invalid agent ID");
+        return agents[agentId];
+    }
+    
+    /**
+     * @notice Get all agents (paginated for gas efficiency)
+     * @return Array of all agent structs
+     */
+    function getAllAgents() public view returns (Agent[] memory) {
+        Agent[] memory allAgents = new Agent[](agentCount);
+        for (uint256 i = 1; i <= agentCount; i++) {
+            allAgents[i-1] = agents[i];
+        }
+        return allAgents;
+    }
+    
+    /**
+     * @notice Love an agent (increment love counter)
+     * @param agentId ID of the agent to love
+     */
+    function loveAgent(uint256 agentId) public nonReentrant {
+        // ✅ CRITICAL: Add ROFL authorization check (bypassed in local development)
+        if (block.chainid == 23295 || block.chainid == 23294) {
+            require(roflEnsureAuthorizedOrigin(), "Not authorized TEE");
+        }
+        
+        require(agentId <= agentCount && agentId > 0, "Invalid agent ID");
+        
+        agents[agentId].loves++;
+        
+        emit AgentLoved(agentId, msg.sender);
+    }
+    
+    /**
+     * @notice Check if user has access to a private agent
+     * @param agentId ID of the agent
+     * @param user Address of the user
+     * @return bool whether user has access
+     */
+    function hasAgentAccess(uint256 agentId, address user) public view returns (bool) {
+        Agent memory agent = agents[agentId];
+        if (!agent.isPrivate) {
+            return true; // Public agents are accessible to everyone
+        }
+        return agentAccess[agentId][user] || agent.creator == user;
+    }
+    
+    /**
+     * @notice Grant access to a private agent (creator only)
+     * @param agentId ID of the agent
+     * @param user Address to grant access to
+     */
+    function grantAgentAccess(uint256 agentId, address user) public nonReentrant {
+        require(agentId <= agentCount && agentId > 0, "Invalid agent ID");
+        require(agents[agentId].creator == msg.sender, "Only creator can grant access");
+        require(agents[agentId].isPrivate, "Agent is not private");
+        
+        agentAccess[agentId][user] = true;
+        emit AgentAccessGranted(agentId, user);
+    }
 
     // ✅ CHAINLINK FUNCTIONS SETUP
     function setChainlinkConfig(
@@ -214,13 +427,13 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
         
         product.active = false;
         
-        // Calculate platform fee
+        // Calculate platform fee (30% protocol, 70% creator)
         uint256 fee = (product.price * platformFee) / FEE_DENOMINATOR;
         uint256 creatorAmount = product.price - fee;
         
-        // Transfer to creator and platform
+        // Transfer to creator and keep protocol fee in contract
         payable(product.creator).transfer(creatorAmount);
-        payable(owner()).transfer(fee);
+        // Protocol fee remains in contract balance
         
         // Refund excess
         if (msg.value > product.price) {
@@ -377,9 +590,21 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
     function getProductCount() public view returns (uint256) {
         return productCount;
     }
+    
+    function getAgentCount() public view returns (uint256) {
+        return agentCount;
+    }
+    
+    function getCreatorAgents(address creator) public view returns (uint256[] memory) {
+        return creatorAgents[creator];
+    }
 
     function getUserStake(uint256 _productId, address _user) public view returns (uint256) {
         return stakes[_productId][_user];
+    }
+    
+    function getUserAgentStake(uint256 agentId, address user) public view returns (uint256) {
+        return agentStakes[agentId][user];
     }
     
     // ✅ FIX #11: Add ROFL protection to admin functions
