@@ -1,15 +1,13 @@
 // GASLESS TRANSACTION FLOW - PRIVY + GOOGLE OAUTH CONFIGURATION
 // Senior Web3 UX Engineer Implementation
 
-import { PrivyProvider } from '@privy-io/react-auth';
-import { SmartWalletsConfig } from '@privy-io/react-auth';
+import type { PrivyClientConfig } from '@privy-io/react-auth';
 
 // ✅ EXACT REQUIREMENT: Google login configuration
-export const PRIVY_CONFIG = {
-  appId: process.env.NEXT_PUBLIC_PRIVY_APP_ID!,
-  
-  // ✅ GOOGLE OAUTH REQUIREMENT
+export const PRIVY_CONFIG: Partial<PrivyClientConfig> = {
+  // ✅ GOOGLE OAUTH REQUIREMENT - Type-safe login methods
   loginMethods: ['google', 'email'],
+  
   appearance: {
     theme: 'light',
     accentColor: '#2563eb',
@@ -19,10 +17,11 @@ export const PRIVY_CONFIG = {
   },
   
   // ✅ SMART WALLET CONFIGURATION FOR GASLESS TRANSACTIONS
+  // This enables ERC-4337 smart wallets for gasless transactions
   smartWallet: {
     createOnLogin: 'users-without-wallets', // Auto-create for Google users
     noPromptOnSignature: true, // ✅ NO METAMASK POPUP
-  } as SmartWalletsConfig,
+  },
   
   // ✅ REQUIRED NETWORKS
   supportedChains: [

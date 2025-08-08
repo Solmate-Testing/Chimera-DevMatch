@@ -1,3 +1,5 @@
+"use client";
+
 // REAL-TIME RANKINGS COMPONENT - SENIOR WEB3 UX ENGINEER
 // Displays real-time product rankings updated within 30 seconds
 

@@ -1,3 +1,5 @@
+"use client";
+
 // GASLESS VERIFICATION COMPONENT - SENIOR WEB3 UX ENGINEER
 // Verifies: No MetaMask popup + Paymaster funding + <15 second transactions
 

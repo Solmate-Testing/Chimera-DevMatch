@@ -1,27 +1,55 @@
-# CHIMERA DEVMATCH SUBGRAPH SCHEMA - EXACT REQUIREMENTS
-# Senior Data Engineer Implementation
+"""
+CHIMERA DEVMATCH SUBGRAPH SCHEMA
+Decentralized AI Marketplace Analytics & Rankings
 
-# ✅ REQUIRED ENTITY #1: Product (EXACT fields as specified)
+Core Features:
+- Real-time product rankings via transparent algorithm
+- Gasless transaction tracking and analytics  
+- Chainlink Functions execution monitoring
+- TEE-protected model usage statistics
+- Creator performance metrics
+"""
+
+"""
+Product Entity - Core marketplace item
+
+Represents an AI model, MCP, or trading bot listed on the marketplace.
+Includes comprehensive analytics and ranking data.
+
+Ranking Algorithm: score = (totalStaked / 1e18) + (loves * 0.1)
+"""
 type Product @entity {
-  id: ID! # Product ID from contract (EXACT)
-  name: String! # Product name (EXACT)
-  totalStaked: BigInt! # Total ETH staked on this product (EXACT)
-  loves: Int! # Number of loves (EXACT)
-  category: String! # AI Agent, MCP, Copy Trading Bot (EXACT)
+  "Unique product identifier from smart contract"
+  id: ID!
+  "Human-readable name of the AI model/service"
+  name: String!
+  "Total ETH staked on this product (for rankings)"
+  totalStaked: BigInt!
+  "Number of user loves (social engagement metric)"
+  loves: Int!
+  "Product category: AI Agent, MCP, Copy Trading Bot"
+  category: String!
   
-  # Additional required fields for functionality
-  creator: Bytes! # Creator address
-  description: String # Product description
-  price: BigInt! # Price in wei
-  active: Boolean! # Product status
-  createdAt: BigInt! # Block timestamp
+  "Address of the product creator"
+  creator: Bytes!
+  "Detailed description of functionality"
+  description: String
+  "Price in wei for using this product"
+  price: BigInt!
+  "Whether the product is available for use"
+  active: Boolean!
+  "Block timestamp when product was listed"
+  createdAt: BigInt!
   
-  # ✅ RANKING ALGORITHM: score = (totalStaked / 1e18) + (loves * 0.1)
-  rankingScore: BigDecimal! # Calculated ranking score for orderBy queries
+  "Calculated ranking score using transparent algorithm"
+  rankingScore: BigDecimal!
   
-  # Relationships for derived queries
+  "All stakes made on this product"
   stakes: [Stake!]! @derivedFrom(field: "product")
+  "All loves received by this product"
   productLoves: [Love!]! @derivedFrom(field: "product")
+  "All model executions for this product"
+  executions: [ModelExecution!]! @derivedFrom(field: "product")
 }
 
 # ✅ REQUIRED ENTITY #2: Stake (EXACT fields as specified)
@@ -71,6 +99,50 @@ type DailyStats @entity {
   newLoves: Int!
 }
 
+# ✅ CHAINLINK FUNCTIONS MODEL EXECUTION TRACKING
+type ModelExecution @entity {
+  id: ID! # Request ID from Chainlink Functions
+  product: Product! # Reference to product
+  user: Bytes! # User who executed model
+  input: String! # Input/prompt provided
+  result: String # Result from AI model (null until fulfilled)
+  requestId: Bytes! # Chainlink request ID
+  fulfilled: Boolean! # Whether result has been received
+  
+  # Timestamps
+  requestedAt: BigInt! # Block timestamp of request
+  fulfilledAt: BigInt # Block timestamp of fulfillment
+  
+  # Transaction details
+  requestTxHash: Bytes! # Transaction hash of request
+  fulfillTxHash: Bytes # Transaction hash of fulfillment
+  
+  # Execution metadata
+  gasUsed: BigInt # Gas used for execution
+  executionTime: BigInt # Time taken (fulfilledAt - requestedAt)
+}
+
+# ✅ ENHANCED PRODUCT ANALYTICS
+type ProductAnalytics @entity {
+  id: ID! # Product ID
+  product: Product!
+  
+  # Execution statistics
+  totalExecutions: Int! # Total model executions
+  totalExecutionGas: BigInt! # Total gas used for executions
+  averageExecutionTime: BigInt! # Average execution time
+  lastExecutionAt: BigInt # Last execution timestamp
+  
+  # Performance metrics
+  successRate: BigDecimal! # Successful executions / total executions
+  averageResultLength: Int! # Average length of results
+  uniqueUsers: Int! # Number of unique users
+  
+  # Rankings enhanced with execution data
+  executionBoost: BigDecimal! # Bonus score from executions
+  enhancedRankingScore: BigDecimal! # Original score + execution boost
+}
+
 # Global statistics
 type GlobalStats @entity {
   id: ID! # Always "global"
@@ -78,5 +150,7 @@ type GlobalStats @entity {
   totalCreators: Int!
   totalStaked: BigInt!
   totalLoves: Int!
+  totalExecutions: Int! # Total Chainlink Functions executions
+  totalExecutionGas: BigInt! # Total gas used for executions
   lastUpdatedBlock: BigInt!
 }

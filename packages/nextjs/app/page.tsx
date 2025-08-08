@@ -1,7 +1,11 @@
+"use client";
+
 import { ProductForm } from "../components/Productform";
 import { GaslessStaking } from "../components/GaslessStaking";
 import { RealtimeRankings } from "../components/RealtimeRankings";
 import { GaslessVerification } from "../components/GaslessVerification";
+import { VerificationTest } from "../components/VerificationTest";
+import { ModelExecution } from "../components/ModelExecution";
 
 export default function Home() {
   // Mock product for staking demo
@@ -43,6 +47,11 @@ export default function Home() {
           </div>
         </div>
 
+        {/* ✅ VERIFICATION TEST */}
+        <div className="mb-8">
+          <VerificationTest />
+        </div>
+
         {/* ✅ MAIN CONTENT GRID */}
         <div className="space-y-8">
           {/* ✅ GASLESS PRODUCT FORM */}
@@ -70,6 +79,15 @@ export default function Home() {
               <GaslessVerification />
             </section>
           </div>
+
+          {/* ✅ AI MODEL EXECUTION */}
+          <section>
+            <h2 className="text-2xl font-bold mb-4">🤖 Chainlink Functions AI Execution</h2>
+            <ModelExecution 
+              product={mockProduct}
+              userStake="1000000000000000000" // 1 ETH staked
+            />
+          </section>
 
           {/* ✅ FULL WIDTH: REAL-TIME RANKINGS */}
           <section>

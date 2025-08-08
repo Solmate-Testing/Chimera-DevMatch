@@ -5,11 +5,11 @@
   "scripts": {
     "build": "next build",
     "check-types": "tsc --noEmit --incremental",
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "format": "prettier --write . '!(node_modules|.next|coverage)/**/*'",
     "lint": "next lint",
-    "serve": "next start",
-    "start": "next dev",
+    "serve": "next start -p 3000",
+    "start": "next start",
     "vercel": "vercel",
     "vercel:yolo": "vercel --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true"
   },

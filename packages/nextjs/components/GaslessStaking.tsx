@@ -1,31 +1,79 @@
-// GASLESS STAKING COMPONENT - SENIOR WEB3 UX ENGINEER
-// Implements: Stake to use model (gasless) → < 15 seconds
+"use client";
+
+/**
+ * GaslessStaking Component
+ * 
+ * Implements gasless staking functionality with speed verification (< 15 seconds).
+ * Users can stake ETH to unlock AI model usage without paying gas fees.
+ * 
+ * Features:
+ * - Gasless ETH staking via ERC-4337 + Biconomy Paymaster
+ * - Real-time speed measurement and verification
+ * - Automatic model access unlocking after successful stake
+ * - MetaMask popup prevention verification
+ * 
+ * @component
+ * @example
+ * ```tsx
+ * <GaslessStaking 
+ *   product={product}
+ *   userStake="1000000000000000000" // 1 ETH in wei
+ *   onStakeSuccess={(productId, amount) => console.log('Staked:', amount)}
+ * />
+ * ```
+ * 
+ * @author Senior Web3 UX Engineer
+ */
 
 import React, { useState, useEffect } from 'react';
+import type { FC } from 'react';
 import { usePrivyWagmiConnector } from '../hooks/usePrivyWagmiConnector';
 import { encodeFunctionData } from 'viem';
 import { marketplaceABI } from '../contracts/generated';
 
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS as `0x${string}` || '0x1234567890123456789012345678901234567890';
 
+/**
+ * Product interface representing an AI model/service in the marketplace
+ */
 interface Product {
+  /** Unique product identifier from smart contract */
   id: string;
+  /** Human-readable name of the AI model/service */
   name: string;
+  /** Product category: AI Agent, MCP, Copy Trading Bot */
   category: string;
+  /** Total ETH staked on this product in wei */
   totalStaked: string;
+  /** Number of user loves (social engagement metric) */
   loves: number;
+  /** Address of the product creator */
   creator: string;
+  /** Price in wei for using this product */
   price: string;
+  /** Detailed description of functionality */
   description: string;
 }
 
+/**
+ * Props for the GaslessStaking component
+ */
 interface GaslessStakingProps {
+  /** Product information for staking */
   product: Product;
+  /** Current user's stake amount in wei (optional) */
   userStake?: string;
+  /** Callback fired when staking is successful */
   onStakeSuccess?: (productId: string, amount: string) => void;
 }
 
-export const GaslessStaking: React.FC<GaslessStakingProps> = ({
+/**
+ * GaslessStaking component for staking ETH on AI products without gas fees
+ * 
+ * @param props - The component props
+ * @returns JSX element for gasless staking interface
+ */
+export const GaslessStaking: FC<GaslessStakingProps> = ({
   product,
   userStake = '0',
   onStakeSuccess

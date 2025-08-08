@@ -226,9 +226,9 @@ const config: HardhatUserConfig = {
 
 // ✅ FIX #6: Add custom task for Sapphire deployment
 task("deploy-sapphire", "Deploy contracts to Oasis Sapphire network")
-  .addOptionalParam("network", "Network to deploy to", "sapphireTestnet")
+  .addOptionalParam("targetNetwork", "Network to deploy to", "sapphireTestnet")
   .setAction(async (taskArgs, hre) => {
-    console.log(`🔐 Deploying to Oasis Sapphire ${taskArgs.network}...`);
+    console.log(`🔐 Deploying to Oasis Sapphire ${taskArgs.targetNetwork}...`);
     
     // Ensure we're connected to Sapphire network
     if (!hre.network.name.includes("sapphire")) {
@@ -241,7 +241,7 @@ task("deploy-sapphire", "Deploy contracts to Oasis Sapphire network")
     console.log(`⛓️  Chain ID: ${hre.network.config.chainId}`);
     
     // Run deployment
-    await hre.run("deploy", { network: taskArgs.network });
+    await hre.run("deploy", { targetNetwork: taskArgs.targetNetwork });
     
     console.log("🎉 Sapphire deployment completed!");
   });
@@ -249,15 +249,15 @@ task("deploy-sapphire", "Deploy contracts to Oasis Sapphire network")
 // ✅ FIX #7: Add verification task for Sapphire contracts
 task("verify-sapphire", "Verify contracts on Oasis Sapphire explorer")
   .addParam("contract", "Contract address to verify")
-  .addOptionalParam("network", "Network to verify on", "sapphireTestnet")
+  .addOptionalParam("targetNetwork", "Network to verify on", "sapphireTestnet")
   .setAction(async (taskArgs, hre) => {
-    console.log(`🔍 Verifying contract on Oasis Sapphire ${taskArgs.network}...`);
+    console.log(`🔍 Verifying contract on Oasis Sapphire ${taskArgs.targetNetwork}...`);
     console.log(`📄 Contract: ${taskArgs.contract}`);
     
     try {
       await hre.run("verify:verify", {
         address: taskArgs.contract,
-        network: taskArgs.network,
+        targetNetwork: taskArgs.targetNetwork,
       });
       console.log("✅ Contract verification completed!");
     } catch (error) {
