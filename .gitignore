@@ -1,7 +1,9 @@
-# dependencies
-node_modules
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
 
-# yarn
+# Yarn
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
@@ -9,23 +11,48 @@ node_modules
 !.yarn/sdks
 !.yarn/versions
 
-# eslint
+# Next.js build artifacts
+packages/nextjs/.next/
+packages/nextjs/out/
+packages/nextjs/.tsbuildinfo
+
+# Hardhat build artifacts
+packages/hardhat/artifacts/
+packages/hardhat/cache/
+packages/hardhat/coverage/
+packages/hardhat/typechain/
+
+# Subgraph generated files
+packages/subgraph/generated/
+packages/subgraph/build/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# ESLint
 .eslintcache
 
-# misc
+# Temporary files
+*.log
+*.cache
+*.hot-update.js
+*.hot-update.json
+
+# System files
 .DS_Store
+Thumbs.db
 
-# IDE
-.vscode
-.idea
+# IDE files
+.vscode/
+.idea/
 
-# cli
-dist
+# Build output
+dist/
 
-#.env
-.env.local
-.env
-
+# Documentation and miscellaneous
 TerminalOutput.md
 hackathon_setup_guide.md
 claude_requirements.md
