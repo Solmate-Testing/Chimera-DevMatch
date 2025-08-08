@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "target": "es2017",
     "lib": [
       "dom",
       "dom.iterable",
@@ -21,19 +22,33 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"],
+      "~~/*": ["../*"],
+      "contracts/*": ["../hardhat/deployments/*"],
+      "generated/*": ["./contracts/generated/*"]
+    },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "types": ["node", "react", "react-dom"]
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "../hardhat/contracts/**/*.sol",
+    "../hardhat/typechain/**/*",
+    "./contracts/generated/**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "../hardhat/node_modules",
+    "../subgraph/node_modules"
   ]
 }

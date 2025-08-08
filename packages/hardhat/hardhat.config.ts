@@ -15,10 +15,10 @@ import { task } from "hardhat/config";
 import generateTsAbis from "./scripts/generateTsAbis";
 
 // Environment variables with fallbacks
-const providerApiKey = process.env.ALCHEMY_API_KEY || "c4KPW4fk4Y-7-photiXCd";
+const providerApiKey = process.env.ALCHEMY_API_KEY || "alchemy_api_key";
 const deployerPrivateKey =
-  process.env.DEPLOYER_PRIVATE_KEY ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-const etherscanApiKey = process.env.ETHERSCAN_API_KEY || "TJBIF7ZXX1I344UEQP7W3Z2WVTA4D8WCX3";
+  process.env.DEPLOYER_PRIVATE_KEY ?? "deployer_key";
+const etherscanApiKey = process.env.ETHERSCAN_API_KEY || "etherscan_api_key";
 
 const config: HardhatUserConfig = {
   solidity: {

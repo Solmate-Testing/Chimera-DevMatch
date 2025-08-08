@@ -36,7 +36,14 @@
     "usehooks-ts": "~2.13.0",
     "viem": "2.9.20",
     "wagmi": "2.5.20",
-    "zustand": "~4.4.1"
+    "zustand": "~4.4.1",
+    "web3.storage": "^4.5.5",
+    "@biconomy/account": "^4.4.0",
+    "@biconomy/bundler": "^4.4.0",
+    "@biconomy/common": "^4.4.0",
+    "@biconomy/core-types": "^4.4.0",
+    "@biconomy/paymaster": "^4.4.0",
+    "ethers": "^6.13.1"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
