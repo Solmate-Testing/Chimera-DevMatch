@@ -66,10 +66,25 @@ interface ProvidersProps {
  * @returns JSX element wrapping children with necessary providers
  */
 export const Providers: FC<ProvidersProps> = ({ children }) => {
+  const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
+  
+  if (!privyAppId) {
+    console.error('NEXT_PUBLIC_PRIVY_APP_ID is not set in environment variables');
+    return (
+      <div className="min-h-screen bg-red-900 flex items-center justify-center">
+        <div className="text-center text-white">
+          <h1 className="text-2xl font-bold mb-4">Configuration Error</h1>
+          <p>NEXT_PUBLIC_PRIVY_APP_ID environment variable is missing</p>
+          <p className="text-sm mt-2">Please check your .env.local file</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <PrivyProvider
-        appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'clpf7kkql02yz10ofvvu26b1t'}
+        appId={privyAppId}
         config={PRIVY_CONFIG}
       >
         {children}
