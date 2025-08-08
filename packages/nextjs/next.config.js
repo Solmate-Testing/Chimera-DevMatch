@@ -1,3 +1,18 @@
+const path = require('path');
+const fs = require('fs');
+
+// Load environment variables from root .env.local manually
+const envPath = path.resolve(__dirname, '../../.env.local');
+if (fs.existsSync(envPath)) {
+  const envFile = fs.readFileSync(envPath, 'utf8');
+  envFile.split('\n').forEach(line => {
+    const [key, value] = line.split('=');
+    if (key && value && key.startsWith('NEXT_PUBLIC_')) {
+      process.env[key.trim()] = value.trim();
+    }
+  });
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
