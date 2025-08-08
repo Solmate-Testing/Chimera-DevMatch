@@ -68,6 +68,10 @@ interface ProvidersProps {
 export const Providers: FC<ProvidersProps> = ({ children }) => {
   const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
   
+  // Debug logging
+  console.log('🔐 Privy App ID loaded:', privyAppId ? 'Found' : 'Missing');
+  console.log('🔐 Using App ID:', privyAppId ? `${privyAppId.slice(0, 8)}...` : 'None');
+  
   if (!privyAppId) {
     console.error('NEXT_PUBLIC_PRIVY_APP_ID is not set in environment variables');
     return (
