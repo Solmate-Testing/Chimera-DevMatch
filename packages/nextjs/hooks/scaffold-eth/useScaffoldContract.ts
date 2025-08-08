@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Abi, Address } from "viem";
 import { usePublicClient } from "wagmi";
-import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
+import { Contract, ContractName } from "~/utils/scaffold-eth/contract";
 import { useDeployedContractInfo } from "./useDeployedContractInfo";
 
 /**

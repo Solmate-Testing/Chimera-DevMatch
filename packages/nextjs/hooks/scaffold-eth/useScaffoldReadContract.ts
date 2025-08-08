@@ -1,6 +1,6 @@
 import { useReadContract } from "wagmi";
 import { useDeployedContractInfo } from "./useDeployedContractInfo";
-import { AbiFunctionReturnType, ContractAbi, ContractName, UseScaffoldReadConfig } from "~~/utils/scaffold-eth/contract";
+import { AbiFunctionReturnType, ContractAbi, ContractName, UseScaffoldReadConfig } from "~/utils/scaffold-eth/contract";
 
 /**
  * Wrapper around wagmi's useReadContract hook which automatically loads (by name) the contract ABI and address from

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { usePublicClient } from "wagmi";
 import { useDeployedContractInfo } from "./useDeployedContractInfo";
-import { ContractAbi, ContractName } from "~~/utils/scaffold-eth/contract";
+import { ContractAbi, ContractName } from "~/utils/scaffold-eth/contract";
 
 /**
  * Fetch event history for a deployed contract

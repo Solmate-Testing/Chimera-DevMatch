@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useWriteContract } from "wagmi";
 import { useDeployedContractInfo } from "./useDeployedContractInfo";
 import { useTransactor } from "./useTransactor";
-import { ContractAbi, ContractName, UseScaffoldWriteConfig } from "~~/utils/scaffold-eth/contract";
-import { notification } from "~~/utils/scaffold-eth";
+import { ContractAbi, ContractName, UseScaffoldWriteConfig } from "~/utils/scaffold-eth/contract";
+import { notification } from "~/utils/scaffold-eth";
 
 /**
  * Wrapper around wagmi's useWriteContract hook which automatically loads (by name) the contract ABI and address from

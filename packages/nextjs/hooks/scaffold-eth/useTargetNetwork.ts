@@ -1,6 +1,6 @@
 import { useAccount, useChainId } from "wagmi";
-import scaffoldConfig from "~~/scaffold.config";
-import { ChainWithAttributes } from "~~/utils/scaffold-eth";
+import scaffoldConfig from "~/scaffold.config";
+import { ChainWithAttributes } from "~/utils/scaffold-eth";
 
 /**
  * Retrieves the connected wallet's network from wagmi and falls back to the default network from scaffold.config.ts.

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { usePublicClient } from "wagmi";
 import { useDeployedContractInfo } from "./useDeployedContractInfo";
-import { ContractAbi, ContractName } from "~~/utils/scaffold-eth/contract";
+import { ContractAbi, ContractName } from "~/utils/scaffold-eth/contract";
 
 /**
  * Subscribe to events from a deployed contract

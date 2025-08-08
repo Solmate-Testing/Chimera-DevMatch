@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTargetNetwork } from "./useTargetNetwork";
-import { Contract, ContractName, contracts } from "~~/utils/scaffold-eth/contract";
+import { Contract, ContractName, contracts } from "~/utils/scaffold-eth/contract";
 
 /**
  * Gets the deployed contract info for a given contract name from the contracts file

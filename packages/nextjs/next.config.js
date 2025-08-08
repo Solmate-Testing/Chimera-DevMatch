@@ -29,9 +29,9 @@ const nextConfig = {
     return config;
   },
   
-  // Experimental features for App Router
+  // Experimental features (appDir is now default in Next.js 13+)
   experimental: {
-    appDir: true,
+    // No longer needed - App Router is default
   },
   
   // Environment variables

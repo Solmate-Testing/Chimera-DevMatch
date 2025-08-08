@@ -1,6 +1,6 @@
 import { useWatchContractEvent } from "wagmi";
 import { useDeployedContractInfo } from "./useDeployedContractInfo";
-import { ContractAbi, ContractName } from "~~/utils/scaffold-eth/contract";
+import { ContractAbi, ContractName } from "~/utils/scaffold-eth/contract";
 
 /**
  * Watch for contract events using wagmi's useWatchContractEvent
