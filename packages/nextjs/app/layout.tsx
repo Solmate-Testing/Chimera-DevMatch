@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "../components/Providers";
 import { Layout } from "../components/Layout";
@@ -11,7 +11,14 @@ export const metadata: Metadata = {
   description: "Decentralized AI marketplace for agents, MCPs, and trading bots with gasless transactions",
   keywords: "AI, Web3, Blockchain, Gasless, Oasis, Ethereum, Privy, Biconomy, Marketplace",
   authors: [{ name: "Chimera DevMatch Team" }],
-  viewport: "width=device-width, initial-scale=1",
+  icons: {
+    icon: '/favicon.ico',
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
