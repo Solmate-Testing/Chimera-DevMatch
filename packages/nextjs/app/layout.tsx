@@ -2,12 +2,16 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "../components/Providers";
+import { Layout } from "../components/Layout";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Chimera DevMatch - AI Marketplace",
-  description: "Decentralized AI marketplace for agents, MCPs, and trading bots",
+  description: "Decentralized AI marketplace for agents, MCPs, and trading bots with gasless transactions",
+  keywords: "AI, Web3, Blockchain, Gasless, Oasis, Ethereum, Privy, Biconomy, Marketplace",
+  authors: [{ name: "Chimera DevMatch Team" }],
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
@@ -16,13 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className={inter.className}>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-          <Providers>
+        <Providers>
+          <Layout>
             {children}
-          </Providers>
-        </div>
+          </Layout>
+        </Providers>
       </body>
     </html>
   );

@@ -36,8 +36,6 @@ interface ProductFormProps {
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS as `0x${string}` || '0x1234567890123456789012345678901234567890';
 // import { encrypt } from "@oasisprotocol/sapphire-paratime";
 
-const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS as `0x${string}` || '0x1234567890123456789012345678901234567890';
-
 /**
  * ProductForm - Gasless product listing component
  * 
@@ -410,4 +408,4 @@ export function ProductForm({ onProductListed }: ProductFormProps): JSX.Element 
       </form>
     </div>
   );
-};
+}

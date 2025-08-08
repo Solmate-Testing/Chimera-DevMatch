@@ -2,7 +2,7 @@
 node_modules/
 npm-debug.log
 yarn-error.log
-
+TESTNET_DEPLOYMENT.md
 # Yarn
 .yarn/*
 !.yarn/patches
@@ -58,3 +58,5 @@ hackathon_setup_guide.md
 claude_requirements.md
 CLAUDE.md
 COMMIT.md
+TESTNET_DEPLOYMENT.md
+AGENT-DEMO-GUIDE.md

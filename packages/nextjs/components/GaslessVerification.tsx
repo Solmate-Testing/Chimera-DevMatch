@@ -82,7 +82,7 @@ export const GaslessVerification: React.FC = () => {
       console.log('🧪 TEST 1: Checking MetaMask popup behavior...');
       
       // Start monitoring for MetaMask popup
-      let popupDetected = false;
+      const popupDetected = false;
       const startTime = Date.now();
       
       // Mock detection - in production, this would check for actual MetaMask UI

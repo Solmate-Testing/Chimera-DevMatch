@@ -1,156 +1,258 @@
-"""
-CHIMERA DEVMATCH SUBGRAPH SCHEMA
-Decentralized AI Marketplace Analytics & Rankings
-
-Core Features:
-- Real-time product rankings via transparent algorithm
-- Gasless transaction tracking and analytics  
-- Chainlink Functions execution monitoring
-- TEE-protected model usage statistics
-- Creator performance metrics
-"""
+# The Graph Schema for Chimera DevMatch Marketplace
+# Indexes events from Marketplace.sol for The Graph track prize
 
 """
-Product Entity - Core marketplace item
+AI Agent entity representing agents created on the marketplace
+"""
+type Agent @entity {
+  "Agent ID from contract"
+  id: ID!
+  "Agent name"
+  name: String!
+  "Agent description"
+  description: String!
+  "Agent tags for categorization"
+  tags: [String!]!
+  "IPFS hash for agent files"
+  ipfsHash: String!
+  "Agent creator address"
+  creator: Bytes!
+  "Whether agent is private"
+  isPrivate: Boolean!
+  "Total ETH staked on this agent"
+  totalStaked: BigInt!
+  "Number of loves received"
+  loves: BigInt!
+  "Creation timestamp"
+  createdAt: BigInt!
+  "Last updated timestamp"
+  updatedAt: BigInt!
+  "Calculated ranking score: (totalStaked / 1e18) + (loves * 0.1)"
+  rankingScore: BigDecimal!
+  "Creator entity reference"
+  creatorEntity: Creator!
+  "Stakes on this agent"
+  stakes: [Stake!]! @derivedFrom(field: "agent")
+  "Loves on this agent"
+  agentLoves: [AgentLove!]! @derivedFrom(field: "agent")
+  "Access grants for private agents"
+  accessGrants: [AgentAccess!]! @derivedFrom(field: "agent")
+  "Daily stats for this agent"
+  dailyStats: [DailyAgentStats!]! @derivedFrom(field: "agent")
+}
 
-Represents an AI model, MCP, or trading bot listed on the marketplace.
-Includes comprehensive analytics and ranking data.
+"""
+Individual stake transaction
+"""
+type Stake @entity {
+  "Unique ID: agentId-staker-blockNumber"
+  id: ID!
+  "Agent being staked on"
+  agent: Agent!
+  "Address of staker"
+  staker: Bytes!
+  "Amount staked in wei"
+  amount: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
+  "Block number"
+  blockNumber: BigInt!
+  "Transaction hash"
+  transactionHash: Bytes!
+}
 
-Ranking Algorithm: score = (totalStaked / 1e18) + (loves * 0.1)
+"""
+Agent love/like action
+"""
+type AgentLove @entity {
+  "Unique ID: agentId-user-blockNumber"
+  id: ID!
+  "Agent being loved"
+  agent: Agent!
+  "User who loved the agent"
+  user: Bytes!
+  "Block timestamp"
+  timestamp: BigInt!
+  "Block number"
+  blockNumber: BigInt!
+  "Transaction hash"
+  transactionHash: Bytes!
+}
+
+"""
+Access grant for private agents
+"""
+type AgentAccess @entity {
+  "Unique ID: agentId-user"
+  id: ID!
+  "Agent with granted access"
+  agent: Agent!
+  "User granted access"
+  user: Bytes!
+  "Grant timestamp"
+  timestamp: BigInt!
+  "Block number"
+  blockNumber: BigInt!
+  "Transaction hash"
+  transactionHash: Bytes!
+}
+
+"""
+Creator aggregated statistics
+"""
+type Creator @entity {
+  "Creator address"
+  id: ID!
+  "Total agents created"
+  totalAgents: BigInt!
+  "Total ETH earned (70% of stakes)"
+  totalEarned: BigInt!
+  "Total stakes received across all agents"
+  totalStakes: BigInt!
+  "Total loves received across all agents"
+  totalLoves: BigInt!
+  "First agent creation timestamp"
+  firstAgentAt: BigInt!
+  "Last activity timestamp"
+  lastActivityAt: BigInt!
+  "Creator's agents"
+  agents: [Agent!]! @derivedFrom(field: "creatorEntity")
+}
+
+"""
+Daily aggregated statistics for the entire marketplace
+"""
+type DailyStats @entity {
+  "Date in YYYY-MM-DD format"
+  id: ID!
+  "Date as timestamp (start of day)"
+  date: BigInt!
+  "New agents created this day"
+  newAgents: BigInt!
+  "Total stakes made this day"
+  totalStakes: BigInt!
+  "Total ETH staked this day"
+  totalStakedAmount: BigInt!
+  "Total loves given this day"
+  totalLoves: BigInt!
+  "Unique stakers this day"
+  uniqueStakers: BigInt!
+  "Unique creators active this day"
+  uniqueCreators: BigInt!
+  "Average stake amount this day"
+  avgStakeAmount: BigDecimal!
+}
+
+"""
+Daily statistics for individual agents
+"""
+type DailyAgentStats @entity {
+  "agentId-YYYY-MM-DD"
+  id: ID!
+  "Agent reference"
+  agent: Agent!
+  "Date as timestamp (start of day)"
+  date: BigInt!
+  "Stakes received this day"
+  stakesCount: BigInt!
+  "ETH staked this day"
+  stakedAmount: BigInt!
+  "Loves received this day"
+  lovesCount: BigInt!
+  "Unique stakers this day"
+  uniqueStakers: BigInt!
+}
+
+"""
+Global marketplace statistics
+"""
+type MarketplaceStats @entity {
+  "Singleton ID: 'marketplace'"
+  id: ID!
+  "Total agents ever created"
+  totalAgents: BigInt!
+  "Total stakes ever made"
+  totalStakes: BigInt!
+  "Total ETH ever staked"
+  totalStakedAmount: BigInt!
+  "Total loves ever given"
+  totalLoves: BigInt!
+  "Total unique creators"
+  totalCreators: BigInt!
+  "Total unique stakers"
+  totalStakers: BigInt!
+  "Last updated block"
+  lastUpdatedBlock: BigInt!
+  "Last updated timestamp"
+  lastUpdatedTimestamp: BigInt!
+}
+
+"""
+Product entity (legacy support for existing ProductListed events)
 """
 type Product @entity {
-  "Unique product identifier from smart contract"
+  "Product ID from contract"
   id: ID!
-  "Human-readable name of the AI model/service"
+  "Product name"
   name: String!
-  "Total ETH staked on this product (for rankings)"
-  totalStaked: BigInt!
-  "Number of user loves (social engagement metric)"
-  loves: Int!
-  "Product category: AI Agent, MCP, Copy Trading Bot"
-  category: String!
-  
-  "Address of the product creator"
-  creator: Bytes!
-  "Detailed description of functionality"
-  description: String
-  "Price in wei for using this product"
+  "Product description"
+  description: String!
+  "Product price in wei"
   price: BigInt!
-  "Whether the product is available for use"
+  "Product category"
+  category: String!
+  "Product creator"
+  creator: Bytes!
+  "Total staked on product"
+  totalStaked: BigInt!
+  "Number of loves"
+  loves: BigInt!
+  "Whether product is active"
   active: Boolean!
-  "Block timestamp when product was listed"
+  "Creation timestamp"
   createdAt: BigInt!
-  
-  "Calculated ranking score using transparent algorithm"
-  rankingScore: BigDecimal!
-  
-  "All stakes made on this product"
-  stakes: [Stake!]! @derivedFrom(field: "product")
-  "All loves received by this product"
-  productLoves: [Love!]! @derivedFrom(field: "product")
-  "All model executions for this product"
-  executions: [ModelExecution!]! @derivedFrom(field: "product")
+  "Product purchases"
+  purchases: [ProductPurchase!]! @derivedFrom(field: "product")
+  "Stakes on this product"
+  productStakes: [ProductStake!]! @derivedFrom(field: "product")
 }
 
-# ✅ REQUIRED ENTITY #2: Stake (EXACT fields as specified)
-type Stake @entity {
-  id: ID! # Unique stake identifier (EXACT)
-  product: Product! # Reference to product (EXACT)
-  user: Bytes! # Address of the staker (EXACT)
-  amount: BigInt! # Amount staked in wei (EXACT)
-  
-  # Additional fields for analytics
-  timestamp: BigInt! # Block timestamp
-  blockNumber: BigInt! # Block number
-  transactionHash: Bytes! # Transaction hash
-}
-
-# ✅ REQUIRED ENTITY #3: Love (EXACT fields as specified)
-type Love @entity {
-  id: ID! # Unique love identifier (EXACT)
-  product: Product! # Reference to product (EXACT)
-  user: Bytes! # Address of the lover (EXACT)
-  
-  # Additional fields for analytics
-  timestamp: BigInt! # Block timestamp
-  blockNumber: BigInt! # Block number
-  transactionHash: Bytes! # Transaction hash
-}
-
-type Creator @entity {
-  id: ID! # Creator address
-  address: Bytes!
-  totalProducts: Int! # Number of products created
-  totalStaked: BigInt! # Total staked across all products
-  totalLoves: Int! # Total loves across all products
-  
-  # Relationships
-  products: [Product!]! @derivedFrom(field: "creator")
-}
-
-type DailyStats @entity {
-  id: ID! # Date string (YYYY-MM-DD)
-  date: String!
-  totalProducts: Int!
-  totalStaked: BigInt!
-  totalLoves: Int!
-  newProducts: Int!
-  newStakes: Int!
-  newLoves: Int!
-}
-
-# ✅ CHAINLINK FUNCTIONS MODEL EXECUTION TRACKING
-type ModelExecution @entity {
-  id: ID! # Request ID from Chainlink Functions
-  product: Product! # Reference to product
-  user: Bytes! # User who executed model
-  input: String! # Input/prompt provided
-  result: String # Result from AI model (null until fulfilled)
-  requestId: Bytes! # Chainlink request ID
-  fulfilled: Boolean! # Whether result has been received
-  
-  # Timestamps
-  requestedAt: BigInt! # Block timestamp of request
-  fulfilledAt: BigInt # Block timestamp of fulfillment
-  
-  # Transaction details
-  requestTxHash: Bytes! # Transaction hash of request
-  fulfillTxHash: Bytes # Transaction hash of fulfillment
-  
-  # Execution metadata
-  gasUsed: BigInt # Gas used for execution
-  executionTime: BigInt # Time taken (fulfilledAt - requestedAt)
-}
-
-# ✅ ENHANCED PRODUCT ANALYTICS
-type ProductAnalytics @entity {
-  id: ID! # Product ID
+"""
+Product purchase transaction
+"""
+type ProductPurchase @entity {
+  "Unique ID: productId-buyer-blockNumber"
+  id: ID!
+  "Product purchased"
   product: Product!
-  
-  # Execution statistics
-  totalExecutions: Int! # Total model executions
-  totalExecutionGas: BigInt! # Total gas used for executions
-  averageExecutionTime: BigInt! # Average execution time
-  lastExecutionAt: BigInt # Last execution timestamp
-  
-  # Performance metrics
-  successRate: BigDecimal! # Successful executions / total executions
-  averageResultLength: Int! # Average length of results
-  uniqueUsers: Int! # Number of unique users
-  
-  # Rankings enhanced with execution data
-  executionBoost: BigDecimal! # Bonus score from executions
-  enhancedRankingScore: BigDecimal! # Original score + execution boost
+  "Buyer address"
+  buyer: Bytes!
+  "Purchase price"
+  price: BigInt!
+  "Purchase timestamp"
+  timestamp: BigInt!
+  "Block number"
+  blockNumber: BigInt!
+  "Transaction hash"
+  transactionHash: Bytes!
 }
 
-# Global statistics
-type GlobalStats @entity {
-  id: ID! # Always "global"
-  totalProducts: Int!
-  totalCreators: Int!
-  totalStaked: BigInt!
-  totalLoves: Int!
-  totalExecutions: Int! # Total Chainlink Functions executions
-  totalExecutionGas: BigInt! # Total gas used for executions
-  lastUpdatedBlock: BigInt!
+"""
+Product stake transaction
+"""
+type ProductStake @entity {
+  "Unique ID: productId-staker-blockNumber"
+  id: ID!
+  "Product being staked on"
+  product: Product!
+  "Address of staker"
+  staker: Bytes!
+  "Amount staked in wei"
+  amount: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
+  "Block number"
+  blockNumber: BigInt!
+  "Transaction hash"
+  transactionHash: Bytes!
 }

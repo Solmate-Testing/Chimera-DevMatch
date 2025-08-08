@@ -40,10 +40,7 @@ function createNotification({ content, status, duration = DEFAULT_DURATION, icon
   const displayIcon = icon || statusConfig.icon;
 
   return toast(
-    <div className="flex items-center gap-2">
-      <span>{displayIcon}</span>
-      <div>{content}</div>
-    </div>,
+    `${displayIcon} ${typeof content === 'string' ? content : 'Notification'}`,
     {
       duration,
       position: POSITION_MAP[position] as any,

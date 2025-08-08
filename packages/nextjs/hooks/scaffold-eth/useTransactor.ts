@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { Hash } from "viem";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
-import { notification } from "~~/utils/scaffold-eth";
+import { notification } from "~/utils/scaffold-eth";
 
 type TransactionFunc = () => Promise<Hash>;
 
@@ -13,17 +13,10 @@ type TTransactionFuncOptions = {
 /**
  * Custom notification content for TXs.
  */
-const TxnNotification = ({ message, blockExplorerLink }: { message: string; blockExplorerLink?: string }) => {
-  return (
-    <div className={`flex flex-col ml-1 cursor-default`}>
-      <p className="my-0 text-sm">{message}</p>
-      {blockExplorerLink && blockExplorerLink.length > 0 ? (
-        <a href={blockExplorerLink} target="_blank" rel="noreferrer" className="text-sm underline">
-          View on Block Explorer
-        </a>
-      ) : null}
-    </div>
-  );
+const getTxnNotificationMessage = (message: string, blockExplorerLink?: string) => {
+  return blockExplorerLink 
+    ? `${message} - View on Block Explorer: ${blockExplorerLink}`
+    : message;
 };
 
 /**
@@ -48,10 +41,10 @@ export const useTransactor = () => {
           notification.remove(notificationId);
 
           notification.success(
-            <TxnNotification 
-              message="Transaction sent!" 
-              blockExplorerLink={chain?.blockExplorers?.default ? `${chain.blockExplorers.default.url}/tx/${txnHash}` : ""} 
-            />,
+            getTxnNotificationMessage(
+              "Transaction sent!", 
+              chain?.blockExplorers?.default ? `${chain.blockExplorers.default.url}/tx/${txnHash}` : ""
+            )
           );
 
           if (options?.onBlockConfirmation) {

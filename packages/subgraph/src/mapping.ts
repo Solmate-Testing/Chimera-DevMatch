@@ -15,6 +15,12 @@
 
 import { BigInt, Bytes, store, BigDecimal } from "@graphprotocol/graph-ts";
 import {
+  // New Agent Events
+  AgentCreated as AgentCreatedEvent,
+  AgentStaked as AgentStakedEvent,
+  AgentLoved as AgentLovedEvent,
+  AgentAccessGranted as AgentAccessGrantedEvent,
+  // Legacy Product Events
   ProductListed as ProductListedEvent,
   StakeAdded as StakeAddedEvent,
   ProductLoved as ProductLovedEvent,
@@ -24,11 +30,20 @@ import {
 } from "../generated/Marketplace/Marketplace";
 
 import {
-  Product,
+  // Agent entities
+  Agent,
   Stake,
+  AgentLove,
+  AgentAccess,
+  // Product entities (legacy)
+  Product,
+  ProductStake,
   Love,
+  // Analytics entities
   Creator,
   DailyStats,
+  DailyAgentStats,
+  MarketplaceStats,
   GlobalStats,
   ModelExecution,
   ProductAnalytics
@@ -386,4 +401,221 @@ export function handleModelResultReceived(event: ModelResultReceivedEvent): void
   let globalStats = getOrCreateGlobalStats();
   globalStats.lastUpdatedBlock = event.block.number;
   globalStats.save();
+}
+
+// ========================================
+// NEW AGENT EVENT HANDLERS
+// ========================================
+
+/**
+ * Handle Agent Created Events from Enhanced Contract
+ * Creates new Agent entity and updates marketplace stats
+ */
+export function handleAgentCreated(event: AgentCreatedEvent): void {
+  // Create new agent entity
+  let agent = new Agent(event.params.id.toString());
+  
+  agent.name = event.params.name;
+  agent.description = ""; // Will be populated from contract call if needed
+  agent.tags = []; // Will be populated from contract call if needed
+  agent.ipfsHash = ""; // Will be populated from contract call if needed
+  agent.creator = event.params.creator;
+  agent.isPrivate = false; // Will be populated from contract call if needed
+  agent.totalStaked = BigInt.fromI32(0);
+  agent.loves = BigInt.fromI32(0);
+  agent.createdAt = event.block.timestamp;
+  agent.updatedAt = event.block.timestamp;
+  
+  // Calculate initial ranking score
+  agent.rankingScore = calculateRankingScore(BigInt.fromI32(0), 0);
+  
+  // Link to creator
+  let creator = getOrCreateCreator(event.params.creator);
+  agent.creatorEntity = creator.id;
+  creator.totalAgents = creator.totalAgents.plus(BigInt.fromI32(1));
+  if (creator.firstAgentAt.equals(BigInt.fromI32(0))) {
+    creator.firstAgentAt = event.block.timestamp;
+  }
+  creator.lastActivityAt = event.block.timestamp;
+  creator.save();
+  
+  agent.save();
+
+  // Update marketplace stats
+  let marketplaceStats = MarketplaceStats.load("marketplace");
+  if (marketplaceStats == null) {
+    marketplaceStats = new MarketplaceStats("marketplace");
+    marketplaceStats.totalAgents = BigInt.fromI32(0);
+    marketplaceStats.totalStakes = BigInt.fromI32(0);
+    marketplaceStats.totalStakedAmount = BigInt.fromI32(0);
+    marketplaceStats.totalLoves = BigInt.fromI32(0);
+    marketplaceStats.totalCreators = BigInt.fromI32(0);
+    marketplaceStats.totalStakers = BigInt.fromI32(0);
+  }
+  
+  marketplaceStats.totalAgents = marketplaceStats.totalAgents.plus(BigInt.fromI32(1));
+  marketplaceStats.lastUpdatedBlock = event.block.number;
+  marketplaceStats.lastUpdatedTimestamp = event.block.timestamp;
+  marketplaceStats.save();
+
+  // Update daily stats
+  let dailyStats = getOrCreateDailyStats(event.block.timestamp);
+  dailyStats.newAgents = dailyStats.newAgents.plus(BigInt.fromI32(1));
+  dailyStats.save();
+}
+
+/**
+ * Handle Agent Staked Events
+ * Updates agent stake amount and recalculates ranking
+ */
+export function handleAgentStaked(event: AgentStakedEvent): void {
+  // Create stake entity
+  let stakeId = event.params.id.toString() + "-" + event.params.staker.toHexString() + "-" + event.block.number.toString();
+  let stake = new Stake(stakeId);
+  
+  stake.agent = event.params.id.toString();
+  stake.staker = event.params.staker;
+  stake.amount = event.params.amount;
+  stake.timestamp = event.block.timestamp;
+  stake.blockNumber = event.block.number;
+  stake.transactionHash = event.transaction.hash;
+  stake.save();
+
+  // Update agent
+  let agent = Agent.load(event.params.id.toString());
+  if (agent != null) {
+    agent.totalStaked = agent.totalStaked.plus(event.params.amount);
+    agent.updatedAt = event.block.timestamp;
+    
+    // Recalculate ranking score
+    agent.rankingScore = calculateRankingScore(agent.totalStaked, agent.loves.toI32());
+    agent.save();
+
+    // Update creator stats
+    let creator = Creator.load(agent.creatorEntity);
+    if (creator != null) {
+      creator.totalStakes = creator.totalStakes.plus(event.params.amount);
+      creator.totalEarned = creator.totalEarned.plus(
+        event.params.amount.times(BigInt.fromI32(7)).div(BigInt.fromI32(10)) // 70% to creator
+      );
+      creator.lastActivityAt = event.block.timestamp;
+      creator.save();
+    }
+  }
+
+  // Update marketplace stats
+  let marketplaceStats = MarketplaceStats.load("marketplace");
+  if (marketplaceStats != null) {
+    marketplaceStats.totalStakes = marketplaceStats.totalStakes.plus(BigInt.fromI32(1));
+    marketplaceStats.totalStakedAmount = marketplaceStats.totalStakedAmount.plus(event.params.amount);
+    marketplaceStats.lastUpdatedBlock = event.block.number;
+    marketplaceStats.lastUpdatedTimestamp = event.block.timestamp;
+    marketplaceStats.save();
+  }
+
+  // Update daily stats
+  let dailyStats = getOrCreateDailyStats(event.block.timestamp);
+  dailyStats.totalStakes = dailyStats.totalStakes.plus(BigInt.fromI32(1));
+  dailyStats.totalStakedAmount = dailyStats.totalStakedAmount.plus(event.params.amount);
+  dailyStats.save();
+
+  // Update daily agent stats
+  let dailyAgentStatsId = event.params.id.toString() + "-" + getDailyStatsId(event.block.timestamp);
+  let dailyAgentStats = DailyAgentStats.load(dailyAgentStatsId);
+  if (dailyAgentStats == null) {
+    dailyAgentStats = new DailyAgentStats(dailyAgentStatsId);
+    dailyAgentStats.agent = event.params.id.toString();
+    dailyAgentStats.date = BigInt.fromI32(event.block.timestamp.toI32() - (event.block.timestamp.toI32() % 86400));
+    dailyAgentStats.stakesCount = BigInt.fromI32(0);
+    dailyAgentStats.stakedAmount = BigInt.fromI32(0);
+    dailyAgentStats.lovesCount = BigInt.fromI32(0);
+    dailyAgentStats.uniqueStakers = BigInt.fromI32(0);
+  }
+  
+  dailyAgentStats.stakesCount = dailyAgentStats.stakesCount.plus(BigInt.fromI32(1));
+  dailyAgentStats.stakedAmount = dailyAgentStats.stakedAmount.plus(event.params.amount);
+  dailyAgentStats.save();
+}
+
+/**
+ * Handle Agent Loved Events
+ * Updates agent love count and recalculates ranking
+ */
+export function handleAgentLoved(event: AgentLovedEvent): void {
+  // Create love entity
+  let loveId = event.params.id.toString() + "-" + event.params.user.toHexString() + "-" + event.block.number.toString();
+  let agentLove = new AgentLove(loveId);
+  
+  agentLove.agent = event.params.id.toString();
+  agentLove.user = event.params.user;
+  agentLove.timestamp = event.block.timestamp;
+  agentLove.blockNumber = event.block.number;
+  agentLove.transactionHash = event.transaction.hash;
+  agentLove.save();
+
+  // Update agent
+  let agent = Agent.load(event.params.id.toString());
+  if (agent != null) {
+    agent.loves = agent.loves.plus(BigInt.fromI32(1));
+    agent.updatedAt = event.block.timestamp;
+    
+    // Recalculate ranking score
+    agent.rankingScore = calculateRankingScore(agent.totalStaked, agent.loves.toI32());
+    agent.save();
+
+    // Update creator stats
+    let creator = Creator.load(agent.creatorEntity);
+    if (creator != null) {
+      creator.totalLoves = creator.totalLoves.plus(BigInt.fromI32(1));
+      creator.lastActivityAt = event.block.timestamp;
+      creator.save();
+    }
+  }
+
+  // Update marketplace stats
+  let marketplaceStats = MarketplaceStats.load("marketplace");
+  if (marketplaceStats != null) {
+    marketplaceStats.totalLoves = marketplaceStats.totalLoves.plus(BigInt.fromI32(1));
+    marketplaceStats.lastUpdatedBlock = event.block.number;
+    marketplaceStats.lastUpdatedTimestamp = event.block.timestamp;
+    marketplaceStats.save();
+  }
+
+  // Update daily stats
+  let dailyStats = getOrCreateDailyStats(event.block.timestamp);
+  dailyStats.totalLoves = dailyStats.totalLoves.plus(BigInt.fromI32(1));
+  dailyStats.save();
+
+  // Update daily agent stats
+  let dailyAgentStatsId = event.params.id.toString() + "-" + getDailyStatsId(event.block.timestamp);
+  let dailyAgentStats = DailyAgentStats.load(dailyAgentStatsId);
+  if (dailyAgentStats == null) {
+    dailyAgentStats = new DailyAgentStats(dailyAgentStatsId);
+    dailyAgentStats.agent = event.params.id.toString();
+    dailyAgentStats.date = BigInt.fromI32(event.block.timestamp.toI32() - (event.block.timestamp.toI32() % 86400));
+    dailyAgentStats.stakesCount = BigInt.fromI32(0);
+    dailyAgentStats.stakedAmount = BigInt.fromI32(0);
+    dailyAgentStats.lovesCount = BigInt.fromI32(0);
+    dailyAgentStats.uniqueStakers = BigInt.fromI32(0);
+  }
+  
+  dailyAgentStats.lovesCount = dailyAgentStats.lovesCount.plus(BigInt.fromI32(1));
+  dailyAgentStats.save();
+}
+
+/**
+ * Handle Agent Access Granted Events
+ * Tracks access grants for private agents
+ */
+export function handleAgentAccessGranted(event: AgentAccessGrantedEvent): void {
+  // Create access grant entity
+  let accessId = event.params.id.toString() + "-" + event.params.user.toHexString();
+  let agentAccess = new AgentAccess(accessId);
+  
+  agentAccess.agent = event.params.id.toString();
+  agentAccess.user = event.params.user;
+  agentAccess.timestamp = event.block.timestamp;
+  agentAccess.blockNumber = event.block.number;
+  agentAccess.transactionHash = event.transaction.hash;
+  agentAccess.save();
 }

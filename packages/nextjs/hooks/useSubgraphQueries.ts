@@ -1,0 +1,579 @@
+/**
+ * The Graph Subgraph Query Hooks for Chimera DevMatch
+ * 
+ * Custom React hooks for querying The Graph subgraph with TypeScript types
+ * and error handling for marketplace data, agent leaderboards, and analytics.
+ * 
+ * @author The Graph Integration Engineer
+ */
+
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
+
+// The Graph endpoint configuration
+const SUBGRAPH_URL = process.env.NEXT_PUBLIC_SUBGRAPH_URL || 'http://localhost:8000/subgraphs/name/chimera-devmatch/marketplace';
+
+// Simple GraphQL client using fetch (alternative to graphql-request)
+const graphqlRequest = async (query: string, variables?: any): Promise<any> => {
+  try {
+    const response = await fetch(SUBGRAPH_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.errors) {
+      throw new Error(result.errors[0]?.message || 'GraphQL error');
+    }
+
+    return result.data;
+  } catch (error) {
+    console.error('GraphQL request failed:', error);
+    throw error;
+  }
+};
+
+// GraphQL query helper (alternative to gql tagged template)
+const gql = (strings: TemplateStringsArray, ...values: any[]) => {
+  return strings.reduce((result, string, i) => {
+    return result + string + (values[i] || '');
+  }, '');
+};
+
+// TypeScript interfaces for subgraph entities
+export interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  tags: string[];
+  ipfsHash: string;
+  creator: string;
+  isPrivate: boolean;
+  totalStaked: string;
+  loves: string;
+  rankingScore: string;
+  createdAt: string;
+  updatedAt: string;
+  creatorEntity: Creator;
+  stakes: Stake[];
+  agentLoves: AgentLove[];
+  accessGrants: AgentAccess[];
+  dailyStats: DailyAgentStats[];
+}
+
+export interface Stake {
+  id: string;
+  agent: Agent;
+  staker: string;
+  amount: string;
+  timestamp: string;
+  blockNumber: string;
+  transactionHash: string;
+}
+
+export interface AgentLove {
+  id: string;
+  agent: Agent;
+  user: string;
+  timestamp: string;
+  blockNumber: string;
+  transactionHash: string;
+}
+
+export interface AgentAccess {
+  id: string;
+  agent: Agent;
+  user: string;
+  timestamp: string;
+  blockNumber: string;
+  transactionHash: string;
+}
+
+export interface Creator {
+  id: string;
+  totalAgents: string;
+  totalEarned: string;
+  totalStakes: string;
+  totalLoves: string;
+  firstAgentAt: string;
+  lastActivityAt: string;
+  agents: Agent[];
+}
+
+export interface DailyAgentStats {
+  id: string;
+  agent: Agent;
+  date: string;
+  stakesCount: string;
+  stakedAmount: string;
+  lovesCount: string;
+  uniqueStakers: string;
+}
+
+export interface MarketplaceStats {
+  id: string;
+  totalAgents: string;
+  totalStakes: string;
+  totalStakedAmount: string;
+  totalLoves: string;
+  totalCreators: string;
+  totalStakers: string;
+  lastUpdatedBlock: string;
+  lastUpdatedTimestamp: string;
+}
+
+export interface DailyStats {
+  id: string;
+  date: string;
+  newAgents: string;
+  totalStakes: string;
+  totalStakedAmount: string;
+  totalLoves: string;
+  uniqueStakers: string;
+  uniqueCreators: string;
+  avgStakeAmount: string;
+}
+
+// GraphQL queries
+const TOP_AGENTS_BY_STAKE_QUERY = gql`
+  query TopAgentsByStake($first: Int = 10) {
+    agents(orderBy: totalStaked, orderDirection: desc, first: $first) {
+      id
+      name
+      description
+      tags
+      creator
+      isPrivate
+      totalStaked
+      loves
+      rankingScore
+      createdAt
+      creatorEntity {
+        id
+        totalAgents
+        totalEarned
+      }
+    }
+  }
+`;
+
+const AGENTS_BY_TAG_QUERY = gql`
+  query AgentsByTag($tag: String!, $first: Int = 20) {
+    agents(
+      where: { tags_contains: [$tag] }
+      orderBy: rankingScore
+      orderDirection: desc
+      first: $first
+    ) {
+      id
+      name
+      description
+      tags
+      creator
+      totalStaked
+      loves
+      rankingScore
+      isPrivate
+      createdAt
+    }
+  }
+`;
+
+const SEARCH_AGENTS_QUERY = gql`
+  query SearchAgents($searchTerm: String!, $first: Int = 20) {
+    agents(
+      where: { name_contains_nocase: $searchTerm }
+      orderBy: rankingScore
+      orderDirection: desc
+      first: $first
+    ) {
+      id
+      name
+      description
+      tags
+      creator
+      totalStaked
+      loves
+      rankingScore
+      isPrivate
+      createdAt
+    }
+  }
+`;
+
+const AGENT_DETAILS_QUERY = gql`
+  query AgentDetails($id: ID!) {
+    agent(id: $id) {
+      id
+      name
+      description
+      tags
+      ipfsHash
+      creator
+      isPrivate
+      totalStaked
+      loves
+      rankingScore
+      createdAt
+      updatedAt
+      creatorEntity {
+        id
+        totalAgents
+        totalEarned
+        totalStakes
+        totalLoves
+        firstAgentAt
+        lastActivityAt
+      }
+      stakes(orderBy: timestamp, orderDirection: desc, first: 10) {
+        id
+        staker
+        amount
+        timestamp
+        transactionHash
+      }
+      agentLoves(orderBy: timestamp, orderDirection: desc, first: 10) {
+        id
+        user
+        timestamp
+      }
+    }
+  }
+`;
+
+const ALL_AGENTS_QUERY = gql`
+  query AllAgents($first: Int = 20, $skip: Int = 0) {
+    agents(
+      first: $first
+      skip: $skip
+      orderBy: rankingScore
+      orderDirection: desc
+    ) {
+      id
+      name
+      description
+      tags
+      creator
+      totalStaked
+      loves
+      rankingScore
+      isPrivate
+      createdAt
+      creatorEntity {
+        id
+      }
+    }
+  }
+`;
+
+const MARKETPLACE_ANALYTICS_QUERY = gql`
+  query MarketplaceAnalytics {
+    marketplaceStats(id: "marketplace") {
+      totalAgents
+      totalStakes
+      totalStakedAmount
+      totalLoves
+      totalCreators
+      totalStakers
+      lastUpdatedBlock
+      lastUpdatedTimestamp
+    }
+    
+    dailyStats(orderBy: date, orderDirection: desc, first: 30) {
+      id
+      date
+      newAgents
+      totalStakes
+      totalStakedAmount
+      totalLoves
+      uniqueStakers
+      uniqueCreators
+      avgStakeAmount
+    }
+  }
+`;
+
+const RECENT_ACTIVITY_QUERY = gql`
+  query RecentActivity($first: Int = 10) {
+    stakes(orderBy: timestamp, orderDirection: desc, first: $first) {
+      id
+      agent {
+        id
+        name
+        rankingScore
+      }
+      staker
+      amount
+      timestamp
+      transactionHash
+    }
+    
+    agentLoves(orderBy: timestamp, orderDirection: desc, first: $first) {
+      id
+      agent {
+        id
+        name
+        rankingScore
+      }
+      user
+      timestamp
+      transactionHash
+    }
+    
+    agents(orderBy: createdAt, orderDirection: desc, first: $first) {
+      id
+      name
+      creator
+      createdAt
+      totalStaked
+      loves
+      rankingScore
+    }
+  }
+`;
+
+const CREATOR_STATS_QUERY = gql`
+  query CreatorStats($creatorId: ID!) {
+    creator(id: $creatorId) {
+      id
+      totalAgents
+      totalEarned
+      totalStakes
+      totalLoves
+      firstAgentAt
+      lastActivityAt
+      agents(orderBy: rankingScore, orderDirection: desc) {
+        id
+        name
+        totalStaked
+        loves
+        rankingScore
+        createdAt
+        isPrivate
+      }
+    }
+  }
+`;
+
+// Custom hooks for subgraph queries
+
+/**
+ * Hook to fetch top agents by stake (leaderboard)
+ */
+export const useTopAgentsByStake = (first: number = 10): UseQueryResult<{ agents: Agent[] }> => {
+  return useQuery({
+    queryKey: ['topAgentsByStake', first],
+    queryFn: async () => {
+      try {
+        return await graphqlRequest(TOP_AGENTS_BY_STAKE_QUERY, { first });
+      } catch (error) {
+        console.error('Error fetching top agents:', error);
+        throw error;
+      }
+    },
+    staleTime: 30 * 1000, // 30 seconds - matches subgraph update requirement
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+/**
+ * Hook to fetch agents filtered by tag/category
+ */
+export const useAgentsByTag = (tag: string, first: number = 20): UseQueryResult<{ agents: Agent[] }> => {
+  return useQuery({
+    queryKey: ['agentsByTag', tag, first],
+    queryFn: async () => {
+      try {
+        return await graphqlRequest(AGENTS_BY_TAG_QUERY, { tag, first });
+      } catch (error) {
+        console.error('Error fetching agents by tag:', error);
+        throw error;
+      }
+    },
+    enabled: !!tag,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook to search agents by name
+ */
+export const useSearchAgents = (searchTerm: string, first: number = 20): UseQueryResult<{ agents: Agent[] }> => {
+  return useQuery({
+    queryKey: ['searchAgents', searchTerm, first],
+    queryFn: async () => {
+      try {
+        return await graphqlRequest(SEARCH_AGENTS_QUERY, { searchTerm, first });
+      } catch (error) {
+        console.error('Error searching agents:', error);
+        throw error;
+      }
+    },
+    enabled: !!searchTerm && searchTerm.length > 2,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook to fetch detailed agent information
+ */
+export const useAgentDetails = (id: string): UseQueryResult<{ agent: Agent }> => {
+  return useQuery({
+    queryKey: ['agentDetails', id],
+    queryFn: async () => {
+      try {
+        return await graphqlRequest(AGENT_DETAILS_QUERY, { id });
+      } catch (error) {
+        console.error('Error fetching agent details:', error);
+        throw error;
+      }
+    },
+    enabled: !!id,
+    staleTime: 30 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook to fetch all agents with pagination
+ */
+export const useAllAgents = (first: number = 20, skip: number = 0): UseQueryResult<{ agents: Agent[] }> => {
+  return useQuery({
+    queryKey: ['allAgents', first, skip],
+    queryFn: async () => {
+      try {
+        return await graphqlRequest(ALL_AGENTS_QUERY, { first, skip });
+      } catch (error) {
+        console.error('Error fetching all agents:', error);
+        throw error;
+      }
+    },
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook to fetch marketplace analytics and daily stats
+ */
+export const useMarketplaceAnalytics = (): UseQueryResult<{
+  marketplaceStats: MarketplaceStats;
+  dailyStats: DailyStats[];
+}> => {
+  return useQuery({
+    queryKey: ['marketplaceAnalytics'],
+    queryFn: async () => {
+      try {
+        return await graphqlRequest(MARKETPLACE_ANALYTICS_QUERY);
+      } catch (error) {
+        console.error('Error fetching marketplace analytics:', error);
+        throw error;
+      }
+    },
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook to fetch recent marketplace activity
+ */
+export const useRecentActivity = (first: number = 10): UseQueryResult<{
+  stakes: Stake[];
+  agentLoves: AgentLove[];
+  agents: Agent[];
+}> => {
+  return useQuery({
+    queryKey: ['recentActivity', first],
+    queryFn: async () => {
+      try {
+        return await graphqlRequest(RECENT_ACTIVITY_QUERY, { first });
+      } catch (error) {
+        console.error('Error fetching recent activity:', error);
+        throw error;
+      }
+    },
+    staleTime: 15 * 1000, // 15 seconds for real-time updates
+    gcTime: 2 * 60 * 1000,
+    refetchInterval: 30 * 1000, // Auto-refetch every 30 seconds
+  });
+};
+
+/**
+ * Hook to fetch creator statistics
+ */
+export const useCreatorStats = (creatorId: string): UseQueryResult<{ creator: Creator }> => {
+  return useQuery({
+    queryKey: ['creatorStats', creatorId],
+    queryFn: async () => {
+      try {
+        return await graphqlRequest(CREATOR_STATS_QUERY, { creatorId });
+      } catch (error) {
+        console.error('Error fetching creator stats:', error);
+        throw error;
+      }
+    },
+    enabled: !!creatorId,
+    staleTime: 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+/**
+ * Utility function to format ETH amounts from wei
+ */
+export const formatEthAmount = (weiAmount: string): string => {
+  try {
+    const eth = parseFloat(weiAmount) / 1e18;
+    return eth.toFixed(3);
+  } catch {
+    return '0.000';
+  }
+};
+
+/**
+ * Utility function to calculate ranking score manually for verification
+ */
+export const calculateRankingScore = (totalStaked: string, loves: string): number => {
+  try {
+    const stakedEth = parseFloat(totalStaked) / 1e18;
+    const lovesNum = parseFloat(loves);
+    return stakedEth + (lovesNum * 0.1);
+  } catch {
+    return 0;
+  }
+};
+
+/**
+ * Utility function to format timestamps
+ */
+export const formatTimestamp = (timestamp: string): string => {
+  try {
+    const date = new Date(parseInt(timestamp) * 1000);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  } catch {
+    return 'Unknown';
+  }
+};
+
+/**
+ * Hook for category-specific queries with predefined categories
+ */
+export const useCategoryAgents = (category: 'MCP' | 'Trading' | 'DeFi' | 'LLM' | 'Education') => {
+  return useAgentsByTag(category);
+};
+
+// Export subgraph URL for direct queries if needed
+export { SUBGRAPH_URL };

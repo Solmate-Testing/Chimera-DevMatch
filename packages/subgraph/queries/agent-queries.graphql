@@ -1,0 +1,368 @@
+# Agent-specific GraphQL queries for The Graph marketplace
+# Supporting new Agent functionality from enhanced Marketplace.sol contract
+
+# ✅ TOP AGENTS BY STAKE (Leaderboard)
+query TopAgentsByStake($first: Int = 10) {
+  agents(orderBy: totalStaked, orderDirection: desc, first: $first) {
+    id
+    name
+    description
+    tags
+    ipfsHash
+    creator
+    isPrivate
+    totalStaked
+    loves
+    rankingScore
+    createdAt
+    updatedAt
+    creatorEntity {
+      id
+      totalAgents
+      totalEarned
+    }
+    stakes(first: 5, orderBy: timestamp, orderDirection: desc) {
+      staker
+      amount
+      timestamp
+    }
+  }
+}
+
+# ✅ AGENTS BY CATEGORY/TAG FILTERING
+query AgentsByTag($tag: String!, $first: Int = 20) {
+  agents(
+    where: { tags_contains: [$tag] }
+    orderBy: rankingScore
+    orderDirection: desc
+    first: $first
+  ) {
+    id
+    name
+    description
+    tags
+    creator
+    totalStaked
+    loves
+    rankingScore
+    isPrivate
+    createdAt
+  }
+}
+
+# ✅ SEARCH AGENTS BY NAME
+query SearchAgents($searchTerm: String!, $first: Int = 20) {
+  agents(
+    where: { name_contains_nocase: $searchTerm }
+    orderBy: rankingScore
+    orderDirection: desc
+    first: $first
+  ) {
+    id
+    name
+    description
+    tags
+    creator
+    totalStaked
+    loves
+    rankingScore
+    isPrivate
+    createdAt
+  }
+}
+
+# ✅ AGENT DETAILS WITH FULL STATS
+query AgentDetails($id: ID!) {
+  agent(id: $id) {
+    id
+    name
+    description
+    tags
+    ipfsHash
+    creator
+    isPrivate
+    totalStaked
+    loves
+    rankingScore
+    createdAt
+    updatedAt
+    creatorEntity {
+      id
+      totalAgents
+      totalEarned
+      totalStakes
+      totalLoves
+      firstAgentAt
+      lastActivityAt
+    }
+    stakes(orderBy: timestamp, orderDirection: desc) {
+      id
+      staker
+      amount
+      timestamp
+      blockNumber
+      transactionHash
+    }
+    agentLoves(orderBy: timestamp, orderDirection: desc) {
+      id
+      user
+      timestamp
+      blockNumber
+    }
+    accessGrants(orderBy: timestamp, orderDirection: desc) {
+      id
+      user
+      timestamp
+      blockNumber
+    }
+    dailyStats(orderBy: date, orderDirection: desc, first: 30) {
+      id
+      date
+      stakesCount
+      stakedAmount
+      lovesCount
+      uniqueStakers
+    }
+  }
+}
+
+# ✅ CREATOR STATS (For Dashboard)
+query CreatorStats($creatorId: ID!) {
+  creator(id: $creatorId) {
+    id
+    totalAgents
+    totalEarned
+    totalStakes
+    totalLoves
+    firstAgentAt
+    lastActivityAt
+    agents(orderBy: rankingScore, orderDirection: desc) {
+      id
+      name
+      totalStaked
+      loves
+      rankingScore
+      createdAt
+      isPrivate
+    }
+  }
+}
+
+# ✅ ALL AGENTS WITH PAGINATION
+query AllAgents($first: Int = 20, $skip: Int = 0, $orderBy: String = "rankingScore") {
+  agents(
+    first: $first
+    skip: $skip
+    orderBy: $orderBy
+    orderDirection: desc
+  ) {
+    id
+    name
+    description
+    tags
+    creator
+    totalStaked
+    loves
+    rankingScore
+    isPrivate
+    createdAt
+    creatorEntity {
+      id
+    }
+  }
+}
+
+# ✅ MARKETPLACE ANALYTICS
+query MarketplaceAnalytics {
+  marketplaceStats(id: "marketplace") {
+    totalAgents
+    totalStakes
+    totalStakedAmount
+    totalLoves
+    totalCreators
+    totalStakers
+    lastUpdatedBlock
+    lastUpdatedTimestamp
+  }
+  
+  dailyStats(orderBy: date, orderDirection: desc, first: 30) {
+    id
+    date
+    newAgents
+    totalStakes
+    totalStakedAmount
+    totalLoves
+    uniqueStakers
+    uniqueCreators
+    avgStakeAmount
+  }
+}
+
+# ✅ RECENT ACTIVITY
+query RecentActivity($first: Int = 10) {
+  # Recent stakes
+  stakes(orderBy: timestamp, orderDirection: desc, first: $first) {
+    id
+    agent {
+      id
+      name
+      rankingScore
+    }
+    staker
+    amount
+    timestamp
+    transactionHash
+  }
+  
+  # Recent loves
+  agentLoves(orderBy: timestamp, orderDirection: desc, first: $first) {
+    id
+    agent {
+      id
+      name
+      rankingScore
+    }
+    user
+    timestamp
+    transactionHash
+  }
+  
+  # Recent agent creations
+  agents(orderBy: createdAt, orderDirection: desc, first: $first) {
+    id
+    name
+    creator
+    createdAt
+    totalStaked
+    loves
+    rankingScore
+  }
+}
+
+# ✅ TRENDING AGENTS (High activity in last 24h)
+query TrendingAgents($dayAgo: BigInt!, $first: Int = 10) {
+  dailyAgentStats(
+    where: { date_gte: $dayAgo }
+    orderBy: stakesCount
+    orderDirection: desc
+    first: $first
+  ) {
+    agent {
+      id
+      name
+      description
+      tags
+      totalStaked
+      loves
+      rankingScore
+      isPrivate
+    }
+    stakesCount
+    stakedAmount
+    lovesCount
+    uniqueStakers
+  }
+}
+
+# ✅ AGENTS BY CATEGORY (Specific categories)
+query MCPAgents($first: Int = 20) {
+  agents(
+    where: { tags_contains: ["MCP"] }
+    orderBy: rankingScore
+    orderDirection: desc
+    first: $first
+  ) {
+    id
+    name
+    description
+    totalStaked
+    loves
+    rankingScore
+    creator
+    createdAt
+  }
+}
+
+query TradingAgents($first: Int = 20) {
+  agents(
+    where: { tags_contains: ["Trading"] }
+    orderBy: rankingScore
+    orderDirection: desc
+    first: $first
+  ) {
+    id
+    name
+    description
+    totalStaked
+    loves
+    rankingScore
+    creator
+    createdAt
+  }
+}
+
+query DeFiAgents($first: Int = 20) {
+  agents(
+    where: { tags_contains: ["DeFi"] }
+    orderBy: rankingScore
+    orderDirection: desc
+    first: $first
+  ) {
+    id
+    name
+    description
+    totalStaked
+    loves
+    rankingScore
+    creator
+    createdAt
+  }
+}
+
+query LLMAgents($first: Int = 20) {
+  agents(
+    where: { tags_contains: ["LLM"] }
+    orderBy: rankingScore
+    orderDirection: desc
+    first: $first
+  ) {
+    id
+    name
+    description
+    totalStaked
+    loves
+    rankingScore
+    creator
+    createdAt
+  }
+}
+
+query EducationAgents($first: Int = 20) {
+  agents(
+    where: { tags_contains: ["Education"] }
+    orderBy: rankingScore
+    orderDirection: desc
+    first: $first
+  ) {
+    id
+    name
+    description
+    totalStaked
+    loves
+    rankingScore
+    creator
+    createdAt
+  }
+}
+
+# ✅ AGENT RANKING VERIFICATION (For testing)
+query AgentRankingVerification {
+  agents(orderBy: rankingScore, orderDirection: desc, first: 5) {
+    id
+    name
+    totalStaked
+    loves
+    rankingScore
+    # Manual calculation: (totalStaked / 1e18) + (loves * 0.1)
+  }
+}
