@@ -202,7 +202,7 @@ $ cast call $MARKETPLACE "getEncryptedKey(uint256)" $AGENT_ID
 
 ---
 
-## 🏆 **Why We Deserve the Oasis Prize** (20 seconds)
+## 🏆 **Technical Achievement** (20 seconds)
 
 ### **Technical Excellence**
 - ✅ **Real ROFL integration** - Not just documentation, actual working code
@@ -232,7 +232,7 @@ $ cast call $MARKETPLACE "getEncryptedKey(uint256)" $AGENT_ID
 
 *🛡️ Total Pitch Time: 3 minutes*  
 *🔒 Secured by Oasis Sapphire TEE + ROFL*  
-*🏆 Built for ETHGlobal Bangkok 2024 - Oasis Track*
+*🚀 Decentralized AI Marketplace with TEE Security*
 
 ### **Technical Verification**
 ```bash

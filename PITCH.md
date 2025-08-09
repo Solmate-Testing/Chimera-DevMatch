@@ -75,19 +75,19 @@ Storage: IPFS + Encrypted Metadata
 
 ---
 
-## 🏆 **Multi-Track Hackathon Value** (30 seconds)
+## 🏆 **Technical Achievements** (30 seconds)
 
-### **Ethereum Foundation Track** ($1,000)
-- ✅ **Scaffold-ETH 2 mastery** - Extensive use of hooks, components, patterns
+### **Scaffold-ETH 2 Implementation**
+- ✅ **Framework mastery** - Extensive use of hooks, components, patterns
 - ✅ **Innovation** - First TEE-secured AI marketplace on SE-2
 - ✅ **Production quality** - Comprehensive testing, deployment ready
 
-### **The Graph Track** ($1,000)
+### **Real-time Analytics**
 - ✅ **Complex analytics** - Real-time rankings with weighted scoring
 - ✅ **Live data** - Marketplace stats update every 30 seconds
 - ✅ **Open source** - Complete subgraph schema and deployment scripts
 
-### **ERC-7857 Track** (Special Recognition)
+### **ERC-7857 Standard**
 - ✅ **Standard implementation** - First working AI Agent NFTs
 - ✅ **Encrypted metadata** - TEE-secured agent properties
 - ✅ **Complete integration** - Minting, transferring, viewing interfaces
@@ -151,7 +151,7 @@ Storage: IPFS + Encrypted Metadata
 **Ready to revolutionize AI monetization?**
 
 🌐 **Try the demo**: `git clone` → `yarn install` → `yarn dev`  
-🏆 **Vote for us**: Multi-track submission across 3 major prizes  
+🚀 **Experience the platform**: Complete AI marketplace with TEE security  
 🤝 **Join our community**: Building the future of decentralized AI  
 
 **Chimera DevMatch - Where AI creators and users finally win.**
@@ -159,5 +159,5 @@ Storage: IPFS + Encrypted Metadata
 ---
 
 *🎬 Total Pitch Time: 4 minutes*  
-*💻 Built during ETHGlobal Bangkok 2024*  
+*💻 Decentralized AI Marketplace Platform*  
 *🏗️ Powered by Scaffold-ETH 2, Secured by Oasis, Indexed by The Graph*

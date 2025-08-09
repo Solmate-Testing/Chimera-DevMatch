@@ -37,31 +37,7 @@ This project showcases the **LingSiewWin/ERC-7857** extension for Scaffold-ETH 2
 
 ---
 
-## 🏆 **Hackathon Track Alignment**
-
-Our project competes for **$2,750** across 3 major tracks:
-
-### 🥇 **Ethereum Foundation** - Best App Built Using Scaffold-ETH 2 ($1,000)
-- ✅ **Built on SE-2**: Extensive use of hooks, components, deploy flows
-- ✅ **Quality Integration**: Smart contracts + gasless frontend
-- ✅ **SE-2 Extensions**: subgraph, erc-20, privy-widget integrations
-- ✅ **Innovation**: Extended SE-2 with custom API key management
-
-### 🥈 **The Graph** - Best Development of a Subgraph (up to $1,000)
-- ✅ **Real-time Analytics**: Live marketplace rankings updated every 30s  
-- ✅ **Complex Queries**: Multi-metric scoring: `(totalStaked/1e18) + (loves×0.1)`
-- ✅ **GitHub Integration**: Full source code with deployment scripts
-- ✅ **Token API Ready**: Prepared for token metadata integration
-
-### 🥉 **Oasis** - Best Use of Sapphire and/or ROFL (up to $750)
-- ✅ **TEE Protection**: All API keys encrypted in Trusted Execution Environment
-- ✅ **ROFL Integration**: `roflEnsureAuthorizedOrigin()` in 8 critical functions
-- ✅ **Confidentiality**: Zero API key exposure outside secure execution
-- ✅ **Innovation**: Multi-tier key generation (demo + production + secure)
-
----
-
-## ⚡ **Why Judges Will Love This**
+## ⚡ **Key Features Built**
 
 ### 🚀 **Immediate Demo Value**
 - **60-second setup** - No external dependencies needed
@@ -450,25 +426,25 @@ contract ChimeraAvatarNFT {
 
 ---
 
-## 📋 **Requirements Met**
+## 📋 **Technical Implementation**
 
-### **Ethereum Foundation Track** ✅
-- [x] Built entirely on Scaffold-ETH 2 architecture
-- [x] Quality smart contracts with gasless integration  
-- [x] Extensive use of SE-2 hooks and components
-- [x] Innovation: TEE API key management system
+### **Scaffold-ETH 2 Architecture** ✅
+- Built entirely on Scaffold-ETH 2 framework
+- Quality smart contracts with gasless integration  
+- Extensive use of SE-2 hooks and components
+- Custom TEE API key management system
 
-### **The Graph Track** ✅
-- [x] Custom subgraph with real-time analytics
-- [x] Complex ranking algorithm implementation
-- [x] Open source code with deployment scripts
-- [x] Ready for Token API integration
+### **Real-time Analytics** ✅
+- Custom subgraph with live marketplace data
+- Complex ranking algorithm implementation
+- Open source code with deployment scripts
+- Token metadata integration ready
 
-### **Oasis Track** ✅
-- [x] Oasis ROFL-Sapphire integration with `roflEnsureAuthorizedOrigin()`
-- [x] TEE-protected confidential data (API keys)
-- [x] High-quality implementation with local dev support
-- [x] Clear UX benefits from confidential computing
+### **TEE Security Integration** ✅
+- Oasis ROFL-Sapphire integration with `roflEnsureAuthorizedOrigin()`
+- TEE-protected confidential data (API keys)
+- High-quality implementation with local dev support
+- Clear UX benefits from confidential computing
 
 ---
 
