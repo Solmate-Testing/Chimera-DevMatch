@@ -19,7 +19,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { usePrivyWagmiConnector } from '../../hooks/usePrivyWagmiConnector';
+import { usePrivy } from '@privy-io/react-auth';
 import { useCreatorStats, useRecentActivity, formatEthAmount, formatTimestamp } from '../../hooks/useSubgraphQueries';
 import { useScaffoldReadContract, useScaffoldWriteContract } from '../../hooks/scaffold-eth';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
@@ -174,12 +174,12 @@ interface AnalyticsData {
 }
 
 export default function EnhancedCreatorDashboard() {
-  const { isConnected, smartAccount, login, user } = usePrivyWagmiConnector();
+  const { ready, authenticated, user, login } = usePrivy();
   const [activeTab, setActiveTab] = useState<'overview' | 'agents' | 'analytics' | 'tools'>('overview');
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
 
   // Real contract integration
-  const { data: creatorData, isLoading: creatorLoading, error: creatorError } = useCreatorStats(smartAccount?.address || "");
+  const { data: creatorData, isLoading: creatorLoading, error: creatorError } = useCreatorStats(user?.wallet?.address || "");
   const { data: recentActivity, isLoading: activityLoading } = useRecentActivity(20);
 
   // Calculate verified creator status (>0.1 ETH total stake)
@@ -253,7 +253,7 @@ export default function EnhancedCreatorDashboard() {
   // Export functionality
   const exportAnalytics = () => {
     const exportData = {
-      creatorAddress: smartAccount?.address,
+      creatorAddress: user?.wallet?.address,
       exportDate: new Date().toISOString(),
       summary: analyticsData,
       agents: analyticsData.agents.map(agent => ({
@@ -277,13 +277,28 @@ export default function EnhancedCreatorDashboard() {
     URL.revokeObjectURL(url);
   };
 
-  // Loading state
-  if (!isConnected || creatorLoading) {
+  // Loading state with timeout fallback
+  const [showFallback, setShowFallback] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (creatorLoading || !authenticated) {
+        console.log('🚑 Dashboard loading timeout, showing fallback UI');
+        setShowFallback(true);
+      }
+    }, 5000); // 5 second timeout
+    
+    return () => clearTimeout(timer);
+  }, [creatorLoading, authenticated]);
+
+  // Show loading only for first 5 seconds, then show dashboard with mock data
+  if ((!ready || !authenticated || creatorLoading) && !showFallback) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white p-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center min-h-[60vh]">
             <LoadingSpinner size="lg" />
+            <p className="text-gray-600 mt-4 ml-4">Loading dashboard...</p>
           </div>
         </div>
       </div>
@@ -291,18 +306,18 @@ export default function EnhancedCreatorDashboard() {
   }
 
   // Authentication state
-  if (!isConnected) {
+  if (!ready || !authenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white p-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="card text-center max-w-md">
-              <ChartBarIcon className="h-16 w-16 text-purple-400 mx-auto mb-4" />
-              <h1 className="text-3xl font-bold text-white mb-4">Creator Dashboard</h1>
-              <p className="text-slate-300 mb-8">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-lg p-8 text-center max-w-md">
+              <ChartBarIcon className="h-16 w-16 text-purple-500 mx-auto mb-4" />
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">Creator Dashboard</h1>
+              <p className="text-gray-600 mb-8">
                 Connect your wallet to view your agents, earnings, and comprehensive analytics.
               </p>
-              <button onClick={login} className="button-primary">
+              <button onClick={login} className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-600 hover:to-blue-600 transition-all">
                 Connect Wallet
               </button>
             </div>
@@ -320,7 +335,7 @@ export default function EnhancedCreatorDashboard() {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8 animate-slide-up">

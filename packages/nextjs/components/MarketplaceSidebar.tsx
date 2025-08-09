@@ -85,17 +85,17 @@ const MarketplaceSidebar = ({ userAddress, isCreator = false }: SidebarProps) =>
   };
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-white/5 backdrop-blur-md border-r border-white/10 z-40">
+    <div className="fixed left-0 top-0 h-full w-64 bg-white/95 backdrop-blur-md border-r border-gray-200 z-40 shadow-lg">
       <div className="flex flex-col h-full">
         {/* Logo Section */}
         <div className="p-6">
           <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-lg">C</span>
+            <div className="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center">
+              <span className="text-gray-800 font-bold text-lg">C</span>
             </div>
             <div>
-              <div className="text-white font-semibold text-lg">Chimera</div>
-              <div className="text-white/70 text-sm">DevMatch</div>
+              <div className="text-gray-800 font-semibold text-lg">Chimera</div>
+              <div className="text-gray-600 text-sm">DevMatch</div>
             </div>
           </Link>
         </div>
@@ -109,11 +109,11 @@ const MarketplaceSidebar = ({ userAddress, isCreator = false }: SidebarProps) =>
                   href={item.href}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all group ${
                     isActive(item.href)
-                      ? 'bg-white/20 text-white shadow-lg'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                      ? 'bg-gray-100 text-gray-800 shadow-lg border border-gray-300'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
                   }`}
                 >
-                  <div className={`${isActive(item.href) ? 'text-white' : 'text-white/70 group-hover:text-white'}`}>
+                  <div className={`${isActive(item.href) ? 'text-gray-800' : 'text-gray-500 group-hover:text-gray-800'}`}>
                     {item.icon}
                   </div>
                   <span className="font-medium">{item.name}</span>
@@ -129,22 +129,22 @@ const MarketplaceSidebar = ({ userAddress, isCreator = false }: SidebarProps) =>
         </nav>
 
         {/* User Profile Section */}
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-xl">
+        <div className="p-4 border-t border-gray-200">
+          <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
             <img
               src={userAddress ? generateUserAvatar(userAddress) : 'https://api.dicebear.com/7.x/identicon/svg?seed=default'}
               alt="Profile"
-              className="w-10 h-10 rounded-full bg-white/20"
+              className="w-10 h-10 rounded-full bg-gray-200"
             />
             <div className="flex-1 min-w-0">
-              <div className="text-white font-medium text-sm truncate">
+              <div className="text-gray-800 font-medium text-sm truncate">
                 {userAddress ? `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}` : 'Connect Wallet'}
               </div>
-              <div className="text-white/70 text-xs">
+              <div className="text-gray-600 text-xs">
                 {isCreator ? 'Creator Mode' : 'User Mode'}
               </div>
             </div>
-            <button className="text-white/70 hover:text-white">
+            <button className="text-gray-500 hover:text-gray-800">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
               </svg>

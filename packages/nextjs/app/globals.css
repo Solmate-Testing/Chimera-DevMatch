@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dark theme variables */
+/* Light theme variables */
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 15, 23, 42;
-  --background-end-rgb: 30, 41, 59;
+  --foreground-rgb: 31, 41, 55;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 249, 250, 251;
   --accent-rgb: 139, 92, 246;
   --secondary-rgb: 59, 130, 246;
 }
@@ -40,16 +40,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgb(30, 41, 59);
+  background: rgb(249, 250, 251);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgb(71, 85, 105);
+  background: rgb(209, 213, 219);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(100, 116, 139);
+  background: rgb(156, 163, 175);
 }
 
 /* Component utilities */
@@ -67,19 +67,19 @@ body {
   }
   
   .button-primary {
-    @apply bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50;
+    @apply bg-white hover:bg-gray-50 text-gray-800 font-medium py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 border border-gray-200 shadow-lg hover:shadow-gray-300/50;
   }
   
   .button-secondary {
-    @apply bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 border border-slate-600 hover:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-opacity-50;
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-all duration-200 border border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50;
   }
   
   .card {
-    @apply bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg p-6 shadow-lg;
+    @apply bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-6 shadow-lg;
   }
   
   .input {
-    @apply bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200;
+    @apply bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 shadow-sm;
   }
 }
 

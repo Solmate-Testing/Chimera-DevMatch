@@ -16,7 +16,6 @@ if (fs.existsSync(envPath)) {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   output: 'export',
   trailingSlash: true,
   images: {

@@ -3,10 +3,12 @@
 /* eslint-disable */
 import type * as interfaces from "./interfaces";
 export type { interfaces };
+export type { AICharacterNFT } from "./AICharacterNFT";
 export type { ERC7857AIAgents } from "./ERC7857AIAgents";
-export type { IDataVerifier } from "./IDataVerifier";
+export type { EnhancedMarketplace } from "./EnhancedMarketplace";
 export type { INFT } from "./INFT";
 export type { Marketplace } from "./Marketplace";
+export type { MockNFT } from "./MockNFT";
 export type { MockOracle } from "./MockOracle";
 export type { MockSapphire } from "./MockSapphire";
 export type { OasisTEEVerifier } from "./OasisTEEVerifier";

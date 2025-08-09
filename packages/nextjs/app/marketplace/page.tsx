@@ -3,14 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useScaffoldReadContract } from '../../hooks/scaffold-eth/useScaffoldReadContract';
-import { useScaffoldWriteContract } from '../../hooks/scaffold-eth/useScaffoldWriteContract';
-import { WalletIcon } from '@heroicons/react/24/outline';
+import { useEnhancedTransactions } from '../../hooks/useEnhancedTransactions';
 import { formatEther } from 'viem';
-import MarketplaceSidebar from '../../components/MarketplaceSidebar';
-import { WalletConnection } from '../../components/WalletConnection';
 import { generateCreatorProfile, type CreatorProfile } from '../../utils/avatarGenerator';
-import MarketplaceTestSuite from '../../components/MarketplaceTestSuite';
 import { useMockData, ALL_MOCK_AGENTS } from '../../utils/mockAnalyticsData';
+import Link from 'next/link';
+import { 
+  MagnifyingGlassIcon,
+  PlusIcon,
+  HeartIcon,
+  CurrencyDollarIcon,
+  UserIcon,
+  ShieldCheckIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon
+} from '@heroicons/react/24/outline';
 
 interface Agent {
   id: bigint;
@@ -33,12 +40,11 @@ interface CreatorShowcase {
 
 const MarketplacePage = () => {
   const { ready, authenticated, login, user } = usePrivy();
-  const [viewMode, setViewMode] = useState<'creator' | 'user'>('user');
+  const [viewMode, setViewMode] = useState<'Creator' | 'Collector'>('Collector');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAgent, setSelectedAgent] = useState<CreatorShowcase | null>(null);
   const [recentAgents, setRecentAgents] = useState<CreatorShowcase[]>([]);
-  const [isStaking, setIsStaking] = useState(false);
-  const [isLoving, setIsLoving] = useState(false);
+  const [featuredAgents, setFeaturedAgents] = useState<CreatorShowcase[]>([]);
 
   // Mock data for demo
   const mockData = useMockData();
@@ -57,8 +63,7 @@ const MarketplacePage = () => {
   // Check if we have real contract data
   const hasContractData = allAgents && Array.isArray(allAgents) && allAgents.length > 0;
 
-  const { writeContractAsync: stakeToAgent } = useScaffoldWriteContract('Marketplace');
-  const { writeContractAsync: loveAgent } = useScaffoldWriteContract('Marketplace');
+  const enhancedTx = useEnhancedTransactions();
 
   useEffect(() => {
     let showcases: CreatorShowcase[] = [];
@@ -80,7 +85,7 @@ const MarketplacePage = () => {
       }));
     } else {
       // Use mock data for demo
-      showcases = ALL_MOCK_AGENTS.slice(0, 8).map((mockAgent, index) => {
+      showcases = ALL_MOCK_AGENTS.slice(0, 12).map((mockAgent, index) => {
         const agent: Agent = {
           id: BigInt(mockAgent.id),
           creator: mockAgent.creator,
@@ -88,11 +93,11 @@ const MarketplacePage = () => {
           description: mockAgent.description,
           tags: mockAgent.tags,
           ipfsHash: mockAgent.ipfsHash,
-          totalStake: BigInt(mockAgent.totalStaked),
+          totalStake: BigInt(Math.floor(parseFloat(mockAgent.totalStaked))),
           isPrivate: mockAgent.isPrivate,
-          createdAt: BigInt(mockAgent.createdAt),
+          createdAt: BigInt(Math.floor(mockAgent.createdAt)),
           apiKeyHash: `hash${index}`,
-          loves: BigInt(mockAgent.loves)
+          loves: BigInt(Math.floor(mockAgent.loves))
         };
         
         return {
@@ -112,533 +117,439 @@ const MarketplacePage = () => {
     }
     
     setRecentAgents(showcases);
+    setFeaturedAgents(showcases.slice(0, 6));
     if (!selectedAgent && showcases.length > 0) {
       setSelectedAgent(showcases[0]);
     }
   }, [allAgents, hasContractData, selectedAgent]);
 
   const handleStakeAccess = async (agentId: bigint) => {
-    // Check authentication first
-    if (!ready) {
-      console.log('⏳ Privy not ready yet');
-      return;
-    }
-    
-    if (!authenticated) {
-      console.log('🔐 User not authenticated, prompting login');
-      login();
-      return;
-    }
-
-    if (!user?.wallet?.address) {
-      console.log('💳 No wallet connected');
-      alert('Please connect your wallet to stake');
-      return;
-    }
-    
-    console.log('🚀 Starting stake transaction for agent:', agentId.toString());
-    console.log('👤 User address:', user.wallet.address);
-    setIsStaking(true);
-    
     try {
-      // Log the transaction details
-      console.log('📊 Stake Details:', {
-        agentId: agentId.toString(),
-        amount: '0.01 ETH',
-        functionName: 'stakeToAgent',
-        userAddress: user.wallet.address
+      await enhancedTx.stakeToAgent(agentId, BigInt(10000000000000000), {
+        onProgress: (stage) => console.log('🎯 Stake progress:', stage),
+        onSuccess: (receipt) => {
+          console.log('✅ Stake successful:', receipt);
+          // Refresh the page data
+          window.location.reload();
+        },
+        onError: (error) => {
+          console.error('❌ Stake failed:', error);
+          alert(`Staking failed: ${error.message}`);
+        }
       });
-      
-      const result = await stakeToAgent({
-        functionName: 'stakeToAgent',
-        args: [agentId],
-        value: BigInt(10000000000000000), // 0.01 ETH minimum stake
-      });
-      
-      console.log('✅ Stake transaction successful:', result);
-      
-      // Refresh agents after successful stake
-      window.location.reload();
-      
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Staking failed:', error);
-      alert(`Staking failed: ${error?.message || 'Unknown error'}. Please check console for details.`);
-    } finally {
-      setIsStaking(false);
+      alert(`Staking failed: ${error.message || 'Unknown error'}`);
     }
   };
 
   const handleLoveAgent = async (agentId: bigint) => {
-    // Check authentication first
-    if (!ready) {
-      console.log('⏳ Privy not ready yet');
-      return;
-    }
-    
-    if (!authenticated) {
-      console.log('🔐 User not authenticated, prompting login');
-      login();
-      return;
-    }
-
-    if (!user?.wallet?.address) {
-      console.log('💳 No wallet connected');
-      alert('Please connect your wallet to love an agent');
-      return;
-    }
-    
-    console.log('💖 Starting love transaction for agent:', agentId.toString());
-    console.log('👤 User address:', user.wallet.address);
-    setIsLoving(true);
-    
     try {
-      console.log('📊 Love Details:', {
-        agentId: agentId.toString(),
-        functionName: 'loveAgent',
-        userAddress: user.wallet.address
+      await enhancedTx.loveAgent(agentId, {
+        onProgress: (stage) => console.log('💖 Love progress:', stage),
+        onSuccess: (receipt) => {
+          console.log('✅ Love successful:', receipt);
+          
+          // Update UI optimistically
+          setRecentAgents(prevAgents => 
+            prevAgents.map(showcase => 
+              showcase.agent.id === agentId 
+                ? { ...showcase, agent: { ...showcase.agent, loves: showcase.agent.loves + BigInt(1) }}
+                : showcase
+            )
+          );
+          
+          // Update selected agent if it's the same one
+          if (selectedAgent?.agent.id === agentId) {
+            setSelectedAgent(prev => prev ? {
+              ...prev,
+              agent: { ...prev.agent, loves: prev.agent.loves + BigInt(1) }
+            } : null);
+          }
+        },
+        onError: (error) => {
+          console.error('❌ Love failed:', error);
+          alert(`Love failed: ${error.message}`);
+        }
       });
-      
-      const result = await loveAgent({
-        functionName: 'loveAgent',
-        args: [agentId],
-      });
-      
-      console.log('✅ Love transaction successful:', result);
-      
-      // Refresh agents after successful love
-      window.location.reload();
-      
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Love failed:', error);
-      alert(`Love failed: ${error?.message || 'Unknown error'}. Please check console for details.`);
-    } finally {
-      setIsLoving(false);
+      alert(`Love failed: ${error.message || 'Unknown error'}`);
     }
   };
 
-  const filteredAgents = recentAgents.filter(showcase =>
-    showcase.agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    showcase.agent.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    showcase.agent.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const handleTransferAgent = async (agentId: bigint) => {
+    if (!authenticated || !user?.wallet?.address) {
+      alert('Please connect your wallet first');
+      return;
+    }
+
+    const toAddress = prompt('Enter recipient address:');
+    if (!toAddress || toAddress.length !== 42 || !toAddress.startsWith('0x')) {
+      alert('Please enter a valid Ethereum address');
+      return;
+    }
+
+    try {
+      // This would call a transfer function on the smart contract
+      console.log(`Transferring agent ${agentId} to ${toAddress}`);
+      
+      // Example implementation - you'd need to add this to your contract
+      // const result = await transferAgent({
+      //   functionName: 'transferAgent',
+      //   args: [agentId, toAddress],
+      // });
+      
+      alert('Transfer functionality coming soon! This would transfer the agent to: ' + toAddress);
+    } catch (error) {
+      console.error('Transfer failed:', error);
+      alert('Transfer failed: ' + error?.message);
+    }
+  };
+
+  const filteredAgents = recentAgents.filter(showcase => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+    
+    return (
+      showcase.agent.name.toLowerCase().includes(query) ||
+      showcase.agent.description.toLowerCase().includes(query) ||
+      showcase.agent.tags.some(tag => tag.toLowerCase().includes(query)) ||
+      showcase.profile.name.toLowerCase().includes(query) ||
+      showcase.profile.specialization.toLowerCase().includes(query)
+    );
+  });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 flex">
-      {/* Sidebar */}
-      <MarketplaceSidebar 
-        userAddress={user?.wallet?.address || "Not connected"}
-        isCreator={viewMode === 'creator'} 
-      />
-      
-      {/* Main Content */}
-      <div className="flex-1 ml-64">
-      {/* Header */}
-      <header className="bg-white/10 backdrop-blur-md border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white relative">
+      {/* Top Navigation Bar */}
+      <nav className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-16 z-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <div className="text-2xl font-bold text-white">
-                Chimera DevMatch
+            {/* Left: Logo with Creator/Collector Toggle */}
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center bg-gray-100 rounded-full p-1">
+                <button
+                  onClick={() => setViewMode('Creator')}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                    viewMode === 'Creator'
+                      ? 'bg-white text-gray-800 shadow-lg'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200'
+                  }`}
+                >
+                  Creator
+                </button>
+                <button
+                  onClick={() => setViewMode('Collector')}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                    viewMode === 'Collector'
+                      ? 'bg-white text-gray-800 shadow-lg'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200'
+                  }`}
+                >
+                  Collector
+                </button>
               </div>
             </div>
 
-            {/* Toggle */}
-            <div className="flex items-center bg-white/20 rounded-full p-1">
-              <button
-                onClick={() => {
-                  console.log('👨‍💼 Switched to Creator mode');
-                  setViewMode('creator');
-                }}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  viewMode === 'creator' 
-                    ? 'bg-white text-purple-900 shadow-lg' 
-                    : 'text-white hover:bg-white/10'
-                }`}
-              >
-                Creator
-              </button>
-              <button
-                onClick={() => {
-                  console.log('👤 Switched to User mode');
-                  setViewMode('user');
-                }}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  viewMode === 'user' 
-                    ? 'bg-white text-purple-900 shadow-lg' 
-                    : 'text-white hover:bg-white/10'
-                }`}
-              >
-                User
-              </button>
-            </div>
-
-            {/* Search Bar */}
+            {/* Center: Search Bar */}
             <div className="flex-1 max-w-lg mx-8">
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search AI Agents, MCPs, Copy Bots"
+                  placeholder="Search NFT's, Collections"
                   value={searchQuery}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    console.log('🔍 Search query changed:', value);
-                    setSearchQuery(value);
-                  }}
-                  className="w-full pl-4 pr-10 py-2 bg-white/20 border border-white/30 rounded-full text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent"
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-2xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200 shadow-sm"
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg className="h-5 w-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               </div>
             </div>
 
-            {/* Wallet & Publish Section */}
-            <div className="flex items-center space-x-4">
-              {/* Wallet Connection */}
-              <WalletConnection />
-              
-              {/* Publish Button */}
-              <button 
-                onClick={() => {
-                  console.log('🔥 Publish Agent button clicked - navigating to upload page');
-                  window.location.href = '/upload';
-                }}
-                className="bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white px-6 py-2 rounded-full font-semibold shadow-lg transform hover:scale-105 transition-all"
-              >
-                Publish Agent
-              </button>
+            {/* Right: Add NFT Button */}
+            <div className="flex items-center">
+              <Link href="/upload">
+                <button className="bg-purple-500 text-white p-3 rounded-full shadow-lg hover:bg-purple-600 transform hover:scale-105 transition-all duration-200">
+                  <PlusIcon className="h-5 w-5" />
+                </button>
+              </Link>
             </div>
           </div>
         </div>
-      </header>
+      </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Wallet Connection Notice */}
-        {ready && !authenticated && (
-          <div className="flex justify-center mb-6">
-            <div className="bg-purple-500/20 border border-purple-400/30 rounded-lg px-6 py-4 text-purple-200 backdrop-blur-md">
-              <div className="flex items-center space-x-3">
-                <WalletIcon className="h-5 w-5 text-purple-300" />
-                <div>
-                  <div className="font-semibold">Connect your wallet to stake and interact with AI agents</div>
-                  <div className="text-sm text-purple-300 mt-1">
-                    Click "Connect Wallet" above to get started with staking and earning from AI agents
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Demo Data Indicator */}
-        {!hasContractData && (
-          <div className="flex justify-center mb-6">
-            <div className="bg-blue-500/20 border border-blue-400/30 rounded-lg px-6 py-3 text-blue-200 text-sm backdrop-blur-md">
-              📊 <strong>Demo Mode:</strong> Showcasing marketplace with mock agent data - Try the upload page to create real agents!
-            </div>
-          </div>
-        )}
+      {/* Main Content */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Recent AI Agents */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-              <h2 className="text-xl font-semibold text-white mb-6">
-                Recent AI Agents ({filteredAgents.length})
-              </h2>
-              
-              <div className="flex overflow-x-auto space-x-4 pb-4">
-                {filteredAgents.map((showcase) => (
+        {/* Main Dashboard Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Left Column - Recent Collections */}
+          <div className="lg:col-span-3 space-y-8">
+            {/* Recent Collections Section */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Recent Collections</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAgents.slice(0, 6).map((showcase) => (
                   <div
                     key={showcase.agent.id.toString()}
                     onClick={() => {
-                      console.log('🎯 Selected agent:', {
-                        id: showcase.agent.id.toString(),
-                        name: showcase.agent.name,
-                        creator: showcase.agent.creator
-                      });
-                      setSelectedAgent(showcase);
+                      // Navigate to full-screen agent page
+                      window.location.href = `/agent/${showcase.agent.id}`;
                     }}
-                    className="flex-none w-80 bg-white/10 rounded-xl p-4 cursor-pointer hover:bg-white/20 transition-all transform hover:scale-105 border border-white/10"
+                    className="group bg-white rounded-2xl p-6 border border-gray-200 cursor-pointer hover:border-gray-300 hover:shadow-lg transition-all duration-300 shadow-sm"
                   >
-                    {/* Creator Info */}
-                    <div className="flex items-center space-x-3 mb-3">
-                      <img 
-                        src={showcase.profile.avatar.url} 
+                    {/* Agent Main Image */}
+                    <div className="mb-4">
+                      <img
+                        src={showcase.profile.avatar.url}
                         alt={showcase.profile.name}
-                        className="w-8 h-8 rounded-full"
+                        className="w-full h-48 rounded-xl object-cover object-top bg-gray-100"
                       />
-                      <div>
+                    </div>
+                    
+                    {/* Creator Info */}
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <span className="text-white font-medium text-sm">
+                          <span className="text-gray-800 font-medium text-sm">
                             {showcase.profile.name}
                           </span>
                           {showcase.profile.verified && (
-                            <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
+                            <ShieldCheckIcon className="w-4 h-4 text-blue-400" />
                           )}
                         </div>
-                        <div className="text-white/60 text-xs">{showcase.profile.specialization}</div>
+                        <div className="text-gray-500 text-xs">{showcase.profile.specialization}</div>
                       </div>
+                    </div>
+
+                    {/* Agent Title */}
+                    <div className="mb-4">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-1">{showcase.agent.name}</h3>
+                      <p className="text-gray-600 text-sm line-clamp-2">{showcase.agent.description}</p>
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
+                    <div className="grid grid-cols-3 gap-3 mb-4">
                       <div className="text-center">
-                        <div className="text-white font-semibold">{showcase.profile.stats.activeUsers}</div>
-                        <div className="text-white/70">Active Users</div>
+                        <div className="text-gray-800 font-semibold text-sm">{showcase.profile.stats.activeUsers}</div>
+                        <div className="text-gray-500 text-xs">Items</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-white font-semibold">{showcase.profile.stats.successRate}%</div>
-                        <div className="text-white/70">Success Rate</div>
+                        <div className="text-gray-800 font-semibold text-sm">{Math.floor(Number(showcase.agent.loves) / 10)}</div>
+                        <div className="text-gray-500 text-xs">Owners</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-white font-semibold">{showcase.profile.stats.responseTime}</div>
-                        <div className="text-white/70">Response Time</div>
+                        <div className="text-gray-800 font-semibold text-sm">{showcase.agent.loves.toString()}</div>
+                        <div className="text-gray-500 text-xs">Likes</div>
                       </div>
                     </div>
 
-                    {/* Preview Image with Color Theme */}
-                    <div 
-                      className="rounded-lg h-32 mb-3 flex items-center justify-center"
-                      style={{
-                        background: `linear-gradient(135deg, ${showcase.profile.colorTheme.primary}20, ${showcase.profile.colorTheme.secondary}20)`
-                      }}
-                    >
-                      <img 
-                        src={showcase.profile.avatar.url} 
-                        alt={showcase.agent.name}
-                        className="w-16 h-16 rounded-lg"
-                      />
-                    </div>
-
-                    {/* Price and Privacy */}
+                    {/* Price */}
                     <div className="flex items-center justify-between">
-                      <div className="text-white font-semibold">
-                        {showcase.profile.stats.monthlyFee} CHM
+                      <div className="flex items-center justify-between">
+                        <div className="text-gray-600 text-sm">
+                          {showcase.profile.specialization}
+                        </div>
+                        <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center space-x-1">
+                          <CurrencyDollarIcon className="w-4 h-4" />
+                          <span>{mockData.formatEthAmount(showcase.agent.totalStake.toString())} ETH</span>
+                        </div>
                       </div>
-                      {showcase.agent.isPrivate && (
-                        <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
                     </div>
-
-                    {/* Agent Name */}
-                    <div className="mt-2 text-white font-medium">{showcase.agent.name}</div>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* History Section */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-              <div className="flex space-x-6 mb-6">
-                <button className="text-white border-b-2 border-white pb-2 font-medium">All Activity</button>
-                <button className="text-white/70 hover:text-white pb-2">Subscriptions</button>
-                <button className="text-white/70 hover:text-white pb-2">Agent Runs</button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="text-white/70 text-sm">
-                      <th className="text-left pb-3">Event</th>
-                      <th className="text-left pb-3">From/To</th>
-                      <th className="text-left pb-3">Runs</th>
-                      <th className="text-left pb-3">Value</th>
-                      <th className="text-left pb-3">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-white text-sm">
-                    <tr className="border-t border-white/10">
-                      <td className="py-3">Subscribe</td>
-                      <td className="py-3">Creator → User</td>
-                      <td className="py-3">-</td>
-                      <td className="py-3">0.05 CHM</td>
-                      <td className="py-3">2 hours ago</td>
-                    </tr>
-                    <tr className="border-t border-white/10">
-                      <td className="py-3">Run</td>
-                      <td className="py-3">User → Agent</td>
-                      <td className="py-3">15</td>
-                      <td className="py-3">0.01 CHM</td>
-                      <td className="py-3">5 hours ago</td>
-                    </tr>
-                  </tbody>
-                </table>
+            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm rounded-3xl p-6 border border-slate-700/50">
+              <h3 className="text-xl font-bold text-white mb-6">Transaction History</h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-5 gap-4 text-slate-400 text-sm font-medium border-b border-slate-700/50 pb-3">
+                  <div>Event</div>
+                  <div>From/To</div>
+                  <div>Amount</div>
+                  <div>Value</div>
+                  <div>Date</div>
+                </div>
+                {[
+                  { event: 'Stake', fromTo: 'User → Agent #1', amount: '0.01 ETH', value: '$25.30', date: '2 hours ago' },
+                  { event: 'Love', fromTo: 'User → Agent #5', amount: '-', value: '-', date: '5 hours ago' },
+                  { event: 'Stake', fromTo: 'User → Agent #3', amount: '0.02 ETH', value: '$50.60', date: '1 day ago' },
+                ].map((tx, index) => (
+                  <div key={index} className="grid grid-cols-5 gap-4 text-white text-sm py-3 border-b border-slate-700/30 hover:bg-slate-700/20 rounded-lg transition-colors duration-200">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+                        {tx.event === 'Stake' ? <CurrencyDollarIcon className="w-4 h-4 text-white" /> : <HeartIcon className="w-4 h-4 text-white" />}
+                      </div>
+                      <span>{tx.event}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <UserIcon className="w-4 h-4 text-slate-400" />
+                      <span>{tx.fromTo}</span>
+                    </div>
+                    <div>{tx.amount}</div>
+                    <div>{tx.value}</div>
+                    <div className="text-slate-400">{tx.date}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Right Column - Agent Detail */}
+          {/* Right Column - Featured NFT Detail */}
           {selectedAgent && (
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-              {/* Developer Info */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 sticky top-32 h-fit shadow-lg">
+              {/* NFT Owner Info */}
               <div className="flex items-center space-x-3 mb-6">
-                <img 
-                  src={selectedAgent.profile.avatar.url} 
+                <img
+                  src={selectedAgent.profile.avatar.url}
                   alt={selectedAgent.profile.name}
-                  className="w-12 h-12 rounded-full"
+                  className="w-12 h-12 rounded-full ring-2 ring-gray-200 object-cover object-top"
                 />
-                <div>
+                <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    <span className="text-white font-semibold">
+                    <span className="text-gray-800 font-semibold">
                       {selectedAgent.profile.name}
                     </span>
                     {selectedAgent.profile.verified && (
-                      <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
+                      <ShieldCheckIcon className="w-5 h-5 text-blue-400" />
                     )}
                   </div>
-                  <div className="text-white/70 text-sm">@{selectedAgent.profile.handle}</div>
-                  <div className="text-white/60 text-xs">{selectedAgent.profile.specialization}</div>
+                  <div className="text-gray-500 text-sm">@{selectedAgent.profile.handle}</div>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="flex space-x-3 mb-6">
                 <button 
-                  onClick={() => {
-                    console.log('🚀 Navigating to agent:', selectedAgent.agent.id.toString());
-                    window.location.href = `/agent/${selectedAgent.agent.id}`;
-                  }}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center space-x-2"
+                  onClick={() => handleStakeAccess(selectedAgent.agent.id)}
+                  disabled={enhancedTx.transactionState.isLoading || enhancedTx.transactionState.isPending || !ready}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-400 disabled:to-gray-500 text-white px-4 py-3 rounded-2xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                  </svg>
-                  <span>Run Agent</span>
+                  {enhancedTx.transactionState.isLoading ? 'Preparing...' : 
+                   enhancedTx.transactionState.isPending ? 'Confirming...' : 'Buy'}
                 </button>
                 <button 
-                  onClick={() => handleStakeAccess(selectedAgent.agent.id)}
-                  disabled={isStaking || !ready}
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center space-x-2 ${
-                    isStaking || !ready
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : !authenticated
-                      ? 'bg-blue-500 hover:bg-blue-600'
-                      : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
-                  } text-white`}
+                  onClick={() => handleTransferAgent(selectedAgent.agent.id)}
+                  disabled={enhancedTx.transactionState.isLoading || enhancedTx.transactionState.isPending}
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-400 disabled:to-gray-500 text-white px-4 py-3 rounded-2xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  {!ready ? (
-                    <>
-                      <svg className="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      <span>Loading...</span>
-                    </>
-                  ) : isStaking ? (
-                    <>
-                      <svg className="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      <span>Staking...</span>
-                    </>
-                  ) : !authenticated ? (
-                    <>
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 8A8 8 0 11.314 3.314l1.414 1.414A6 6 0 1016 16a6.01 6.01 0 01-1.938-2H16a2 2 0 110-4H9a1 1 0 000 2h7z" clipRule="evenodd" />
-                      </svg>
-                      <span>Connect to Stake</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                      </svg>
-                      <span>Stake Access (0.01 ETH)</span>
-                    </>
-                  )}
+                  Transfer
                 </button>
               </div>
 
-              {/* Large Preview with Color Theme */}
+              {/* Large NFT Preview */}
               <div 
-                className="rounded-xl h-48 mb-6 flex items-center justify-center relative overflow-hidden"
+                className="rounded-3xl h-80 mb-6 flex items-center justify-center relative overflow-hidden group"
                 style={{
-                  background: `linear-gradient(135deg, ${selectedAgent.profile.colorTheme.primary}30, ${selectedAgent.profile.colorTheme.secondary}30)`
+                  background: `linear-gradient(135deg, ${selectedAgent.profile.colorTheme.primary}50, ${selectedAgent.profile.colorTheme.secondary}50)`,
                 }}
               >
-                <img 
-                  src={selectedAgent.profile.avatar.url} 
+                <img
+                  src={selectedAgent.profile.avatar.url}
                   alt={selectedAgent.agent.name}
-                  className="w-24 h-24 rounded-xl relative z-10"
+                  className="w-32 h-32 rounded-3xl shadow-2xl group-hover:scale-110 transition-transform duration-300 object-cover object-top"
                 />
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/20"></div>
-              </div>
-
-              {/* Agent Info */}
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold text-white mb-2">{selectedAgent.agent.name}</h3>
-                <p className="text-white/70 text-sm mb-3">{selectedAgent.agent.description}</p>
-                <div className="text-white/50 text-xs">ID: #{selectedAgent.agent.id.toString()}</div>
-              </div>
-
-              {/* Stats Row */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-white/5 rounded-lg p-3">
-                  <div className="text-white font-semibold">{selectedAgent.profile.stats.activeUsers}</div>
-                  <div className="text-white/70 text-sm">Active Users</div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                
+                {/* Floating stats */}
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between">
+                  <div className="bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm">
+                    <HeartIcon className="w-4 h-4 inline mr-1" />
+                    {selectedAgent.agent.loves.toString()}
+                  </div>
+                  <div className="bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm">
+                    <UserIcon className="w-4 h-4 inline mr-1" />
+                    {selectedAgent.profile.stats.activeUsers}
+                  </div>
                 </div>
-                <div className="bg-white/5 rounded-lg p-3">
-                  <div className="text-white font-semibold">{selectedAgent.profile.stats.monthlyFee} CHM</div>
-                  <div className="text-white/70 text-sm">Monthly Fee</div>
+              </div>
+
+              {/* NFT Name and ID */}
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold text-white mb-2">{selectedAgent.agent.name}</h3>
+                <div className="text-slate-400 text-sm mb-3">#{selectedAgent.agent.id.toString()}</div>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  {selectedAgent.agent.description}
+                </p>
+              </div>
+
+              {/* Stats in Rounded Badges */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full px-4 py-2 border border-blue-500/30">
+                  <div className="text-white font-semibold text-sm">{selectedAgent.profile.stats.activeUsers}</div>
+                  <div className="text-slate-400 text-xs">Followers</div>
+                </div>
+                <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-full px-4 py-2 border border-yellow-500/30 flex items-center space-x-1">
+                  <CurrencyDollarIcon className="w-4 h-4 text-yellow-400" />
+                  <span className="text-white font-semibold text-sm">{mockData.formatEthAmount(selectedAgent.agent.totalStake.toString())} ETH</span>
                 </div>
               </div>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-6">
                 {selectedAgent.agent.tags.map((tag, index) => (
-                  <span key={index} className="bg-white/20 text-white text-xs px-2 py-1 rounded-full">
+                  <span key={index} className="bg-slate-700/50 text-slate-300 text-xs px-3 py-1 rounded-full border border-slate-600/50">
                     {tag}
                   </span>
                 ))}
               </div>
 
-              {/* Favorite Button */}
+              {/* Love Button */}
               <button 
                 onClick={() => handleLoveAgent(selectedAgent.agent.id)}
-                disabled={isLoving}
-                className={`w-full py-2 rounded-lg font-medium transition-all flex items-center justify-center space-x-2 ${
-                  isLoving 
-                    ? 'bg-gray-400 cursor-not-allowed text-white' 
-                    : 'bg-white/10 hover:bg-white/20 text-white'
-                }`}
+                disabled={enhancedTx.transactionState.isLoading || enhancedTx.transactionState.isPending}
+                className="w-full py-3 rounded-2xl font-semibold transition-all duration-200 transform hover:scale-105 bg-gradient-to-r from-pink-500/20 to-red-500/20 hover:from-pink-500/30 hover:to-red-500/30 disabled:from-gray-500/10 disabled:to-gray-500/10 text-white border border-pink-500/30 hover:border-pink-500/50 disabled:border-gray-500/30 flex items-center justify-center space-x-2 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {isLoving ? (
-                  <>
-                    <svg className="animate-spin w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    <span>Loving...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                    </svg>
-                    <span>Add to Favorites ({selectedAgent.agent.loves.toString()})</span>
-                  </>
-                )}
+                <HeartIcon className="w-5 h-5" />
+                <span>
+                  {enhancedTx.transactionState.isLoading ? 'Preparing...' :
+                   enhancedTx.transactionState.isPending ? 'Adding...' :
+                   `Add to Favorites (${selectedAgent.agent.loves.toString()})`}
+                </span>
               </button>
             </div>
           )}
           
-          {/* Test Suite - Only show in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-8">
-              <MarketplaceTestSuite />
-            </div>
-          )}
         </div>
-      </div>
+
+        {/* Transaction Status Notifications */}
+        {enhancedTx.transactionState.error && (
+          <div className="fixed bottom-6 right-6 bg-red-500/90 backdrop-blur-sm text-white p-4 rounded-2xl shadow-lg border border-red-400/50 max-w-md">
+            <div className="flex items-center space-x-2 mb-2">
+              <ExclamationTriangleIcon className="w-5 h-5" />
+              <span className="font-semibold">Transaction Failed</span>
+            </div>
+            <p className="text-sm">{enhancedTx.transactionState.error}</p>
+            <button
+              onClick={enhancedTx.clearError}
+              className="mt-2 text-xs underline opacity-80 hover:opacity-100"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {enhancedTx.transactionState.isConfirmed && (
+          <div className="fixed bottom-6 right-6 bg-green-500/90 backdrop-blur-sm text-white p-4 rounded-2xl shadow-lg border border-green-400/50 max-w-md">
+            <div className="flex items-center space-x-2 mb-2">
+              <CheckCircleIcon className="w-5 h-5" />
+              <span className="font-semibold">Transaction Successful!</span>
+            </div>
+            {enhancedTx.transactionState.txHash && (
+              <p className="text-sm">
+                Hash: {enhancedTx.transactionState.txHash.slice(0, 10)}...
+              </p>
+            )}
+            <button
+              onClick={enhancedTx.reset}
+              className="mt-2 text-xs underline opacity-80 hover:opacity-100"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -661,7 +661,7 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
               
               <div className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
                 <div className="text-sm text-slate-300 mb-3">
-                  💡 <strong>Note:</strong> Since you're uploading your own AI agent, external API keys are typically not required.
+                  💡 <strong>Note:</strong> Most agents handle their own inference - external APIs only needed if calling OpenAI/Claude.
                 </div>
                 
                 {/* API Key Type Selection */}
@@ -683,10 +683,10 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
                     />
                     <div className="flex-1">
                       <div className="text-sm font-medium text-slate-200">
-                        🎯 No External API Required (Recommended)
+                        🎯 Self-contained Agent (Recommended)
                       </div>
                       <div className="text-xs text-slate-400">
-                        Your uploaded agent handles its own inference
+                        Agent handles own inference
                       </div>
                     </div>
                   </label>
@@ -707,10 +707,10 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
                     />
                     <div className="flex-1">
                       <div className="text-sm font-medium text-slate-200">
-                        🔑 Use External API Service
+                        🔑 External AI Service
                       </div>
                       <div className="text-xs text-slate-400">
-                        Only if your agent needs to call external AI APIs
+                        For OpenAI/Claude/etc API calls
                       </div>
                     </div>
                   </label>

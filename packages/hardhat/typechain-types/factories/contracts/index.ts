@@ -2,10 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as interfaces from "./interfaces";
+export { AICharacterNFT__factory } from "./AICharacterNFT__factory";
 export { ERC7857AIAgents__factory } from "./ERC7857AIAgents__factory";
-export { IDataVerifier__factory } from "./IDataVerifier__factory";
+export { EnhancedMarketplace__factory } from "./EnhancedMarketplace__factory";
 export { INFT__factory } from "./INFT__factory";
 export { Marketplace__factory } from "./Marketplace__factory";
+export { MockNFT__factory } from "./MockNFT__factory";
 export { MockOracle__factory } from "./MockOracle__factory";
 export { MockSapphire__factory } from "./MockSapphire__factory";
 export { OasisTEEVerifier__factory } from "./OasisTEEVerifier__factory";

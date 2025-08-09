@@ -20,6 +20,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createPublicClient, http, createWalletClient, parseAbi } from 'viem';
 import { sepolia } from 'viem/chains';
 
+// Required for static export
+export const dynamic = 'force-static';
+export const revalidate = false;
+
 // Types
 interface InferenceRequest {
   agentId: string;

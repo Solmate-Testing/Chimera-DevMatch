@@ -79,19 +79,42 @@ export const generateAvatarPrompt = (agent: AgentData): string => {
 };
 
 /**
- * Generate avatar URL using the prompt (placeholder for Flux integration)
+ * Generate avatar URL using pixelized creator characters
  */
 export const generateAvatarUrl = (agent: AgentData): string => {
-  // For development, use a deterministic placeholder based on agent characteristics
-  const seed = `${agent.name}-${agent.id}`;
-  const style = determineAvatarStyle(agent);
-  
-  // Return dicebear with specific style based on agent type
-  return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9&radius=15`;
+  // Use the pixelized creator images based on agent characteristics
+  const creatorIndex = getCreatorImageIndex(agent);
+  return `/creators/creator${creatorIndex}.png`;
 };
 
 /**
- * Determine avatar style for placeholder system
+ * Determine which creator image to use based on agent characteristics
+ */
+const getCreatorImageIndex = (agent: AgentData): number => {
+  const description = agent.description.toLowerCase();
+  const tags = agent.tags.map(tag => tag.toLowerCase());
+  const allText = `${description} ${tags.join(' ')}`;
+  const agentId = typeof agent.id === 'string' ? parseInt(agent.id) || 0 : Number(agent.id);
+  
+  // Determine creator type based on specialization and use consistent mapping
+  if (allText.includes('ai') || allText.includes('tech') || allText.includes('coding')) {
+    return ((agentId % 2) === 0) ? 1 : 4; // Tech: creator1 or creator4
+  } else if (allText.includes('trading') || allText.includes('finance') || allText.includes('investment')) {
+    return ((agentId % 2) === 0) ? 2 : 5; // Finance: creator2 or creator5
+  } else if (allText.includes('creative') || allText.includes('art') || allText.includes('design')) {
+    return ((agentId % 2) === 0) ? 3 : 6; // Creative: creator3 or creator6
+  } else if (allText.includes('data') || allText.includes('analytics') || allText.includes('research')) {
+    return ((agentId % 2) === 0) ? 1 : 4; // Data: creator1 or creator4
+  } else if (allText.includes('game') || allText.includes('entertainment') || allText.includes('bot')) {
+    return ((agentId % 2) === 0) ? 5 : 6; // Gaming: creator5 or creator6
+  } else {
+    // Default: cycle through all creators based on agent ID
+    return (agentId % 6) + 1; // Returns 1-6
+  }
+};
+
+/**
+ * Determine avatar style description for pixelized characters
  */
 const determineAvatarStyle = (agent: AgentData): string => {
   const description = agent.description.toLowerCase();
@@ -99,15 +122,17 @@ const determineAvatarStyle = (agent: AgentData): string => {
   const allText = `${description} ${tags.join(' ')}`;
   
   if (allText.includes('ai') || allText.includes('tech')) {
-    return 'identicon'; // Geometric, tech-like
+    return 'Tech Professional'; // Modern, tech-savvy
   } else if (allText.includes('trading') || allText.includes('finance')) {
-    return 'bottts'; // Robot-like, professional
+    return 'Financial Expert'; // Professional, business-oriented
   } else if (allText.includes('creative') || allText.includes('art')) {
-    return 'pixel-art'; // Creative, colorful
+    return 'Creative Artist'; // Artistic, innovative
   } else if (allText.includes('data') || allText.includes('research')) {
-    return 'identicon'; // Clean, analytical
+    return 'Data Scientist'; // Analytical, precise
+  } else if (allText.includes('game') || allText.includes('entertainment')) {
+    return 'Gaming Specialist'; // Fun, engaging
   } else {
-    return 'adventurer'; // Friendly, approachable
+    return 'AI Specialist'; // General, versatile
   }
 };
 

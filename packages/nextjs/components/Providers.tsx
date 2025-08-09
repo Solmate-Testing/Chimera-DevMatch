@@ -36,7 +36,7 @@ import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { mainnet, sepolia, hardhat } from 'wagmi/chains';
-import { sapphireTestnet } from '../scaffold.config';
+import scaffoldConfig, { sapphireTestnet } from '../scaffold.config';
 import { PRIVY_CONFIG } from '../lib/privy-config';
 
 /**
@@ -49,7 +49,7 @@ import { PRIVY_CONFIG } from '../lib/privy-config';
  */
 const wagmiConfig = getDefaultConfig({
   appName: 'Chimera DevMatch',
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '2f05a7cae10b91d50c8d579c6dd15154',
+  projectId: scaffoldConfig.walletConnectProjectId,
   chains: [hardhat, sepolia, sapphireTestnet, mainnet],
   ssr: true,
 });

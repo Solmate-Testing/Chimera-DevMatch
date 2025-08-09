@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { WalletConnection } from './WalletConnection';
 import { LoadingSpinner } from './LoadingSpinner';
+import { CollapsibleSidebar } from './CollapsibleSidebar';
 import { 
   Bars3Icon, 
   XMarkIcon,
@@ -34,14 +35,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { login, logout, ready, authenticated, user } = usePrivy();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
-
-  const navigation = [
-    { name: 'Home', href: '/', icon: HomeIcon },
-    { name: 'Upload Agent', href: '/upload', icon: CloudArrowUpIcon },
-    { name: 'Dashboard', href: '/dashboard', icon: ChartBarIcon },
-  ];
 
   const handleLogin = () => {
     login();
@@ -54,63 +48,48 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   if (!ready) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Header */}
-      <header className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
+      {/* Minimal Header */}
+      <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Top">
           <div className="flex h-16 items-center justify-between">
             {/* Logo and Brand */}
             <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-500">
-                  <RocketLaunchIcon className="h-5 w-5 text-white" />
+              <Link href="/" className="flex items-center space-x-3">
+                {/* Cute Chimera Logo */}
+                <div className="relative">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-blue-500 shadow-lg">
+                    <span className="text-xl">🦄</span>
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-pink-500 rounded-full animate-pulse"></div>
                 </div>
-                <span className="text-xl font-bold text-white">
-                  Chimera DevMatch
+                <span className="text-xl font-bold text-gray-800 tracking-tight">
+                  Chimera
                 </span>
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="flex items-center space-x-1 text-slate-300 hover:text-white transition-colors duration-200"
-                >
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.name}</span>
-                </Link>
-              ))}
-            </div>
-
-            {/* Desktop Auth & Wallet */}
-            <div className="hidden md:flex items-center space-x-4">
+            {/* Right Side: Auth & Wallet */}
+            <div className="flex items-center space-x-4">
               {authenticated ? (
                 <>
                   <WalletConnection />
                   <div className="flex items-center space-x-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
-                        <span className="text-sm font-medium text-white">
-                          {user?.google?.name?.charAt(0) || user?.email?.address?.charAt(0) || '?'}
-                        </span>
-                      </div>
-                      <div className="text-sm text-slate-300">
-                        {user?.google?.name || user?.email?.address?.split('@')[0] || 'User'}
-                      </div>
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center shadow-lg">
+                      <span className="text-sm font-medium text-white">
+                        {user?.google?.name?.charAt(0) || user?.email?.address?.charAt(0) || '?'}
+                      </span>
                     </div>
                     <button
                       onClick={handleLogout}
-                      className="text-sm text-slate-400 hover:text-white transition-colors duration-200"
+                      className="text-sm text-gray-600 hover:text-gray-800 transition-colors duration-200"
                     >
                       Logout
                     </button>
@@ -119,149 +98,42 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               ) : (
                 <button
                   onClick={handleLogin}
-                  className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                  className="bg-white hover:bg-gray-50 text-gray-800 px-6 py-2.5 rounded-full font-medium transition-all duration-200 transform hover:scale-105 shadow-lg border border-gray-200 hover:shadow-gray-300/50"
                 >
-                  Login with Google/Email
+                  Connect Wallet
                 </button>
               )}
             </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <button
-                type="button"
-                className="text-slate-300 hover:text-white"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                <span className="sr-only">Open main menu</span>
-                {mobileMenuOpen ? (
-                  <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                ) : (
-                  <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-                )}
-              </button>
-            </div>
           </div>
 
-          {/* Mobile menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-slate-700 pt-4 pb-3">
-              <div className="space-y-1">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="flex items-center space-x-2 px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-700 rounded-md transition-colors duration-200"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.name}</span>
-                  </Link>
-                ))}
-              </div>
-              
-              <div className="border-t border-slate-700 mt-3 pt-3">
-                {authenticated ? (
-                  <div className="space-y-3">
-                    <div className="px-3">
-                      <WalletConnection />
-                    </div>
-                    <div className="flex items-center px-3 py-2">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center mr-3">
-                        <span className="text-sm font-medium text-white">
-                          {user?.google?.name?.charAt(0) || user?.email?.address?.charAt(0) || '?'}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium text-white">
-                          {user?.google?.name || user?.email?.address?.split('@')[0] || 'User'}
-                        </div>
-                        <button
-                          onClick={handleLogout}
-                          className="text-xs text-slate-400 hover:text-white transition-colors duration-200"
-                        >
-                          Logout
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="px-3">
-                    <button
-                      onClick={handleLogin}
-                      className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                    >
-                      Login with Google/Email
-                    </button>
-                  </div>
-                )}
-              </div>
+          {/* Mobile Auth */}
+          {!authenticated && (
+            <div className="md:hidden mt-4 pb-3">
+              <button
+                onClick={handleLogin}
+                className="w-full bg-white hover:bg-gray-50 text-gray-800 px-4 py-2 rounded-full font-medium transition-all duration-200 border border-gray-200 shadow-lg"
+              >
+                Connect Wallet
+              </button>
             </div>
           )}
         </nav>
       </header>
 
+      {/* Collapsible Sidebar */}
+      <CollapsibleSidebar />
+
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 transition-all duration-300">
         {children}
       </main>
 
-      {/* Footer with Hackathon Track Badges */}
+      {/* Simple Footer */}
       <footer className="bg-slate-800/90 backdrop-blur-sm border-t border-slate-700">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {/* Ethereum Foundation Track */}
-            <div className="bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg p-4 border border-blue-500/30">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
-                  <span className="text-xs font-bold text-white">Ξ</span>
-                </div>
-                <h3 className="text-sm font-semibold text-blue-300">Ethereum Foundation Track</h3>
-              </div>
-              <div className="text-xs text-slate-300 space-y-1">
-                <div>✅ ERC-4337 Gasless Transactions</div>
-                <div>✅ The Graph Subgraph Analytics</div>
-                <div>✅ Web3 Beginner Onboarding</div>
-              </div>
-            </div>
-
-            {/* Oasis Network Track */}
-            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg p-4 border border-purple-500/30">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 rounded bg-purple-500 flex items-center justify-center">
-                  <span className="text-xs font-bold text-white">⚡</span>
-                </div>
-                <h3 className="text-sm font-semibold text-purple-300">Oasis Network Track</h3>
-              </div>
-              <div className="text-xs text-slate-300 space-y-1">
-                <div>✅ ROFL-Sapphire TEE Security</div>
-                <div>✅ Encrypted API Key Storage</div>
-                <div>✅ Private Agent Access Control</div>
-              </div>
-            </div>
-
-            {/* Additional Features */}
-            <div className="bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-lg p-4 border border-green-500/30">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 rounded bg-green-500 flex items-center justify-center">
-                  <span className="text-xs font-bold text-white">🚀</span>
-                </div>
-                <h3 className="text-sm font-semibold text-green-300">Hackathon Features</h3>
-              </div>
-              <div className="text-xs text-slate-300 space-y-1">
-                <div>✅ Privy Google OAuth Integration</div>
-                <div>✅ Chainlink Functions AI Execution</div>
-                <div>✅ Real-time Rankings & Analytics</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center text-xs text-slate-400 border-t border-slate-700 pt-4">
-            <div className="mb-2">
-              🔗 <strong>Powered by:</strong> Privy • Biconomy • Oasis ROFL-Sapphire • The Graph • Chainlink Functions
-            </div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+          <div className="text-center text-sm text-slate-400">
             <div>
-              Built for Web3 Hackathon - Decentralized AI Marketplace with Gasless UX
+              Built with ❤️ using Scaffold-ETH 2 | Secured by Oasis | Powered by The Graph
             </div>
           </div>
         </div>
