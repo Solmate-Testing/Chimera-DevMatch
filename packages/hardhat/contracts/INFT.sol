@@ -35,7 +35,7 @@ contract INFT is ERC721, ERC721URIStorage, Ownable, IERC7857 {
         string memory name,
         string memory symbol,
         address _dataVerifier
-    ) ERC721(name, symbol) {
+    ) ERC721(name, symbol) Ownable(msg.sender) {
         require(_dataVerifier != address(0), "Invalid verifier address");
         dataVerifier = IERC7857DataVerifier(_dataVerifier);
     }
@@ -309,11 +309,17 @@ contract INFT is ERC721, ERC721URIStorage, Ownable, IERC7857 {
     }
 
     /**
-     * @dev Required overrides for multiple inheritance
+     * @dev Clean up INFT data when token is burned
      */
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
-        super._burn(tokenId);
-        delete _inftData[tokenId];
+    function _update(address to, uint256 tokenId, address auth) internal override(ERC721) returns (address) {
+        address from = _ownerOf(tokenId);
+        
+        if (to == address(0) && from != address(0)) {
+            // Token is being burned
+            delete _inftData[tokenId];
+        }
+        
+        return super._update(to, tokenId, auth);
     }
 
     function tokenURI(uint256 tokenId)

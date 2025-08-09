@@ -45,7 +45,7 @@ const deployMockSapphire: DeployFunction = async function (hre: HardhatRuntimeEn
     
     // Test storage functionality
     const testKey = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
-    const testValue = hre.ethers.utils.toUtf8Bytes("test-api-key-encrypted");
+    const testValue = hre.ethers.toUtf8Bytes("test-api-key-encrypted");
     
     try {
       console.log("\n🧪 Testing MockSapphire functionality...");

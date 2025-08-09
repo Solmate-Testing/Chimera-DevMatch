@@ -25,6 +25,7 @@ import "@chainlink/contracts/src/v0.8/functions/v1_0_0/libraries/FunctionsReques
 // import "@oasisprotocol/sapphire/contracts/Sapphire.sol";
 // import "@oasisprotocol/sapphire/contracts/SapphireROFL.sol";
 import "./MockSapphire.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title Marketplace Contract
@@ -33,6 +34,9 @@ import "./MockSapphire.sol";
  */
 contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient {
     using FunctionsRequest for FunctionsRequest.Request;
+    
+    // USDC token for micropayments
+    IERC20 public immutable usdc;
     
     /**
      * @dev Agent structure for AI agents/services in the marketplace
@@ -143,6 +147,19 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
         address indexed user
     );
     
+    // USDC micropayment events
+    event MicropaymentMade(
+        uint256 indexed agentId,
+        address indexed user,
+        uint256 usdcAmount
+    );
+    
+    event USDCStakeAdded(
+        uint256 indexed agentId,
+        address indexed user,
+        uint256 usdcAmount
+    );
+    
     // Product events (legacy support)
     event ProductListed(
         uint256 indexed id, 
@@ -186,7 +203,10 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
         string result
     );
 
-    constructor(address router) Ownable(msg.sender) FunctionsClient(router) {}
+    constructor(address router, address _usdc) Ownable(msg.sender) FunctionsClient(router) {
+        require(_usdc != address(0), "Invalid USDC address");
+        usdc = IERC20(_usdc);
+    }
 
     /**
      * @notice Create a new AI agent/service on the marketplace
@@ -338,6 +358,61 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
         
         agentAccess[agentId][user] = true;
         emit AgentAccessGranted(agentId, user);
+    }
+    
+    /**
+     * @notice Make USDC micropayment for AI agent usage
+     * @param agentId ID of the agent to pay for usage
+     * @param usdcAmount Amount of USDC to pay (in USDC units with 6 decimals)
+     */
+    function payWithUSDC(uint256 agentId, uint256 usdcAmount) public nonReentrant {
+        require(agentId <= agentCount && agentId > 0, "Invalid agent ID");
+        require(usdcAmount > 0, "Amount must be > 0");
+        
+        Agent storage agent = agents[agentId];
+        require(hasAgentAccess(agentId, msg.sender) || agent.creator == msg.sender, "No access to agent");
+        
+        // Transfer USDC from user to contract
+        require(usdc.transferFrom(msg.sender, address(this), usdcAmount), "USDC transfer failed");
+        
+        // Revenue sharing: 70% to creator, 30% to protocol
+        uint256 protocolFee = (usdcAmount * platformFee) / FEE_DENOMINATOR;
+        uint256 creatorAmount = usdcAmount - protocolFee;
+        
+        require(usdc.transfer(agent.creator, creatorAmount), "Creator payment failed");
+        // Protocol fee remains in contract
+        
+        emit MicropaymentMade(agentId, msg.sender, usdcAmount);
+    }
+    
+    /**
+     * @notice Stake USDC on an agent (alternative to ETH staking)
+     * @param agentId ID of the agent to stake on
+     * @param usdcAmount Amount of USDC to stake
+     */
+    function stakeUSDC(uint256 agentId, uint256 usdcAmount) public nonReentrant {
+        require(agentId <= agentCount && agentId > 0, "Invalid agent ID");
+        require(usdcAmount >= 10 * 10**6, "Minimum stake is 10 USDC"); // 10 USDC minimum
+        
+        Agent storage agent = agents[agentId];
+        
+        // Transfer USDC from user to contract
+        require(usdc.transferFrom(msg.sender, address(this), usdcAmount), "USDC transfer failed");
+        
+        // Grant access for private agents when staking
+        if (agent.isPrivate) {
+            agentAccess[agentId][msg.sender] = true;
+            emit AgentAccessGranted(agentId, msg.sender);
+        }
+        
+        // Revenue sharing: 70% to creator, 30% to protocol
+        uint256 protocolFee = (usdcAmount * platformFee) / FEE_DENOMINATOR;
+        uint256 creatorAmount = usdcAmount - protocolFee;
+        
+        require(usdc.transfer(agent.creator, creatorAmount), "Creator payment failed");
+        // Protocol fee remains in contract
+        
+        emit USDCStakeAdded(agentId, msg.sender, usdcAmount);
     }
 
     // ✅ CHAINLINK FUNCTIONS SETUP

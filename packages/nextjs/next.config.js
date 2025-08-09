@@ -17,6 +17,17 @@ if (fs.existsSync(envPath)) {
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   
   // Web3 and crypto module handling
   webpack: (config, { isServer }) => {

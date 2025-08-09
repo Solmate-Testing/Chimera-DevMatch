@@ -39,10 +39,22 @@ const deployMarketplace: DeployFunction = async function (hre: HardhatRuntimeEnv
   const chainlinkRouter = getChainlinkRouter(hre.network.name);
   console.log(`🔗 Chainlink Functions Router: ${chainlinkRouter}`);
 
+  // Get USDC address (deploy USDC first)
+  let usdcAddress;
+  try {
+    const usdcContract = await hre.ethers.getContract("USDC");
+    usdcAddress = await usdcContract.getAddress();
+    console.log(`🪙 USDC Token: ${usdcAddress}`);
+  } catch (error) {
+    // Fallback for networks where USDC might not be deployed
+    usdcAddress = "0x0000000000000000000000000000000000000000";
+    console.log("⚠️  USDC not found, using zero address");
+  }
+
   const marketplace = await deploy("Marketplace", {
     from: deployer,
-    // Constructor arguments - Chainlink Functions router
-    args: [chainlinkRouter],
+    // Constructor arguments - Chainlink Functions router, USDC address
+    args: [chainlinkRouter, usdcAddress],
     log: true,
     // Auto-verify on supported networks
     autoMine: true,
@@ -159,5 +171,5 @@ deployMarketplace.id = "deploy_marketplace";
 // Tags help you run specific deployment scripts
 deployMarketplace.tags = ["Marketplace", "main"];
 
-// Dependencies - deploy this after any prerequisite contracts
-deployMarketplace.dependencies = [];
+// Dependencies - deploy this after USDC
+deployMarketplace.dependencies = ["USDC"];

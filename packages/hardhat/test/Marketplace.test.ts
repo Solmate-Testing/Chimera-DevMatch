@@ -9,14 +9,14 @@ describe("Marketplace", function () {
   let creator: HardhatEthersSigner;
   let buyer: HardhatEthersSigner;
 
-  const mockEncryptedApiKey = ethers.utils.toUtf8Bytes("encrypted-api-key-mock");
+  const mockEncryptedApiKey = ethers.toUtf8Bytes("encrypted-api-key-mock");
 
   beforeEach(async function () {
     [owner, creator, buyer] = await ethers.getSigners();
 
     const MarketplaceFactory = await ethers.getContractFactory("Marketplace");
     marketplace = await MarketplaceFactory.deploy();
-    await marketplace.deployed();
+    await marketplace.waitForDeployment();
   });
 
   describe("Deployment", function () {
@@ -38,7 +38,7 @@ describe("Marketplace", function () {
       // Note: In local testing, ROFL functions are mocked/bypassed
       const productName = "Test AI Agent";
       const description = "A test AI agent for local development";
-      const price = ethers.utils.parseEther("0.1");
+      const price = ethers.parseEther("0.1");
       const category = "AI Agent";
 
       // This test assumes ROFL is mocked for local development
@@ -64,7 +64,7 @@ describe("Marketplace", function () {
       await marketplace.connect(creator).listProduct(
         "Test Product",
         "Description",
-        ethers.utils.parseEther("0.1"),
+        ethers.parseEther("0.1"),
         "AI Agent",
         mockEncryptedApiKey
       );
@@ -77,7 +77,7 @@ describe("Marketplace", function () {
         marketplace.connect(creator).listProduct(
           "",
           "Description",
-          ethers.utils.parseEther("0.1"),
+          ethers.parseEther("0.1"),
           "AI Agent",
           mockEncryptedApiKey
         )
@@ -102,14 +102,14 @@ describe("Marketplace", function () {
       await marketplace.connect(creator).listProduct(
         "Test Product",
         "Description", 
-        ethers.utils.parseEther("0.1"),
+        ethers.parseEther("0.1"),
         "AI Agent",
         mockEncryptedApiKey
       );
     });
 
     it("Should allow staking on products", async function () {
-      const stakeAmount = ethers.utils.parseEther("0.05");
+      const stakeAmount = ethers.parseEther("0.05");
 
       await expect(
         marketplace.connect(buyer).stakeOnProduct(1, { value: stakeAmount })
@@ -130,7 +130,7 @@ describe("Marketplace", function () {
     });
 
     it("Should accumulate multiple stakes", async function () {
-      const stakeAmount = ethers.utils.parseEther("0.01");
+      const stakeAmount = ethers.parseEther("0.01");
 
       await marketplace.connect(buyer).stakeOnProduct(1, { value: stakeAmount });
       await marketplace.connect(buyer).stakeOnProduct(1, { value: stakeAmount });
@@ -145,7 +145,7 @@ describe("Marketplace", function () {
       await marketplace.connect(creator).listProduct(
         "Test Product",
         "Description",
-        ethers.utils.parseEther("0.1"),
+        ethers.parseEther("0.1"),
         "AI Agent", 
         mockEncryptedApiKey
       );
@@ -198,7 +198,7 @@ describe("Marketplace", function () {
       await marketplace.connect(creator).listProduct(
         "Product 1",
         "Description 1",
-        ethers.utils.parseEther("0.1"),
+        ethers.parseEther("0.1"),
         "AI Agent",
         mockEncryptedApiKey
       );
@@ -206,7 +206,7 @@ describe("Marketplace", function () {
       await marketplace.connect(creator).listProduct(
         "Product 2", 
         "Description 2",
-        ethers.utils.parseEther("0.2"),
+        ethers.parseEther("0.2"),
         "MCP",
         mockEncryptedApiKey
       );

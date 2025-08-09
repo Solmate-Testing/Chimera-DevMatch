@@ -473,7 +473,7 @@ const CREATOR_STATS_QUERY = gql`
 /**
  * Hook to fetch top agents by stake (leaderboard)
  */
-export const useTopAgentsByStake = (first: number = 10): UseQueryResult<{ agents: Agent[] }> => {
+export const useTopAgentsByStake = (first = 10): UseQueryResult<{ agents: Agent[] }> => {
   return useQuery({
     queryKey: ['topAgentsByStake', first],
     queryFn: async () => {
@@ -492,7 +492,7 @@ export const useTopAgentsByStake = (first: number = 10): UseQueryResult<{ agents
 /**
  * Hook to fetch agents filtered by tag/category
  */
-export const useAgentsByTag = (tag: string, first: number = 20): UseQueryResult<{ agents: Agent[] }> => {
+export const useAgentsByTag = (tag: string, first = 20): UseQueryResult<{ agents: Agent[] }> => {
   return useQuery({
     queryKey: ['agentsByTag', tag, first],
     queryFn: async () => {
@@ -512,7 +512,7 @@ export const useAgentsByTag = (tag: string, first: number = 20): UseQueryResult<
 /**
  * Hook to search agents by name
  */
-export const useSearchAgents = (searchTerm: string, first: number = 20): UseQueryResult<{ agents: Agent[] }> => {
+export const useSearchAgents = (searchTerm: string, first = 20): UseQueryResult<{ agents: Agent[] }> => {
   return useQuery({
     queryKey: ['searchAgents', searchTerm, first],
     queryFn: async () => {
@@ -552,7 +552,7 @@ export const useAgentDetails = (id: string): UseQueryResult<{ agent: Agent }> =>
 /**
  * Hook to fetch all agents with pagination
  */
-export const useAllAgents = (first: number = 20, skip: number = 0): UseQueryResult<{ agents: Agent[] }> => {
+export const useAllAgents = (first = 20, skip = 0): UseQueryResult<{ agents: Agent[] }> => {
   return useQuery({
     queryKey: ['allAgents', first, skip],
     queryFn: async () => {
@@ -593,7 +593,7 @@ export const useMarketplaceAnalytics = (): UseQueryResult<{
 /**
  * Hook to fetch recent marketplace activity
  */
-export const useRecentActivity = (first: number = 10): UseQueryResult<{
+export const useRecentActivity = (first = 10): UseQueryResult<{
   stakes: Stake[];
   agentLoves: AgentLove[];
   agents: Agent[];

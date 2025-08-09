@@ -39,6 +39,12 @@ type Agent @entity {
   accessGrants: [AgentAccess!]! @derivedFrom(field: "agent")
   "Daily stats for this agent"
   dailyStats: [DailyAgentStats!]! @derivedFrom(field: "agent")
+  "USDC micropayments for this agent"
+  usdcPayments: [USDCMicropayment!]! @derivedFrom(field: "agent")
+  "USDC stakes on this agent"
+  usdcStakes: [USDCStake!]! @derivedFrom(field: "agent")
+  "Total USDC earned by creator from this agent"
+  totalUSDCEarned: BigInt!
 }
 
 """
@@ -98,6 +104,54 @@ type AgentAccess @entity {
 }
 
 """
+USDC micropayment transaction for AI agent usage
+"""
+type USDCMicropayment @entity {
+  "Unique ID: agentId-user-blockNumber"
+  id: ID!
+  "Agent being paid for usage"
+  agent: Agent!
+  "User making micropayment"
+  user: Bytes!
+  "USDC amount paid (with 6 decimals)"
+  usdcAmount: BigInt!
+  "Creator amount received (70%)"
+  creatorAmount: BigInt!
+  "Protocol fee (30%)"
+  protocolFee: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
+  "Block number"
+  blockNumber: BigInt!
+  "Transaction hash"
+  transactionHash: Bytes!
+}
+
+"""
+USDC stake transaction
+"""
+type USDCStake @entity {
+  "Unique ID: agentId-staker-blockNumber"
+  id: ID!
+  "Agent being staked on with USDC"
+  agent: Agent!
+  "Address of staker"
+  staker: Bytes!
+  "USDC amount staked (with 6 decimals)"
+  usdcAmount: BigInt!
+  "Creator amount received (70%)"
+  creatorAmount: BigInt!
+  "Protocol fee (30%)"
+  protocolFee: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
+  "Block number"
+  blockNumber: BigInt!
+  "Transaction hash"
+  transactionHash: Bytes!
+}
+
+"""
 Creator aggregated statistics
 """
 type Creator @entity {
@@ -107,6 +161,8 @@ type Creator @entity {
   totalAgents: BigInt!
   "Total ETH earned (70% of stakes)"
   totalEarned: BigInt!
+  "Total USDC earned from micropayments and stakes"
+  totalUSDCEarned: BigInt!
   "Total stakes received across all agents"
   totalStakes: BigInt!
   "Total loves received across all agents"

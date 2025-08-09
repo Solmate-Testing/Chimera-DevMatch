@@ -23,82 +23,28 @@ import type {
   TypedContractMethod,
 } from "../common";
 
-export declare namespace ERC7857AIAgents {
-  export type AIAgentDataStruct = {
-    dataHashes: BytesLike[];
-    dataDescriptions: string[];
-    owner: AddressLike;
-    authorizedUsers: AddressLike[];
-    createdAt: BigNumberish;
-    isPublic: boolean;
-    category: string;
-    name: string;
-    totalStaked: BigNumberish;
-    loves: BigNumberish;
-  };
-
-  export type AIAgentDataStructOutput = [
-    dataHashes: string[],
-    dataDescriptions: string[],
-    owner: string,
-    authorizedUsers: string[],
-    createdAt: bigint,
-    isPublic: boolean,
-    category: string,
-    name: string,
-    totalStaked: bigint,
-    loves: bigint
-  ] & {
-    dataHashes: string[];
-    dataDescriptions: string[];
-    owner: string;
-    authorizedUsers: string[];
-    createdAt: bigint;
-    isPublic: boolean;
-    category: string;
-    name: string;
-    totalStaked: bigint;
-    loves: bigint;
-  };
-}
-
 export interface ERC7857AIAgentsInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "authorizeUsage"
       | "authorizedUsersOf"
       | "clone"
-      | "clonePublic"
       | "dataDescriptionsOf"
       | "dataHashesOf"
-      | "getAgentData"
-      | "getOwnerTokens"
-      | "getVerifier"
-      | "loveAgent"
       | "mint"
       | "name"
-      | "owner"
       | "ownerOf"
-      | "renounceOwnership"
-      | "stakeOnAgent"
       | "symbol"
       | "tokenURI"
-      | "totalSupply"
       | "transfer"
-      | "transferOwnership"
-      | "transferPublic"
-      | "update"
       | "verifier"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "AgentLoved"
-      | "AgentStaked"
       | "AuthorizedUsage"
       | "Cloned"
       | "Minted"
-      | "OwnershipTransferred"
       | "PublishedSealedKey"
       | "Transferred"
       | "Updated"
@@ -117,10 +63,6 @@ export interface ERC7857AIAgentsInterface extends Interface {
     values: [AddressLike, BigNumberish, BytesLike[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "clonePublic",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "dataDescriptionsOf",
     values: [BigNumberish]
   ): string;
@@ -129,37 +71,12 @@ export interface ERC7857AIAgentsInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getAgentData",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getOwnerTokens",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getVerifier",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "loveAgent",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "mint",
-    values: [BytesLike[], string[], string, string, boolean]
+    values: [BytesLike[], string[]]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "stakeOnAgent",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
@@ -168,24 +85,8 @@ export interface ERC7857AIAgentsInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "transfer",
     values: [AddressLike, BigNumberish, BytesLike[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferPublic",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "update",
-    values: [BigNumberish, BytesLike[]]
   ): string;
   encodeFunctionData(functionFragment: "verifier", values?: undefined): string;
 
@@ -199,10 +100,6 @@ export interface ERC7857AIAgentsInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "clone", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "clonePublic",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "dataDescriptionsOf",
     data: BytesLike
   ): Result;
@@ -210,79 +107,13 @@ export interface ERC7857AIAgentsInterface extends Interface {
     functionFragment: "dataHashesOf",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAgentData",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getOwnerTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getVerifier",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "loveAgent", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "stakeOnAgent",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferPublic",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "update", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "verifier", data: BytesLike): Result;
-}
-
-export namespace AgentLovedEvent {
-  export type InputTuple = [tokenId: BigNumberish, user: AddressLike];
-  export type OutputTuple = [tokenId: bigint, user: string];
-  export interface OutputObject {
-    tokenId: bigint;
-    user: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace AgentStakedEvent {
-  export type InputTuple = [
-    tokenId: BigNumberish,
-    staker: AddressLike,
-    amount: BigNumberish
-  ];
-  export type OutputTuple = [tokenId: bigint, staker: string, amount: bigint];
-  export interface OutputObject {
-    tokenId: bigint;
-    staker: string;
-    amount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace AuthorizedUsageEvent {
@@ -341,19 +172,6 @@ export namespace MintedEvent {
     creator: string;
     dataHashes: string[];
     dataDescriptions: string[];
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace OwnershipTransferredEvent {
-  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
-  export type OutputTuple = [previousOwner: string, newOwner: string];
-  export interface OutputObject {
-    previousOwner: string;
-    newOwner: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -480,12 +298,6 @@ export interface ERC7857AIAgents extends BaseContract {
     "payable"
   >;
 
-  clonePublic: TypedContractMethod<
-    [to: AddressLike, tokenId: BigNumberish],
-    [bigint],
-    "payable"
-  >;
-
   dataDescriptionsOf: TypedContractMethod<
     [tokenId: BigNumberish],
     [string[]],
@@ -498,66 +310,22 @@ export interface ERC7857AIAgents extends BaseContract {
     "view"
   >;
 
-  getAgentData: TypedContractMethod<
-    [tokenId: BigNumberish],
-    [ERC7857AIAgents.AIAgentDataStructOutput],
-    "view"
-  >;
-
-  getOwnerTokens: TypedContractMethod<[owner: AddressLike], [bigint[]], "view">;
-
-  getVerifier: TypedContractMethod<[], [string], "view">;
-
-  loveAgent: TypedContractMethod<[tokenId: BigNumberish], [void], "nonpayable">;
-
   mint: TypedContractMethod<
-    [
-      proofs: BytesLike[],
-      descriptions: string[],
-      agentName: string,
-      category: string,
-      isPublic: boolean
-    ],
+    [proofs: BytesLike[], dataDescriptions: string[]],
     [bigint],
     "payable"
   >;
 
   name: TypedContractMethod<[], [string], "view">;
 
-  owner: TypedContractMethod<[], [string], "view">;
-
   ownerOf: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
-
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
-
-  stakeOnAgent: TypedContractMethod<[tokenId: BigNumberish], [void], "payable">;
 
   symbol: TypedContractMethod<[], [string], "view">;
 
   tokenURI: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
 
-  totalSupply: TypedContractMethod<[], [bigint], "view">;
-
   transfer: TypedContractMethod<
     [to: AddressLike, tokenId: BigNumberish, proofs: BytesLike[]],
-    [void],
-    "nonpayable"
-  >;
-
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  transferPublic: TypedContractMethod<
-    [to: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  update: TypedContractMethod<
-    [tokenId: BigNumberish, proofs: BytesLike[]],
     [void],
     "nonpayable"
   >;
@@ -586,44 +354,15 @@ export interface ERC7857AIAgents extends BaseContract {
     "payable"
   >;
   getFunction(
-    nameOrSignature: "clonePublic"
-  ): TypedContractMethod<
-    [to: AddressLike, tokenId: BigNumberish],
-    [bigint],
-    "payable"
-  >;
-  getFunction(
     nameOrSignature: "dataDescriptionsOf"
   ): TypedContractMethod<[tokenId: BigNumberish], [string[]], "view">;
   getFunction(
     nameOrSignature: "dataHashesOf"
   ): TypedContractMethod<[tokenId: BigNumberish], [string[]], "view">;
   getFunction(
-    nameOrSignature: "getAgentData"
-  ): TypedContractMethod<
-    [tokenId: BigNumberish],
-    [ERC7857AIAgents.AIAgentDataStructOutput],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "getOwnerTokens"
-  ): TypedContractMethod<[owner: AddressLike], [bigint[]], "view">;
-  getFunction(
-    nameOrSignature: "getVerifier"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "loveAgent"
-  ): TypedContractMethod<[tokenId: BigNumberish], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "mint"
   ): TypedContractMethod<
-    [
-      proofs: BytesLike[],
-      descriptions: string[],
-      agentName: string,
-      category: string,
-      isPublic: boolean
-    ],
+    [proofs: BytesLike[], dataDescriptions: string[]],
     [bigint],
     "payable"
   >;
@@ -631,26 +370,14 @@ export interface ERC7857AIAgents extends BaseContract {
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
     nameOrSignature: "ownerOf"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
-  getFunction(
-    nameOrSignature: "renounceOwnership"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "stakeOnAgent"
-  ): TypedContractMethod<[tokenId: BigNumberish], [void], "payable">;
   getFunction(
     nameOrSignature: "symbol"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "tokenURI"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
-  getFunction(
-    nameOrSignature: "totalSupply"
-  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "transfer"
   ): TypedContractMethod<
@@ -659,40 +386,9 @@ export interface ERC7857AIAgents extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferPublic"
-  ): TypedContractMethod<
-    [to: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "update"
-  ): TypedContractMethod<
-    [tokenId: BigNumberish, proofs: BytesLike[]],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "verifier"
   ): TypedContractMethod<[], [string], "view">;
 
-  getEvent(
-    key: "AgentLoved"
-  ): TypedContractEvent<
-    AgentLovedEvent.InputTuple,
-    AgentLovedEvent.OutputTuple,
-    AgentLovedEvent.OutputObject
-  >;
-  getEvent(
-    key: "AgentStaked"
-  ): TypedContractEvent<
-    AgentStakedEvent.InputTuple,
-    AgentStakedEvent.OutputTuple,
-    AgentStakedEvent.OutputObject
-  >;
   getEvent(
     key: "AuthorizedUsage"
   ): TypedContractEvent<
@@ -713,13 +409,6 @@ export interface ERC7857AIAgents extends BaseContract {
     MintedEvent.InputTuple,
     MintedEvent.OutputTuple,
     MintedEvent.OutputObject
-  >;
-  getEvent(
-    key: "OwnershipTransferred"
-  ): TypedContractEvent<
-    OwnershipTransferredEvent.InputTuple,
-    OwnershipTransferredEvent.OutputTuple,
-    OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
     key: "PublishedSealedKey"
@@ -744,28 +433,6 @@ export interface ERC7857AIAgents extends BaseContract {
   >;
 
   filters: {
-    "AgentLoved(uint256,address)": TypedContractEvent<
-      AgentLovedEvent.InputTuple,
-      AgentLovedEvent.OutputTuple,
-      AgentLovedEvent.OutputObject
-    >;
-    AgentLoved: TypedContractEvent<
-      AgentLovedEvent.InputTuple,
-      AgentLovedEvent.OutputTuple,
-      AgentLovedEvent.OutputObject
-    >;
-
-    "AgentStaked(uint256,address,uint256)": TypedContractEvent<
-      AgentStakedEvent.InputTuple,
-      AgentStakedEvent.OutputTuple,
-      AgentStakedEvent.OutputObject
-    >;
-    AgentStaked: TypedContractEvent<
-      AgentStakedEvent.InputTuple,
-      AgentStakedEvent.OutputTuple,
-      AgentStakedEvent.OutputObject
-    >;
-
     "AuthorizedUsage(uint256,address)": TypedContractEvent<
       AuthorizedUsageEvent.InputTuple,
       AuthorizedUsageEvent.OutputTuple,
@@ -797,17 +464,6 @@ export interface ERC7857AIAgents extends BaseContract {
       MintedEvent.InputTuple,
       MintedEvent.OutputTuple,
       MintedEvent.OutputObject
-    >;
-
-    "OwnershipTransferred(address,address)": TypedContractEvent<
-      OwnershipTransferredEvent.InputTuple,
-      OwnershipTransferredEvent.OutputTuple,
-      OwnershipTransferredEvent.OutputObject
-    >;
-    OwnershipTransferred: TypedContractEvent<
-      OwnershipTransferredEvent.InputTuple,
-      OwnershipTransferredEvent.OutputTuple,
-      OwnershipTransferredEvent.OutputObject
     >;
 
     "PublishedSealedKey(address,uint256,bytes)": TypedContractEvent<

@@ -3,13 +3,11 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumberish,
   BytesLike,
   FunctionFragment,
   Result,
   Interface,
   EventFragment,
-  AddressLike,
   ContractRunner,
   ContractMethod,
   Listener,
@@ -23,7 +21,7 @@ import type {
   TypedContractMethod,
 } from "../common";
 
-export declare namespace IDataVerifier {
+export declare namespace IERC7857DataVerifier {
   export type OwnershipProofOutputStruct = {
     dataHashes: BytesLike[];
     isValid: boolean;
@@ -59,42 +57,11 @@ export declare namespace IDataVerifier {
 
 export interface OasisTEEVerifierInterface extends Interface {
   getFunction(
-    nameOrSignature:
-      | "addTrustedTEEKey"
-      | "isNonceUsed"
-      | "markNonceUsed"
-      | "trustedTEEKeys"
-      | "verifyOwnership"
-      | "verifyTransferValidity"
+    nameOrSignature: "verifyOwnership" | "verifyTransferValidity"
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic:
-      | "APIKeyDecrypted"
-      | "APIKeyEncrypted"
-      | "NonceUsed"
-      | "ProofVerified"
-      | "ROFLAuthorizationCheck"
-      | "ROFLStorageAccessed"
-      | "ROFLStorageSet"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ProofVerified"): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "addTrustedTEEKey",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isNonceUsed",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "markNonceUsed",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "trustedTEEKeys",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "verifyOwnership",
     values: [BytesLike]
@@ -105,22 +72,6 @@ export interface OasisTEEVerifierInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "addTrustedTEEKey",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isNonceUsed",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "markNonceUsed",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "trustedTEEKeys",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "verifyOwnership",
     data: BytesLike
   ): Result;
@@ -128,100 +79,14 @@ export interface OasisTEEVerifierInterface extends Interface {
     functionFragment: "verifyTransferValidity",
     data: BytesLike
   ): Result;
-}
-
-export namespace APIKeyDecryptedEvent {
-  export type InputTuple = [keyHash: BytesLike, accessor: AddressLike];
-  export type OutputTuple = [keyHash: string, accessor: string];
-  export interface OutputObject {
-    keyHash: string;
-    accessor: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace APIKeyEncryptedEvent {
-  export type InputTuple = [keyHash: BytesLike];
-  export type OutputTuple = [keyHash: string];
-  export interface OutputObject {
-    keyHash: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace NonceUsedEvent {
-  export type InputTuple = [nonce: BytesLike, user: AddressLike];
-  export type OutputTuple = [nonce: string, user: string];
-  export interface OutputObject {
-    nonce: string;
-    user: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace ProofVerifiedEvent {
-  export type InputTuple = [
-    proofHash: BytesLike,
-    isValid: boolean,
-    verifier: AddressLike
-  ];
-  export type OutputTuple = [
-    proofHash: string,
-    isValid: boolean,
-    verifier: string
-  ];
+  export type InputTuple = [proofHash: BytesLike, isValid: boolean];
+  export type OutputTuple = [proofHash: string, isValid: boolean];
   export interface OutputObject {
     proofHash: string;
     isValid: boolean;
-    verifier: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ROFLAuthorizationCheckEvent {
-  export type InputTuple = [origin: AddressLike, authorized: boolean];
-  export type OutputTuple = [origin: string, authorized: boolean];
-  export interface OutputObject {
-    origin: string;
-    authorized: boolean;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ROFLStorageAccessedEvent {
-  export type InputTuple = [key: BytesLike, accessor: AddressLike];
-  export type OutputTuple = [key: string, accessor: string];
-  export interface OutputObject {
-    key: string;
-    accessor: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ROFLStorageSetEvent {
-  export type InputTuple = [key: BytesLike, dataLength: BigNumberish];
-  export type OutputTuple = [key: string, dataLength: bigint];
-  export interface OutputObject {
-    key: string;
-    dataLength: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -272,27 +137,15 @@ export interface OasisTEEVerifier extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  addTrustedTEEKey: TypedContractMethod<
-    [keyHash: BytesLike],
-    [void],
-    "nonpayable"
-  >;
-
-  isNonceUsed: TypedContractMethod<[nonce: BytesLike], [boolean], "view">;
-
-  markNonceUsed: TypedContractMethod<[nonce: BytesLike], [void], "nonpayable">;
-
-  trustedTEEKeys: TypedContractMethod<[arg0: BytesLike], [boolean], "view">;
-
   verifyOwnership: TypedContractMethod<
     [_proof: BytesLike],
-    [IDataVerifier.OwnershipProofOutputStructOutput],
+    [IERC7857DataVerifier.OwnershipProofOutputStructOutput],
     "nonpayable"
   >;
 
   verifyTransferValidity: TypedContractMethod<
     [_proof: BytesLike],
-    [IDataVerifier.TransferValidityProofOutputStructOutput],
+    [IERC7857DataVerifier.TransferValidityProofOutputStructOutput],
     "nonpayable"
   >;
 
@@ -301,53 +154,20 @@ export interface OasisTEEVerifier extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "addTrustedTEEKey"
-  ): TypedContractMethod<[keyHash: BytesLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "isNonceUsed"
-  ): TypedContractMethod<[nonce: BytesLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "markNonceUsed"
-  ): TypedContractMethod<[nonce: BytesLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "trustedTEEKeys"
-  ): TypedContractMethod<[arg0: BytesLike], [boolean], "view">;
-  getFunction(
     nameOrSignature: "verifyOwnership"
   ): TypedContractMethod<
     [_proof: BytesLike],
-    [IDataVerifier.OwnershipProofOutputStructOutput],
+    [IERC7857DataVerifier.OwnershipProofOutputStructOutput],
     "nonpayable"
   >;
   getFunction(
     nameOrSignature: "verifyTransferValidity"
   ): TypedContractMethod<
     [_proof: BytesLike],
-    [IDataVerifier.TransferValidityProofOutputStructOutput],
+    [IERC7857DataVerifier.TransferValidityProofOutputStructOutput],
     "nonpayable"
   >;
 
-  getEvent(
-    key: "APIKeyDecrypted"
-  ): TypedContractEvent<
-    APIKeyDecryptedEvent.InputTuple,
-    APIKeyDecryptedEvent.OutputTuple,
-    APIKeyDecryptedEvent.OutputObject
-  >;
-  getEvent(
-    key: "APIKeyEncrypted"
-  ): TypedContractEvent<
-    APIKeyEncryptedEvent.InputTuple,
-    APIKeyEncryptedEvent.OutputTuple,
-    APIKeyEncryptedEvent.OutputObject
-  >;
-  getEvent(
-    key: "NonceUsed"
-  ): TypedContractEvent<
-    NonceUsedEvent.InputTuple,
-    NonceUsedEvent.OutputTuple,
-    NonceUsedEvent.OutputObject
-  >;
   getEvent(
     key: "ProofVerified"
   ): TypedContractEvent<
@@ -355,63 +175,9 @@ export interface OasisTEEVerifier extends BaseContract {
     ProofVerifiedEvent.OutputTuple,
     ProofVerifiedEvent.OutputObject
   >;
-  getEvent(
-    key: "ROFLAuthorizationCheck"
-  ): TypedContractEvent<
-    ROFLAuthorizationCheckEvent.InputTuple,
-    ROFLAuthorizationCheckEvent.OutputTuple,
-    ROFLAuthorizationCheckEvent.OutputObject
-  >;
-  getEvent(
-    key: "ROFLStorageAccessed"
-  ): TypedContractEvent<
-    ROFLStorageAccessedEvent.InputTuple,
-    ROFLStorageAccessedEvent.OutputTuple,
-    ROFLStorageAccessedEvent.OutputObject
-  >;
-  getEvent(
-    key: "ROFLStorageSet"
-  ): TypedContractEvent<
-    ROFLStorageSetEvent.InputTuple,
-    ROFLStorageSetEvent.OutputTuple,
-    ROFLStorageSetEvent.OutputObject
-  >;
 
   filters: {
-    "APIKeyDecrypted(bytes32,address)": TypedContractEvent<
-      APIKeyDecryptedEvent.InputTuple,
-      APIKeyDecryptedEvent.OutputTuple,
-      APIKeyDecryptedEvent.OutputObject
-    >;
-    APIKeyDecrypted: TypedContractEvent<
-      APIKeyDecryptedEvent.InputTuple,
-      APIKeyDecryptedEvent.OutputTuple,
-      APIKeyDecryptedEvent.OutputObject
-    >;
-
-    "APIKeyEncrypted(bytes32)": TypedContractEvent<
-      APIKeyEncryptedEvent.InputTuple,
-      APIKeyEncryptedEvent.OutputTuple,
-      APIKeyEncryptedEvent.OutputObject
-    >;
-    APIKeyEncrypted: TypedContractEvent<
-      APIKeyEncryptedEvent.InputTuple,
-      APIKeyEncryptedEvent.OutputTuple,
-      APIKeyEncryptedEvent.OutputObject
-    >;
-
-    "NonceUsed(bytes32,address)": TypedContractEvent<
-      NonceUsedEvent.InputTuple,
-      NonceUsedEvent.OutputTuple,
-      NonceUsedEvent.OutputObject
-    >;
-    NonceUsed: TypedContractEvent<
-      NonceUsedEvent.InputTuple,
-      NonceUsedEvent.OutputTuple,
-      NonceUsedEvent.OutputObject
-    >;
-
-    "ProofVerified(bytes32,bool,address)": TypedContractEvent<
+    "ProofVerified(bytes32,bool)": TypedContractEvent<
       ProofVerifiedEvent.InputTuple,
       ProofVerifiedEvent.OutputTuple,
       ProofVerifiedEvent.OutputObject
@@ -420,39 +186,6 @@ export interface OasisTEEVerifier extends BaseContract {
       ProofVerifiedEvent.InputTuple,
       ProofVerifiedEvent.OutputTuple,
       ProofVerifiedEvent.OutputObject
-    >;
-
-    "ROFLAuthorizationCheck(address,bool)": TypedContractEvent<
-      ROFLAuthorizationCheckEvent.InputTuple,
-      ROFLAuthorizationCheckEvent.OutputTuple,
-      ROFLAuthorizationCheckEvent.OutputObject
-    >;
-    ROFLAuthorizationCheck: TypedContractEvent<
-      ROFLAuthorizationCheckEvent.InputTuple,
-      ROFLAuthorizationCheckEvent.OutputTuple,
-      ROFLAuthorizationCheckEvent.OutputObject
-    >;
-
-    "ROFLStorageAccessed(bytes32,address)": TypedContractEvent<
-      ROFLStorageAccessedEvent.InputTuple,
-      ROFLStorageAccessedEvent.OutputTuple,
-      ROFLStorageAccessedEvent.OutputObject
-    >;
-    ROFLStorageAccessed: TypedContractEvent<
-      ROFLStorageAccessedEvent.InputTuple,
-      ROFLStorageAccessedEvent.OutputTuple,
-      ROFLStorageAccessedEvent.OutputObject
-    >;
-
-    "ROFLStorageSet(bytes32,uint256)": TypedContractEvent<
-      ROFLStorageSetEvent.InputTuple,
-      ROFLStorageSetEvent.OutputTuple,
-      ROFLStorageSetEvent.OutputObject
-    >;
-    ROFLStorageSet: TypedContractEvent<
-      ROFLStorageSetEvent.InputTuple,
-      ROFLStorageSetEvent.OutputTuple,
-      ROFLStorageSetEvent.OutputObject
     >;
   };
 }

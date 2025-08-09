@@ -24,7 +24,7 @@ export interface ApiKeyConfig {
 export const generateDemoApiKey = (
   agentName: string, 
   creator: string, 
-  service: string = 'openai'
+  service = 'openai'
 ): string => {
   const seed = `${agentName}-${creator}-${Date.now()}`;
   const hash = keccak256(encodePacked(['string'], [seed]));
@@ -51,7 +51,7 @@ export const generateDemoApiKey = (
 export const generateSecureApiKey = async (
   agentId: bigint,
   blockNumber: bigint,
-  service: string = 'custom'
+  service = 'custom'
 ): Promise<string> => {
   // In production, this would call RANDAO or Chainlink VRF
   // For now, simulate with crypto.getRandomValues

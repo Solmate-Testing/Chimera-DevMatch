@@ -136,6 +136,7 @@ export interface MarketplaceInterface extends Interface {
       | "loveAgent"
       | "loveProduct"
       | "owner"
+      | "payWithUSDC"
       | "platformFee"
       | "productExecutionCount"
       | "productLastResult"
@@ -151,9 +152,11 @@ export interface MarketplaceInterface extends Interface {
       | "source"
       | "stakeOnProduct"
       | "stakeToAgent"
+      | "stakeUSDC"
       | "stakes"
       | "subscriptionId"
       | "transferOwnership"
+      | "usdc"
       | "withdrawPlatformFees"
   ): FunctionFragment;
 
@@ -165,6 +168,7 @@ export interface MarketplaceInterface extends Interface {
       | "AgentCreated"
       | "AgentLoved"
       | "AgentStaked"
+      | "MicropaymentMade"
       | "ModelExecutionRequested"
       | "ModelResultReceived"
       | "OwnershipTransferred"
@@ -177,6 +181,7 @@ export interface MarketplaceInterface extends Interface {
       | "RequestFulfilled"
       | "RequestSent"
       | "StakeAdded"
+      | "USDCStakeAdded"
   ): EventFragment;
 
   encodeFunctionData(
@@ -280,6 +285,10 @@ export interface MarketplaceInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "payWithUSDC",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "platformFee",
     values?: undefined
   ): string;
@@ -337,6 +346,10 @@ export interface MarketplaceInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "stakeUSDC",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "stakes",
     values: [BigNumberish, AddressLike]
   ): string;
@@ -348,6 +361,7 @@ export interface MarketplaceInterface extends Interface {
     functionFragment: "transferOwnership",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: "usdc", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "withdrawPlatformFees",
     values?: undefined
@@ -442,6 +456,10 @@ export interface MarketplaceInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "payWithUSDC",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "platformFee",
     data: BytesLike
   ): Result;
@@ -492,6 +510,7 @@ export interface MarketplaceInterface extends Interface {
     functionFragment: "stakeToAgent",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "stakeUSDC", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stakes", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "subscriptionId",
@@ -501,6 +520,7 @@ export interface MarketplaceInterface extends Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "usdc", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawPlatformFees",
     data: BytesLike
@@ -587,6 +607,24 @@ export namespace AgentStakedEvent {
     id: bigint;
     staker: string;
     amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace MicropaymentMadeEvent {
+  export type InputTuple = [
+    agentId: BigNumberish,
+    user: AddressLike,
+    usdcAmount: BigNumberish
+  ];
+  export type OutputTuple = [agentId: bigint, user: string, usdcAmount: bigint];
+  export interface OutputObject {
+    agentId: bigint;
+    user: string;
+    usdcAmount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -797,6 +835,24 @@ export namespace StakeAddedEvent {
     productId: bigint;
     user: string;
     amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace USDCStakeAddedEvent {
+  export type InputTuple = [
+    agentId: BigNumberish,
+    user: AddressLike,
+    usdcAmount: BigNumberish
+  ];
+  export type OutputTuple = [agentId: bigint, user: string, usdcAmount: bigint];
+  export interface OutputObject {
+    agentId: bigint;
+    user: string;
+    usdcAmount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -1020,6 +1076,12 @@ export interface Marketplace extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
+  payWithUSDC: TypedContractMethod<
+    [agentId: BigNumberish, usdcAmount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   platformFee: TypedContractMethod<[], [bigint], "view">;
 
   productExecutionCount: TypedContractMethod<
@@ -1108,6 +1170,12 @@ export interface Marketplace extends BaseContract {
 
   stakeToAgent: TypedContractMethod<[agentId: BigNumberish], [void], "payable">;
 
+  stakeUSDC: TypedContractMethod<
+    [agentId: BigNumberish, usdcAmount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   stakes: TypedContractMethod<
     [arg0: BigNumberish, arg1: AddressLike],
     [bigint],
@@ -1121,6 +1189,8 @@ export interface Marketplace extends BaseContract {
     [void],
     "nonpayable"
   >;
+
+  usdc: TypedContractMethod<[], [string], "view">;
 
   withdrawPlatformFees: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -1306,6 +1376,13 @@ export interface Marketplace extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "payWithUSDC"
+  ): TypedContractMethod<
+    [agentId: BigNumberish, usdcAmount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "platformFee"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -1393,6 +1470,13 @@ export interface Marketplace extends BaseContract {
     nameOrSignature: "stakeToAgent"
   ): TypedContractMethod<[agentId: BigNumberish], [void], "payable">;
   getFunction(
+    nameOrSignature: "stakeUSDC"
+  ): TypedContractMethod<
+    [agentId: BigNumberish, usdcAmount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "stakes"
   ): TypedContractMethod<
     [arg0: BigNumberish, arg1: AddressLike],
@@ -1405,6 +1489,9 @@ export interface Marketplace extends BaseContract {
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "usdc"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "withdrawPlatformFees"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -1450,6 +1537,13 @@ export interface Marketplace extends BaseContract {
     AgentStakedEvent.InputTuple,
     AgentStakedEvent.OutputTuple,
     AgentStakedEvent.OutputObject
+  >;
+  getEvent(
+    key: "MicropaymentMade"
+  ): TypedContractEvent<
+    MicropaymentMadeEvent.InputTuple,
+    MicropaymentMadeEvent.OutputTuple,
+    MicropaymentMadeEvent.OutputObject
   >;
   getEvent(
     key: "ModelExecutionRequested"
@@ -1535,6 +1629,13 @@ export interface Marketplace extends BaseContract {
     StakeAddedEvent.OutputTuple,
     StakeAddedEvent.OutputObject
   >;
+  getEvent(
+    key: "USDCStakeAdded"
+  ): TypedContractEvent<
+    USDCStakeAddedEvent.InputTuple,
+    USDCStakeAddedEvent.OutputTuple,
+    USDCStakeAddedEvent.OutputObject
+  >;
 
   filters: {
     "APIKeyDecrypted(bytes32,address)": TypedContractEvent<
@@ -1601,6 +1702,17 @@ export interface Marketplace extends BaseContract {
       AgentStakedEvent.InputTuple,
       AgentStakedEvent.OutputTuple,
       AgentStakedEvent.OutputObject
+    >;
+
+    "MicropaymentMade(uint256,address,uint256)": TypedContractEvent<
+      MicropaymentMadeEvent.InputTuple,
+      MicropaymentMadeEvent.OutputTuple,
+      MicropaymentMadeEvent.OutputObject
+    >;
+    MicropaymentMade: TypedContractEvent<
+      MicropaymentMadeEvent.InputTuple,
+      MicropaymentMadeEvent.OutputTuple,
+      MicropaymentMadeEvent.OutputObject
     >;
 
     "ModelExecutionRequested(uint256,address,bytes32,string)": TypedContractEvent<
@@ -1733,6 +1845,17 @@ export interface Marketplace extends BaseContract {
       StakeAddedEvent.InputTuple,
       StakeAddedEvent.OutputTuple,
       StakeAddedEvent.OutputObject
+    >;
+
+    "USDCStakeAdded(uint256,address,uint256)": TypedContractEvent<
+      USDCStakeAddedEvent.InputTuple,
+      USDCStakeAddedEvent.OutputTuple,
+      USDCStakeAddedEvent.OutputObject
+    >;
+    USDCStakeAdded: TypedContractEvent<
+      USDCStakeAddedEvent.InputTuple,
+      USDCStakeAddedEvent.OutputTuple,
+      USDCStakeAddedEvent.OutputObject
     >;
   };
 }
