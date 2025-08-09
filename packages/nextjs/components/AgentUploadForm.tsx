@@ -18,6 +18,13 @@ import { LoadingSpinner, ButtonLoading } from './LoadingSpinner';
 import { ErrorMessage, Web3ErrorMessage } from './ErrorMessage';
 import { TransactionStatus } from './TransactionStatus';
 import { 
+  processApiKey, 
+  validateApiKey, 
+  detectServiceFromKey,
+  DEMO_API_PRESETS,
+  type ApiKeyConfig 
+} from '../utils/apiKeyGenerator';
+import { 
   CloudArrowUpIcon, 
   DocumentIcon, 
   XMarkIcon, 
@@ -35,6 +42,8 @@ interface AgentFormData {
   description: string;
   tags: string[];
   apiKey: string;
+  apiKeyType: 'user-provided' | 'demo-generated' | 'auto-detect';
+  apiService: string;
   isPrivate: boolean;
 }
 
@@ -74,6 +83,8 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
     description: '',
     tags: [],
     apiKey: '',
+    apiKeyType: 'demo-generated',
+    apiService: 'openai',
     isPrivate: false,
   });
   
@@ -121,10 +132,12 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
       errors.tags = 'Maximum 10 tags allowed';
     }
     
-    if (!formData.apiKey.trim()) {
-      errors.apiKey = 'API key is required';
-    } else if (formData.apiKey.length < 10) {
-      errors.apiKey = 'API key seems too short';
+    if (formData.apiKeyType === 'user-provided') {
+      if (!formData.apiKey.trim()) {
+        errors.apiKey = 'API key is required when using user-provided option';
+      } else if (!validateApiKey(formData.apiKey, formData.apiService)) {
+        errors.apiKey = 'Invalid API key format for selected service';
+      }
     }
     
     if (!fileUpload || fileUpload.status !== 'completed') {
@@ -236,10 +249,21 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
     setIsSubmitting(true);
     
     try {
-      // Step 1: Encrypt API key
+      // Step 1: Process and encrypt API key
       setStep('encrypt');
-      console.log('🔐 Encrypting API key...');
-      const encryptedApiKey = await mockEncryptApiKey(formData.apiKey);
+      console.log('🔐 Processing API key...');
+      
+      // Generate or validate API key based on type
+      const processedApiKey = await processApiKey({
+        type: formData.apiKeyType === 'auto-detect' ? 'user-provided' : formData.apiKeyType,
+        service: formData.apiService as any,
+        userKey: formData.apiKey || undefined
+      }, formData.name, user?.wallet?.address || 'unknown');
+      
+      console.log('✅ API key processed:', detectServiceFromKey(processedApiKey));
+      
+      // Encrypt the processed key
+      const encryptedApiKey = await mockEncryptApiKey(processedApiKey);
       
       // Clear plaintext API key from state immediately
       setFormData(prev => ({ ...prev, apiKey: '' }));
@@ -268,6 +292,8 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
         description: '',
         tags: [],
         apiKey: '',
+        apiKeyType: 'demo-generated',
+        apiService: 'openai',
         isPrivate: false,
       });
       setFileUpload(null);
@@ -288,7 +314,7 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
     } finally {
       setIsSubmitting(false);
     }
-  }, [authenticated, login, validateForm, formData, fileUpload, writeContractAsync, onAgentCreated]);
+  }, [authenticated, login, validateForm, formData, fileUpload, createAgent, onAgentCreated]);
 
   // Loading state
   if (!ready) {
@@ -612,35 +638,131 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
               )}
             </div>
 
-            {/* API Key */}
-            <div>
+            {/* API Key Configuration */}
+            <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                API Key * (TEE Protected)
+                API Key Configuration * (TEE Protected)
               </label>
-              <div className="relative">
-                <input
-                  type={showApiKey ? 'text' : 'password'}
-                  value={formData.apiKey}
-                  onChange={(e) => setFormData(prev => ({ ...prev, apiKey: e.target.value }))}
-                  className={cn(
-                    'input w-full pr-10',
-                    validationErrors.apiKey && 'border-red-500 focus:ring-red-500'
-                  )}
-                  placeholder="sk-..."
-                  disabled={isSubmitting}
-                  autoComplete="off"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
-                >
-                  {showApiKey ? (
-                    <EyeSlashIcon className="h-4 w-4" />
-                  ) : (
-                    <EyeIcon className="h-4 w-4" />
-                  )}
-                </button>
+              
+              {/* API Key Type Selection */}
+              <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-3">
+                  {/* Demo Generated Option */}
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="apiKeyType"
+                      value="demo-generated"
+                      checked={formData.apiKeyType === 'demo-generated'}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        apiKeyType: e.target.value as any,
+                        apiKey: '' // Clear existing key
+                      }))}
+                      className="mt-1"
+                      disabled={isSubmitting}
+                    />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-slate-200">
+                        🎯 Auto-Generate Demo Key (Recommended)
+                      </div>
+                      <div className="text-xs text-slate-400">
+                        Perfect for hackathon demo - generates realistic API keys automatically
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* User Provided Option */}
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="apiKeyType"
+                      value="user-provided"
+                      checked={formData.apiKeyType === 'user-provided'}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        apiKeyType: e.target.value as any 
+                      }))}
+                      className="mt-1"
+                      disabled={isSubmitting}
+                    />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-slate-200">
+                        🔑 Provide Your Own API Key
+                      </div>
+                      <div className="text-xs text-slate-400">
+                        Use real API keys for production agents (OpenAI, Anthropic, etc.)
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Service Selection */}
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-2">
+                    AI Service Provider
+                  </label>
+                  <select
+                    value={formData.apiService}
+                    onChange={(e) => setFormData(prev => ({ ...prev, apiService: e.target.value }))}
+                    className="input w-full text-sm"
+                    disabled={isSubmitting}
+                  >
+                    <option value="openai">🤖 OpenAI (GPT-4, GPT-3.5)</option>
+                    <option value="anthropic">🧠 Anthropic (Claude)</option>
+                    <option value="huggingface">🤗 Hugging Face (Open Models)</option>
+                    <option value="replicate">🔄 Replicate (Various Models)</option>
+                    <option value="custom">⚙️ Custom API</option>
+                  </select>
+                </div>
+
+                {/* API Key Input - Only show for user-provided */}
+                {formData.apiKeyType === 'user-provided' && (
+                  <div>
+                    <div className="relative">
+                      <input
+                        type={showApiKey ? 'text' : 'password'}
+                        value={formData.apiKey}
+                        onChange={(e) => setFormData(prev => ({ ...prev, apiKey: e.target.value }))}
+                        className={cn(
+                          'input w-full pr-10',
+                          validationErrors.apiKey && 'border-red-500 focus:ring-red-500'
+                        )}
+                        placeholder={`Enter your ${formData.apiService} API key...`}
+                        disabled={isSubmitting}
+                        autoComplete="off"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowApiKey(!showApiKey)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+                      >
+                        {showApiKey ? (
+                          <EyeSlashIcon className="h-4 w-4" />
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Demo Preview - Show for demo-generated */}
+                {formData.apiKeyType === 'demo-generated' && (
+                  <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600">
+                    <div className="text-xs text-slate-400 mb-2">Demo Key Preview:</div>
+                    <div className="font-mono text-xs text-green-400">
+                      {formData.apiService === 'openai' && 'sk-demo_1a2b3c4d5e6f7g8h9i0j...'}
+                      {formData.apiService === 'anthropic' && 'sk-ant-demo_1a2b3c4d5e6f7g8h9i0j...'}
+                      {formData.apiService === 'huggingface' && 'hf_demo1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p'}
+                      {formData.apiService === 'replicate' && 'r8_demo1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8'}
+                      {formData.apiService === 'custom' && 'ck_demo_1a2b3c4d5e6f7g8h9i0j1k2l3m4n'}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-2">
+                      ✨ Will be generated automatically based on your agent name and creator address
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="mt-2 space-y-1 text-xs text-slate-400">
