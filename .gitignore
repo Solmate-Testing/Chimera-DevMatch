@@ -2,7 +2,6 @@
 node_modules/
 npm-debug.log
 yarn-error.log
-TESTNET_DEPLOYMENT.md
 # Yarn
 .yarn/*
 !.yarn/patches
@@ -54,9 +53,14 @@ dist/
 
 # Documentation and miscellaneous
 TerminalOutput.md
-hackathon_setup_guide.md
 claude_requirements.md
 CLAUDE.md
-COMMIT.md
-TESTNET_DEPLOYMENT.md
-AGENT-DEMO-GUIDE.md
+
+# Markdown documentation files (moved to .md folder)
+.md/
+
+# reference image
+reference.png
+
+#ignore contributing.md
+CONTRIBUTING.md

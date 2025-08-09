@@ -11,6 +11,7 @@ import { useTopAgentsByStake, useAgentsByTag, useSearchAgents, useMarketplaceAna
 import { Agent } from "../hooks/useSubgraphQueries";
 import AgentLeaderboard from "../components/AgentLeaderboard";
 import MarketplaceAnalytics from "../components/MarketplaceAnalytics";
+import WagmiTestComponent from "../components/WagmiTestComponent";
 
 export default function Home() {
   // State for search and filtering
@@ -56,6 +57,10 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
+        {/* Wagmi Test Component - Shows in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <WagmiTestComponent />
+        )}
         {/* ✅ HEADER WITH MARKETPLACE STATS */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
@@ -64,6 +69,22 @@ export default function Home() {
           <p className="text-xl text-gray-600 mb-6">
             Decentralized AI Marketplace with Gasless Transactions
           </p>
+          
+          {/* Navigation Links */}
+          <div className="flex justify-center space-x-4 mb-8">
+            <a 
+              href="/marketplace"
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-semibold shadow-lg hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all"
+            >
+              🏪 New Marketplace View
+            </a>
+            <a 
+              href="/dashboard"
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full font-semibold shadow-lg hover:from-blue-600 hover:to-indigo-600 transform hover:scale-105 transition-all"
+            >
+              📊 Creator Dashboard
+            </a>
+          </div>
           
           {/* Live Marketplace Statistics */}
           {!statsLoading && marketplaceStats?.marketplaceStats && (
