@@ -36,6 +36,7 @@ import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { mainnet, sepolia, hardhat } from 'wagmi/chains';
+import { sapphireTestnet } from '../scaffold.config';
 import { PRIVY_CONFIG } from '../lib/privy-config';
 
 /**
@@ -48,8 +49,8 @@ import { PRIVY_CONFIG } from '../lib/privy-config';
  */
 const wagmiConfig = getDefaultConfig({
   appName: 'Chimera DevMatch',
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'chimera-devmatch',
-  chains: [mainnet, sepolia, hardhat],
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '2f05a7cae10b91d50c8d579c6dd15154',
+  chains: [hardhat, sepolia, sapphireTestnet, mainnet],
   ssr: true,
 });
 
@@ -86,17 +87,19 @@ interface ProvidersProps {
  * @returns JSX element wrapping children with necessary providers
  */
 export const Providers: FC<ProvidersProps> = ({ children }) => {
-  const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
+  const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cme14nugw003qlb0bp63pv22b';
   
-  // Debug logging
-  console.log('🔐 Privy App ID loaded:', privyAppId ? 'Found' : 'Missing');
-  console.log('🔐 Using App ID:', privyAppId && privyAppId !== 'your_privy_app_id_here' ? `${privyAppId.slice(0, 8)}...` : 'Placeholder');
+  // Debug logging for development only
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔐 Privy App ID loaded:', privyAppId ? 'Found' : 'Missing');
+    console.log('🔐 Using App ID:', privyAppId ? `${privyAppId.slice(0, 8)}...` : 'Not configured');
+  }
   
   // Always render Wagmi provider, but conditionally render Privy
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={wagmiConfig}>
-        {privyAppId && privyAppId !== 'your_privy_app_id_here' ? (
+        {privyAppId ? (
           <PrivyProvider
             appId={privyAppId}
             config={PRIVY_CONFIG}

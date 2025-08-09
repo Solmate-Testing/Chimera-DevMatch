@@ -7,7 +7,7 @@
  * 3. RANDAO-based secure random keys (for production)
  */
 
-import { keccak256, encodePacked, toHex } from 'viem';
+import { keccak256, encodePacked } from 'viem';
 
 export type ApiKeyType = 'user-provided' | 'demo-generated' | 'randao-secure';
 

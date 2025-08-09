@@ -5,13 +5,13 @@ import type { PrivyClientConfig } from '@privy-io/react-auth';
 
 // ✅ EXACT REQUIREMENT: Google login configuration
 export const PRIVY_CONFIG: Partial<PrivyClientConfig> = {
-  // ✅ GOOGLE OAUTH REQUIREMENT - Type-safe login methods
-  loginMethods: ['google', 'email'],
+  // ✅ FOR DEVELOPMENT: Use email first, then Google when properly configured
+  loginMethods: ['email', 'wallet'],
   
   appearance: {
     theme: 'light',
     accentColor: '#2563eb',
-    logo: '/logo.png',
+    logo: '/logo.svg',
     loginMessage: 'Sign in to Chimera DevMatch - AI Marketplace',
     showWalletLoginFirst: false, // ✅ CRITICAL: Show Google login first
   },
@@ -34,7 +34,7 @@ export const PRIVY_CONFIG: Partial<PrivyClientConfig> = {
         symbol: 'ETH',
         decimals: 18,
       },
-      rpcUrls: ['https://eth-mainnet.alchemyapi.io/v2/your-key'],
+      rpcUrls: [process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ? `https://eth-mainnet.alchemyapi.io/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}` : 'https://eth-mainnet.g.alchemy.com/v2/demo'],
       blockExplorers: [
         {
           name: 'Etherscan',
@@ -51,7 +51,7 @@ export const PRIVY_CONFIG: Partial<PrivyClientConfig> = {
         symbol: 'SEP',
         decimals: 18,
       },
-      rpcUrls: ['https://eth-sepolia.g.alchemy.com/v2/your-key'],
+      rpcUrls: [process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}` : 'https://eth-sepolia.g.alchemy.com/v2/demo'],
       blockExplorers: [
         {
           name: 'Sepolia Etherscan',

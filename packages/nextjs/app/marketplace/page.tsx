@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { usePrivy } from '@privy-io/react-auth';
 import { useScaffoldReadContract } from '../../hooks/scaffold-eth/useScaffoldReadContract';
 import { useScaffoldWriteContract } from '../../hooks/scaffold-eth/useScaffoldWriteContract';
+import { WalletIcon } from '@heroicons/react/24/outline';
 import { formatEther } from 'viem';
 import MarketplaceSidebar from '../../components/MarketplaceSidebar';
+import { WalletConnection } from '../../components/WalletConnection';
 import { generateCreatorProfile, type CreatorProfile } from '../../utils/avatarGenerator';
 import MarketplaceTestSuite from '../../components/MarketplaceTestSuite';
+import { useMockData, ALL_MOCK_AGENTS } from '../../utils/mockAnalyticsData';
 
 interface Agent {
   id: bigint;
@@ -28,12 +32,16 @@ interface CreatorShowcase {
 }
 
 const MarketplacePage = () => {
+  const { ready, authenticated, login, user } = usePrivy();
   const [viewMode, setViewMode] = useState<'creator' | 'user'>('user');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAgent, setSelectedAgent] = useState<CreatorShowcase | null>(null);
   const [recentAgents, setRecentAgents] = useState<CreatorShowcase[]>([]);
   const [isStaking, setIsStaking] = useState(false);
   const [isLoving, setIsLoving] = useState(false);
+
+  // Mock data for demo
+  const mockData = useMockData();
 
   // Read agents from contract
   const { data: agentCount } = useScaffoldReadContract({
@@ -46,12 +54,18 @@ const MarketplacePage = () => {
     functionName: 'getAllAgents',
   });
 
+  // Check if we have real contract data
+  const hasContractData = allAgents && Array.isArray(allAgents) && allAgents.length > 0;
+
   const { writeContractAsync: stakeToAgent } = useScaffoldWriteContract('Marketplace');
   const { writeContractAsync: loveAgent } = useScaffoldWriteContract('Marketplace');
 
   useEffect(() => {
-    if (allAgents) {
-      const showcases: CreatorShowcase[] = (allAgents as Agent[]).map(agent => ({
+    let showcases: CreatorShowcase[] = [];
+    
+    if (hasContractData) {
+      // Use real contract data
+      showcases = (allAgents as Agent[]).map(agent => ({
         agent,
         profile: generateCreatorProfile(
           {
@@ -61,19 +75,69 @@ const MarketplacePage = () => {
             tags: agent.tags,
           },
           agent.totalStake,
-          1 // Single agent for now
+          1
         ),
       }));
-      
-      setRecentAgents(showcases);
-      if (!selectedAgent && showcases.length > 0) {
-        setSelectedAgent(showcases[0]);
-      }
+    } else {
+      // Use mock data for demo
+      showcases = ALL_MOCK_AGENTS.slice(0, 8).map((mockAgent, index) => {
+        const agent: Agent = {
+          id: BigInt(mockAgent.id),
+          creator: mockAgent.creator,
+          name: mockAgent.name,
+          description: mockAgent.description,
+          tags: mockAgent.tags,
+          ipfsHash: mockAgent.ipfsHash,
+          totalStake: BigInt(mockAgent.totalStaked),
+          isPrivate: mockAgent.isPrivate,
+          createdAt: BigInt(mockAgent.createdAt),
+          apiKeyHash: `hash${index}`,
+          loves: BigInt(mockAgent.loves)
+        };
+        
+        return {
+          agent,
+          profile: generateCreatorProfile(
+            {
+              id: agent.id,
+              name: agent.name,
+              description: agent.description,
+              tags: agent.tags,
+            },
+            agent.totalStake,
+            1
+          ),
+        };
+      });
     }
-  }, [allAgents]);
+    
+    setRecentAgents(showcases);
+    if (!selectedAgent && showcases.length > 0) {
+      setSelectedAgent(showcases[0]);
+    }
+  }, [allAgents, hasContractData, selectedAgent]);
 
   const handleStakeAccess = async (agentId: bigint) => {
+    // Check authentication first
+    if (!ready) {
+      console.log('⏳ Privy not ready yet');
+      return;
+    }
+    
+    if (!authenticated) {
+      console.log('🔐 User not authenticated, prompting login');
+      login();
+      return;
+    }
+
+    if (!user?.wallet?.address) {
+      console.log('💳 No wallet connected');
+      alert('Please connect your wallet to stake');
+      return;
+    }
+    
     console.log('🚀 Starting stake transaction for agent:', agentId.toString());
+    console.log('👤 User address:', user.wallet.address);
     setIsStaking(true);
     
     try {
@@ -81,7 +145,8 @@ const MarketplacePage = () => {
       console.log('📊 Stake Details:', {
         agentId: agentId.toString(),
         amount: '0.01 ETH',
-        functionName: 'stakeToAgent'
+        functionName: 'stakeToAgent',
+        userAddress: user.wallet.address
       });
       
       const result = await stakeToAgent({
@@ -97,20 +162,40 @@ const MarketplacePage = () => {
       
     } catch (error) {
       console.error('❌ Staking failed:', error);
-      alert('Staking failed. Please check console for details.');
+      alert(`Staking failed: ${error?.message || 'Unknown error'}. Please check console for details.`);
     } finally {
       setIsStaking(false);
     }
   };
 
   const handleLoveAgent = async (agentId: bigint) => {
+    // Check authentication first
+    if (!ready) {
+      console.log('⏳ Privy not ready yet');
+      return;
+    }
+    
+    if (!authenticated) {
+      console.log('🔐 User not authenticated, prompting login');
+      login();
+      return;
+    }
+
+    if (!user?.wallet?.address) {
+      console.log('💳 No wallet connected');
+      alert('Please connect your wallet to love an agent');
+      return;
+    }
+    
     console.log('💖 Starting love transaction for agent:', agentId.toString());
+    console.log('👤 User address:', user.wallet.address);
     setIsLoving(true);
     
     try {
       console.log('📊 Love Details:', {
         agentId: agentId.toString(),
-        functionName: 'loveAgent'
+        functionName: 'loveAgent',
+        userAddress: user.wallet.address
       });
       
       const result = await loveAgent({
@@ -125,7 +210,7 @@ const MarketplacePage = () => {
       
     } catch (error) {
       console.error('❌ Love failed:', error);
-      alert('Love failed. Please check console for details.');
+      alert(`Love failed: ${error?.message || 'Unknown error'}. Please check console for details.`);
     } finally {
       setIsLoving(false);
     }
@@ -141,7 +226,7 @@ const MarketplacePage = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 flex">
       {/* Sidebar */}
       <MarketplaceSidebar 
-        userAddress="0x1234...5678" // Replace with actual user address
+        userAddress={user?.wallet?.address || "Not connected"}
         isCreator={viewMode === 'creator'} 
       />
       
@@ -210,27 +295,61 @@ const MarketplacePage = () => {
               </div>
             </div>
 
-            {/* Publish Button */}
-            <button 
-              onClick={() => {
-                console.log('🔥 Publish Agent button clicked - navigating to upload page');
-                window.location.href = '/upload';
-              }}
-              className="bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white px-6 py-2 rounded-full font-semibold shadow-lg transform hover:scale-105 transition-all"
-            >
-              Publish Agent
-            </button>
+            {/* Wallet & Publish Section */}
+            <div className="flex items-center space-x-4">
+              {/* Wallet Connection */}
+              <WalletConnection />
+              
+              {/* Publish Button */}
+              <button 
+                onClick={() => {
+                  console.log('🔥 Publish Agent button clicked - navigating to upload page');
+                  window.location.href = '/upload';
+                }}
+                className="bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white px-6 py-2 rounded-full font-semibold shadow-lg transform hover:scale-105 transition-all"
+              >
+                Publish Agent
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Wallet Connection Notice */}
+        {ready && !authenticated && (
+          <div className="flex justify-center mb-6">
+            <div className="bg-purple-500/20 border border-purple-400/30 rounded-lg px-6 py-4 text-purple-200 backdrop-blur-md">
+              <div className="flex items-center space-x-3">
+                <WalletIcon className="h-5 w-5 text-purple-300" />
+                <div>
+                  <div className="font-semibold">Connect your wallet to stake and interact with AI agents</div>
+                  <div className="text-sm text-purple-300 mt-1">
+                    Click "Connect Wallet" above to get started with staking and earning from AI agents
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Demo Data Indicator */}
+        {!hasContractData && (
+          <div className="flex justify-center mb-6">
+            <div className="bg-blue-500/20 border border-blue-400/30 rounded-lg px-6 py-3 text-blue-200 text-sm backdrop-blur-md">
+              📊 <strong>Demo Mode:</strong> Showcasing marketplace with mock agent data - Try the upload page to create real agents!
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
             {/* Recent AI Agents */}
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-              <h2 className="text-xl font-semibold text-white mb-6">Recent AI Agents</h2>
+              <h2 className="text-xl font-semibold text-white mb-6">
+                Recent AI Agents ({filteredAgents.length})
+              </h2>
               
               <div className="flex overflow-x-auto space-x-4 pb-4">
                 {filteredAgents.map((showcase) => (
@@ -399,26 +518,42 @@ const MarketplacePage = () => {
                 </button>
                 <button 
                   onClick={() => handleStakeAccess(selectedAgent.agent.id)}
-                  disabled={isStaking}
+                  disabled={isStaking || !ready}
                   className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center space-x-2 ${
-                    isStaking 
+                    isStaking || !ready
                       ? 'bg-gray-400 cursor-not-allowed' 
+                      : !authenticated
+                      ? 'bg-blue-500 hover:bg-blue-600'
                       : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
                   } text-white`}
                 >
-                  {isStaking ? (
+                  {!ready ? (
+                    <>
+                      <svg className="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>Loading...</span>
+                    </>
+                  ) : isStaking ? (
                     <>
                       <svg className="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
                       <span>Staking...</span>
                     </>
+                  ) : !authenticated ? (
+                    <>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 8A8 8 0 11.314 3.314l1.414 1.414A6 6 0 1016 16a6.01 6.01 0 01-1.938-2H16a2 2 0 110-4H9a1 1 0 000 2h7z" clipRule="evenodd" />
+                      </svg>
+                      <span>Connect to Stake</span>
+                    </>
                   ) : (
                     <>
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                       </svg>
-                      <span>Stake Access</span>
+                      <span>Stake Access (0.01 ETH)</span>
                     </>
                   )}
                 </button>

@@ -153,6 +153,9 @@ const deployMarketplace: DeployFunction = async function (hre: HardhatRuntimeEnv
 
 export default deployMarketplace;
 
+// Add id field to prevent hardhat-deploy warning
+deployMarketplace.id = "deploy_marketplace";
+
 // Tags help you run specific deployment scripts
 deployMarketplace.tags = ["Marketplace", "main"];
 

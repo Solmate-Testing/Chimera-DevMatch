@@ -14,6 +14,11 @@
     "vercel:yolo": "vercel --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true"
   },
   "dependencies": {
+    "@biconomy/account": "^4.1.1",
+    "@biconomy/bundler": "^4.1.1",
+    "@biconomy/common": "^4.1.1",
+    "@biconomy/core-types": "^3.1.4",
+    "@biconomy/paymaster": "^4.1.1",
     "@heroicons/react": "~2.0.18",
     "@privy-io/react-auth": "^1.88.4",
     "@privy-io/wagmi-connector": "^0.1.12",
@@ -25,6 +30,7 @@
     "abitype": "0.8.7",
     "burner-connector": "~0.0.8",
     "daisyui": "4.11.1",
+    "ethers": "^6.13.1",
     "next": "~14.2.3",
     "nprogress": "~0.2.0",
     "qrcode": "~1.5.3",
@@ -36,14 +42,8 @@
     "usehooks-ts": "~2.13.0",
     "viem": "2.9.20",
     "wagmi": "2.5.20",
-    "zustand": "~4.4.1",
     "web3.storage": "^4.5.5",
-    "@biconomy/account": "^4.4.0",
-    "@biconomy/bundler": "^4.4.0",
-    "@biconomy/common": "^4.4.0",
-    "@biconomy/core-types": "^4.4.0",
-    "@biconomy/paymaster": "^4.4.0",
-    "ethers": "^6.13.1"
+    "zustand": "~4.4.1"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",

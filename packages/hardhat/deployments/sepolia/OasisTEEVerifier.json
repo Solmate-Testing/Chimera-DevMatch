@@ -1,0 +1,484 @@
+{
+  "address": "0x19922d2d1e2b45c81c69030B709f462B2289f5A9",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "keyHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "accessor",
+          "type": "address"
+        }
+      ],
+      "name": "APIKeyDecrypted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "keyHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "APIKeyEncrypted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "nonce",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "NonceUsed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "proofHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isValid",
+          "type": "bool"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "verifier",
+          "type": "address"
+        }
+      ],
+      "name": "ProofVerified",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "origin",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "authorized",
+          "type": "bool"
+        }
+      ],
+      "name": "ROFLAuthorizationCheck",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "accessor",
+          "type": "address"
+        }
+      ],
+      "name": "ROFLStorageAccessed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "dataLength",
+          "type": "uint256"
+        }
+      ],
+      "name": "ROFLStorageSet",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "keyHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addTrustedTEEKey",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "nonce",
+          "type": "bytes32"
+        }
+      ],
+      "name": "isNonceUsed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "nonce",
+          "type": "bytes32"
+        }
+      ],
+      "name": "markNonceUsed",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "trustedTEEKeys",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_proof",
+          "type": "bytes"
+        }
+      ],
+      "name": "verifyOwnership",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32[]",
+              "name": "dataHashes",
+              "type": "bytes32[]"
+            },
+            {
+              "internalType": "bool",
+              "name": "isValid",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IDataVerifier.OwnershipProofOutput",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_proof",
+          "type": "bytes"
+        }
+      ],
+      "name": "verifyTransferValidity",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32[]",
+              "name": "oldDataHashes",
+              "type": "bytes32[]"
+            },
+            {
+              "internalType": "bytes32[]",
+              "name": "newDataHashes",
+              "type": "bytes32[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "pubKey",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "sealedKey",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bool",
+              "name": "isValid",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IDataVerifier.TransferValidityProofOutput",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x56ebfa0bc2c70e0f35566f63655f6cfe410f82d8d9767b5a6cec666030175a5c",
+  "receipt": {
+    "to": null,
+    "from": "0x992fEec8ECfaA9f3b1c5086202E171a399dD79Af",
+    "contractAddress": "0x19922d2d1e2b45c81c69030B709f462B2289f5A9",
+    "transactionIndex": 1,
+    "gasUsed": "808266",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x0ab402606d3c207d9939d9ca0ba4d3de71f6bf916e9c31f8f31ecfe5d8d7bdcd",
+    "transactionHash": "0x56ebfa0bc2c70e0f35566f63655f6cfe410f82d8d9767b5a6cec666030175a5c",
+    "logs": [],
+    "blockNumber": 8945941,
+    "cumulativeGasUsed": "829266",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "1ae8458d9eabfba3dd402c6f14592b67",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"accessor\",\"type\":\"address\"}],\"name\":\"APIKeyDecrypted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"}],\"name\":\"APIKeyEncrypted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"nonce\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"NonceUsed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"proofHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isValid\",\"type\":\"bool\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"verifier\",\"type\":\"address\"}],\"name\":\"ProofVerified\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"origin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"authorized\",\"type\":\"bool\"}],\"name\":\"ROFLAuthorizationCheck\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"key\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"accessor\",\"type\":\"address\"}],\"name\":\"ROFLStorageAccessed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"key\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"dataLength\",\"type\":\"uint256\"}],\"name\":\"ROFLStorageSet\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"keyHash\",\"type\":\"bytes32\"}],\"name\":\"addTrustedTEEKey\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"nonce\",\"type\":\"bytes32\"}],\"name\":\"isNonceUsed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"nonce\",\"type\":\"bytes32\"}],\"name\":\"markNonceUsed\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"trustedTEEKeys\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_proof\",\"type\":\"bytes\"}],\"name\":\"verifyOwnership\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32[]\",\"name\":\"dataHashes\",\"type\":\"bytes32[]\"},{\"internalType\":\"bool\",\"name\":\"isValid\",\"type\":\"bool\"}],\"internalType\":\"struct IDataVerifier.OwnershipProofOutput\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_proof\",\"type\":\"bytes\"}],\"name\":\"verifyTransferValidity\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32[]\",\"name\":\"oldDataHashes\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"newDataHashes\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes\",\"name\":\"pubKey\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"sealedKey\",\"type\":\"bytes\"},{\"internalType\":\"bool\",\"name\":\"isValid\",\"type\":\"bool\"}],\"internalType\":\"struct IDataVerifier.TransferValidityProofOutput\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"custom:security\":\"All verifications must occur within TEE environment using roflEnsureAuthorizedOrigin()\",\"details\":\"Implements IDataVerifier interface using Oasis ROFL-Sapphire for secure verification\",\"kind\":\"dev\",\"methods\":{\"addTrustedTEEKey(bytes32)\":{\"details\":\"Would be used to register new TEE attestation keys\",\"params\":{\"keyHash\":\"Hash of the TEE public key to trust\"}},\"isNonceUsed(bytes32)\":{\"params\":{\"nonce\":\"The nonce to check\"},\"returns\":{\"_0\":\"bool indicating if nonce is used\"}},\"markNonceUsed(bytes32)\":{\"params\":{\"nonce\":\"The nonce to mark as used\"}},\"verifyOwnership(bytes)\":{\"details\":\"Must be called within TEE environment for security\",\"params\":{\"_proof\":\"TEE attestation proof containing data hashes and signature\"},\"returns\":{\"_0\":\"OwnershipProofOutput with validation result and data hashes\"}},\"verifyTransferValidity(bytes)\":{\"details\":\"Validates secure data transfer between parties through TEE\",\"params\":{\"_proof\":\"TEE proof containing old/new hashes, keys, and attestation\"},\"returns\":{\"_0\":\"TransferValidityProofOutput with transfer validation details\"}}},\"title\":\"OasisTEEVerifier\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"addTrustedTEEKey(bytes32)\":{\"notice\":\"Add trusted TEE key (admin only)\"},\"isNonceUsed(bytes32)\":{\"notice\":\"Check if a nonce has been used\"},\"markNonceUsed(bytes32)\":{\"notice\":\"Mark nonce as used (separate transaction to handle view function limitation)\"},\"verifyOwnership(bytes)\":{\"notice\":\"Verify ownership of AI agent data through TEE attestation\"},\"verifyTransferValidity(bytes)\":{\"notice\":\"Verify validity of data transfer with re-encryption proof\"}},\"notice\":\"TEE-based data verification system for ERC-7857 AI Agent NFTs\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/OasisTEEVerifier.sol\":\"OasisTEEVerifier\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/IDataVerifier.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.20;\\n\\n/**\\n * @title IDataVerifier Interface\\n * @notice Interface for data verification systems supporting different proof mechanisms\\n * @dev Supports both TEE and ZKP verification methods for ERC-7857 AI Agent NFTs\\n */\\ninterface IDataVerifier {\\n    /**\\n     * @dev Output structure for ownership proof verification\\n     * @param dataHashes Array of validated data hashes from the proof\\n     * @param isValid Whether the ownership proof is valid\\n     */\\n    struct OwnershipProofOutput {\\n        bytes32[] dataHashes;\\n        bool isValid;\\n    }\\n\\n    /**\\n     * @dev Output structure for transfer validity proof verification\\n     * @param oldDataHashes Array of original data hashes before transfer\\n     * @param newDataHashes Array of new data hashes after re-encryption\\n     * @param pubKey Public key of the recipient for secure key transfer\\n     * @param sealedKey Encrypted key sealed for the recipient\\n     * @param isValid Whether the transfer validity proof is valid\\n     */\\n    struct TransferValidityProofOutput {\\n        bytes32[] oldDataHashes;\\n        bytes32[] newDataHashes;\\n        bytes pubKey;\\n        bytes sealedKey;\\n        bool isValid;\\n    }\\n\\n    /**\\n     * @notice Verify ownership of data through cryptographic proof\\n     * @dev Verifies that the prover possesses the original data by demonstrating \\n     *      knowledge of pre-images that generate the claimed dataHashes\\n     * @param _proof Cryptographic proof generated by companion prover system\\n     * @return OwnershipProofOutput containing verification result and validated data hashes\\n     */\\n    function verifyOwnership(\\n        bytes calldata _proof\\n    ) external returns (OwnershipProofOutput memory);\\n\\n    /**\\n     * @notice Verify validity of data transfer operation\\n     * @dev Verifies secure data integrity and availability by proving:\\n     *      - Knowledge of original data (pre-images of oldDataHashes)\\n     *      - Ability to decrypt with oldKey and re-encrypt with newKey\\n     *      - Secure transmission of newKey using recipient's public key\\n     *      - Integrity of newly encrypted data matching newDataHashes\\n     *      - Data availability confirmed by recipient's signature\\n     * @param _proof Cryptographic proof generated by companion prover system\\n     * @return TransferValidityProofOutput containing verification result and transfer details\\n     */\\n    function verifyTransferValidity(\\n        bytes calldata _proof\\n    ) external returns (TransferValidityProofOutput memory);\\n}\",\"keccak256\":\"0x3cff33c9fa5c0c7ac57fe6366023265f57fcaf7413b0c127bd4d3f61bdaff9c4\",\"license\":\"MIT\"},\"contracts/MockSapphire.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.20;\\n\\n// Mock Sapphire contracts for local development\\n// These provide the same interface as real Sapphire contracts but without TEE functionality\\n\\ncontract MockSapphire {\\n    // Mock storage for API keys (in production this would be TEE-protected)\\n    mapping(bytes32 => bytes) private _mockROFLStorage;\\n    mapping(bytes32 => bool) private _keyExists;\\n    mapping(address => bool) private _authorizedOrigins;\\n    \\n    // Events for testing and debugging\\n    event ROFLStorageSet(bytes32 indexed key, uint256 dataLength);\\n    event ROFLStorageAccessed(bytes32 indexed key, address accessor);\\n    event ROFLAuthorizationCheck(address origin, bool authorized);\\n    event APIKeyEncrypted(bytes32 indexed keyHash);\\n    event APIKeyDecrypted(bytes32 indexed keyHash, address accessor);\\n    \\n    // Mock encryption/decryption for testing\\n    function mockEncrypt(bytes memory data) internal pure returns (bytes memory) {\\n        // Simple XOR encryption for testing (NOT secure, only for development)\\n        bytes memory encrypted = new bytes(data.length);\\n        for (uint i = 0; i < data.length; i++) {\\n            encrypted[i] = bytes1(uint8(data[i]) ^ 0xAA);\\n        }\\n        return encrypted;\\n    }\\n    \\n    function mockDecrypt(bytes memory encryptedData) internal pure returns (bytes memory) {\\n        // Simple XOR decryption for testing (NOT secure, only for development)\\n        bytes memory decrypted = new bytes(encryptedData.length);\\n        for (uint i = 0; i < encryptedData.length; i++) {\\n            decrypted[i] = bytes1(uint8(encryptedData[i]) ^ 0xAA);\\n        }\\n        return decrypted;\\n    }\\n    \\n    // Mock ROFL authorization - configurable for testing\\n    function roflEnsureAuthorizedOrigin() internal returns (bool) {\\n        // In real Sapphire, this validates TEE execution environment\\n        // For local development, we simulate authorization checks\\n        bool authorized = _authorizedOrigins[msg.sender] || _authorizedOrigins[tx.origin] || true;\\n        emit ROFLAuthorizationCheck(msg.sender, authorized);\\n        return authorized;\\n    }\\n    \\n    // Mock rofl storage interface\\n    struct ROFLStorageInterface {\\n        mapping(bytes32 => bytes) data;\\n    }\\n    \\n    ROFLStorageInterface internal roflStorage;\\n    \\n    // Enhanced mock implementation for setting storage with encryption\\n    function _setROFLStorage(bytes32 key, bytes calldata value) internal {\\n        require(value.length > 0, \\\"Empty data not allowed\\\");\\n        \\n        // Mock encryption of the API key\\n        bytes memory encryptedValue = mockEncrypt(value);\\n        _mockROFLStorage[key] = encryptedValue;\\n        _keyExists[key] = true;\\n        \\n        emit ROFLStorageSet(key, value.length);\\n        emit APIKeyEncrypted(key);\\n    }\\n    \\n    // Enhanced mock implementation for getting storage with decryption\\n    function _getROFLStorage(bytes32 key) internal returns (bytes memory) {\\n        require(_keyExists[key], \\\"Key does not exist in TEE storage\\\");\\n        \\n        bytes memory encryptedData = _mockROFLStorage[key];\\n        bytes memory decryptedData = mockDecrypt(encryptedData);\\n        \\n        emit ROFLStorageAccessed(key, msg.sender);\\n        emit APIKeyDecrypted(key, msg.sender);\\n        \\n        return decryptedData;\\n    }\\n    \\n    // Mock function to simulate private agent access verification\\n    function _verifyAgentAccess(\\n        uint256 agentId,\\n        address user,\\n        bool isPrivate\\n    ) internal pure returns (bool) {\\n        if (!isPrivate) {\\n            return true; // Public agents are always accessible\\n        }\\n        \\n        // In real implementation, this would check TEE-protected access lists\\n        // For mock, we simulate the check\\n        return agentId > 0 && user != address(0);\\n    }\\n    \\n    // Mock function to add authorized origins (for testing)\\n    function _addAuthorizedOrigin(address origin) internal {\\n        _authorizedOrigins[origin] = true;\\n    }\\n    \\n    // Mock function to remove authorized origins (for testing)\\n    function _removeAuthorizedOrigin(address origin) internal {\\n        _authorizedOrigins[origin] = false;\\n    }\\n    \\n    // Mock function to check if a key exists in storage\\n    function _keyExistsInStorage(bytes32 key) internal view returns (bool) {\\n        return _keyExists[key];\\n    }\\n    \\n    // Mock function to get storage size (for testing)\\n    function _getStorageSize(bytes32 key) internal view returns (uint256) {\\n        if (!_keyExists[key]) return 0;\\n        return _mockROFLStorage[key].length;\\n    }\\n    \\n    // Mock function to clear storage (for testing)\\n    function _clearROFLStorage(bytes32 key) internal {\\n        delete _mockROFLStorage[key];\\n        delete _keyExists[key];\\n    }\\n    \\n    // Mock function to simulate TEE environment check\\n    function _isInTEE() internal pure returns (bool) {\\n        // In real Sapphire, this would check if running in TEE\\n        // For mock, we always return true in development\\n        return true;\\n    }\\n}\",\"keccak256\":\"0x17407b41a17158f7195dd9289714bc5ae2e327c9b5ed3b5283ec696f06075c3f\",\"license\":\"MIT\"},\"contracts/OasisTEEVerifier.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.20;\\n\\nimport \\\"./IDataVerifier.sol\\\";\\n// Mock Sapphire for local development - replace with real import for production\\n// import \\\"@oasisprotocol/sapphire/contracts/Sapphire.sol\\\";\\nimport \\\"./MockSapphire.sol\\\";\\n\\n/**\\n * @title OasisTEEVerifier\\n * @notice TEE-based data verification system for ERC-7857 AI Agent NFTs\\n * @dev Implements IDataVerifier interface using Oasis ROFL-Sapphire for secure verification\\n * @custom:security All verifications must occur within TEE environment using roflEnsureAuthorizedOrigin()\\n */\\ncontract OasisTEEVerifier is IDataVerifier, MockSapphire {\\n    \\n    // Track used nonces to prevent replay attacks\\n    mapping(bytes32 => bool) private usedNonces;\\n    \\n    // TEE attestation verification keys (would be configured during deployment)\\n    mapping(bytes32 => bool) public trustedTEEKeys;\\n    \\n    event ProofVerified(\\n        bytes32 indexed proofHash, \\n        bool isValid, \\n        address indexed verifier\\n    );\\n    \\n    event NonceUsed(bytes32 indexed nonce, address indexed user);\\n    \\n    constructor() {\\n        // Initialize with trusted TEE public keys\\n        // In production, these would be Oasis TEE attestation keys\\n        _initializeTrustedKeys();\\n    }\\n    \\n    /**\\n     * @notice Verify ownership of AI agent data through TEE attestation\\n     * @dev Must be called within TEE environment for security\\n     * @param _proof TEE attestation proof containing data hashes and signature\\n     * @return OwnershipProofOutput with validation result and data hashes\\n     */\\n    function verifyOwnership(bytes calldata _proof) \\n        external override returns (OwnershipProofOutput memory) {\\n        \\n        // \\u2705 CRITICAL: Ensure execution within TEE\\n        if (block.chainid == 23295 || block.chainid == 23294) {\\n            require(roflEnsureAuthorizedOrigin(), \\\"Must execute in TEE\\\");\\n        }\\n        \\n        // Decode TEE attestation proof structure\\n        (\\n            bytes32[] memory dataHashes,\\n            bytes memory teeAttestation,\\n            bytes32 nonce,\\n            uint256 timestamp\\n        ) = abi.decode(_proof, (bytes32[], bytes, bytes32, uint256));\\n        \\n        // Validate proof components\\n        require(dataHashes.length > 0, \\\"No data hashes provided\\\");\\n        require(teeAttestation.length > 0, \\\"No TEE attestation provided\\\");\\n        require(!usedNonces[nonce], \\\"Nonce already used\\\");\\n        require(timestamp > block.timestamp - 300, \\\"Proof too old\\\"); // 5 minute validity\\n        \\n        // For development/testing: simplified validation\\n        // In production, this would verify actual TEE attestations\\n        bool isValid = dataHashes.length > 0 && \\n                      teeAttestation.length > 0 && \\n                      timestamp > block.timestamp - 300;\\n        \\n        if (isValid) {\\n            // Mark nonce as used (note: this is view function, so nonce isn't actually marked)\\n            // In practice, nonce marking would happen in a separate transaction\\n            emit ProofVerified(keccak256(_proof), isValid, msg.sender);\\n        }\\n        \\n        return OwnershipProofOutput({\\n            dataHashes: dataHashes,\\n            isValid: isValid\\n        });\\n    }\\n    \\n    /**\\n     * @notice Verify validity of data transfer with re-encryption proof\\n     * @dev Validates secure data transfer between parties through TEE\\n     * @param _proof TEE proof containing old/new hashes, keys, and attestation\\n     * @return TransferValidityProofOutput with transfer validation details\\n     */\\n    function verifyTransferValidity(bytes calldata _proof) \\n        external override returns (TransferValidityProofOutput memory) {\\n        \\n        // \\u2705 CRITICAL: Ensure execution within TEE\\n        if (block.chainid == 23295 || block.chainid == 23294) {\\n            require(roflEnsureAuthorizedOrigin(), \\\"Must execute in TEE\\\");\\n        }\\n        \\n        // Decode comprehensive transfer proof\\n        (\\n            bytes32[] memory oldDataHashes,\\n            bytes32[] memory newDataHashes,\\n            bytes memory recipientPubKey,\\n            bytes memory sealedKey,\\n            bytes memory teeAttestation,\\n            bytes32 nonce,\\n            uint256 timestamp\\n        ) = abi.decode(_proof, (bytes32[], bytes32[], bytes, bytes, bytes, bytes32, uint256));\\n        \\n        // Validate all proof components\\n        require(oldDataHashes.length == newDataHashes.length, \\\"Hash arrays length mismatch\\\");\\n        require(oldDataHashes.length > 0, \\\"No data hashes provided\\\");\\n        require(recipientPubKey.length > 0, \\\"No recipient public key\\\");\\n        require(sealedKey.length > 0, \\\"No sealed key provided\\\");\\n        require(!usedNonces[nonce], \\\"Nonce already used\\\");\\n        require(timestamp > block.timestamp - 300, \\\"Proof too old\\\");\\n        \\n        // For development/testing: simplified validation\\n        // In production, this would verify actual TEE attestations\\n        bool isValid = oldDataHashes.length == newDataHashes.length &&\\n                      oldDataHashes.length > 0 &&\\n                      recipientPubKey.length > 0 &&\\n                      sealedKey.length > 0 &&\\n                      teeAttestation.length > 0 &&\\n                      timestamp > block.timestamp - 300;\\n        \\n        if (isValid) {\\n            emit ProofVerified(keccak256(_proof), isValid, msg.sender);\\n        }\\n        \\n        return TransferValidityProofOutput({\\n            oldDataHashes: oldDataHashes,\\n            newDataHashes: newDataHashes,\\n            pubKey: recipientPubKey,\\n            sealedKey: sealedKey,\\n            isValid: isValid\\n        });\\n    }\\n    \\n    /**\\n     * @dev Verify TEE attestation for ownership proofs\\n     * @param attestation TEE signature/attestation data\\n     * @param dataHashes Array of data hashes being verified\\n     * @param nonce Unique nonce to prevent replays\\n     * @param timestamp Proof generation timestamp\\n     * @return bool indicating if attestation is valid\\n     */\\n    function _verifyTEEAttestation(\\n        bytes memory attestation,\\n        bytes32[] memory dataHashes,\\n        bytes32 nonce,\\n        uint256 timestamp\\n    ) private view returns (bool) {\\n        \\n        // Create message hash for verification\\n        bytes32 messageHash = keccak256(abi.encodePacked(\\n            dataHashes,\\n            nonce,\\n            timestamp,\\n            msg.sender,\\n            \\\"OWNERSHIP_PROOF\\\"\\n        ));\\n        \\n        // Verify against trusted TEE keys\\n        return _verifyTEESignature(messageHash, attestation);\\n    }\\n    \\n    /**\\n     * @dev Verify TEE attestation for transfer validity proofs  \\n     * @param attestation TEE signature/attestation data\\n     * @param oldDataHashes Original data hashes before transfer\\n     * @param newDataHashes New data hashes after re-encryption\\n     * @param pubKey Recipient's public key\\n     * @param sealedKey Encrypted key for recipient\\n     * @param nonce Unique nonce to prevent replays\\n     * @param timestamp Proof generation timestamp\\n     * @return bool indicating if attestation is valid\\n     */\\n    function _verifyTransferAttestation(\\n        bytes memory attestation,\\n        bytes32[] memory oldDataHashes,\\n        bytes32[] memory newDataHashes,\\n        bytes memory pubKey,\\n        bytes memory sealedKey,\\n        bytes32 nonce,\\n        uint256 timestamp\\n    ) private view returns (bool) {\\n        \\n        // Create comprehensive message hash\\n        bytes32 messageHash = keccak256(abi.encodePacked(\\n            oldDataHashes,\\n            newDataHashes,\\n            pubKey,\\n            keccak256(sealedKey),\\n            nonce,\\n            timestamp,\\n            msg.sender,\\n            \\\"TRANSFER_PROOF\\\"\\n        ));\\n        \\n        // Verify against trusted TEE keys\\n        return _verifyTEESignature(messageHash, attestation);\\n    }\\n    \\n    /**\\n     * @dev Verify signature against trusted TEE public keys\\n     * @param messageHash Hash of the message being verified\\n     * @param signature TEE signature to verify\\n     * @return bool indicating if signature is valid\\n     */\\n    function _verifyTEESignature(bytes32 messageHash, bytes memory signature) \\n        private view returns (bool) {\\n        \\n        // In production, this would:\\n        // 1. Extract public key from TEE attestation\\n        // 2. Verify against Oasis TEE attestation format\\n        // 3. Check against trusted TEE key registry\\n        \\n        // For demo/testing: simplified validation\\n        if (signature.length < 32) return false;\\n        \\n        // In development mode, accept signatures that match a known pattern\\n        // This is NOT secure - only for testing!\\n        bytes32 expectedSig = keccak256(abi.encodePacked(\\\"mock-signature\\\"));\\n        bytes32 providedSig = keccak256(signature);\\n        \\n        return providedSig == expectedSig || trustedTEEKeys[providedSig];\\n    }\\n    \\n    /**\\n     * @dev Initialize trusted TEE public keys during deployment\\n     */\\n    function _initializeTrustedKeys() private {\\n        // In production, these would be Oasis ROFL-Sapphire attestation keys\\n        // For demo: add some test keys\\n        trustedTEEKeys[keccak256(abi.encodePacked(address(0x1)))] = true;\\n        trustedTEEKeys[keccak256(abi.encodePacked(address(0x2)))] = true;\\n    }\\n    \\n    /**\\n     * @notice Add trusted TEE key (admin only)\\n     * @dev Would be used to register new TEE attestation keys\\n     * @param keyHash Hash of the TEE public key to trust\\n     */\\n    function addTrustedTEEKey(bytes32 keyHash) external {\\n        // In production, only TEE infrastructure should be able to call this\\n        if (block.chainid == 23295 || block.chainid == 23294) {\\n            require(roflEnsureAuthorizedOrigin(), \\\"Must execute in TEE\\\");\\n        }\\n        \\n        trustedTEEKeys[keyHash] = true;\\n    }\\n    \\n    /**\\n     * @notice Mark nonce as used (separate transaction to handle view function limitation)\\n     * @param nonce The nonce to mark as used\\n     */\\n    function markNonceUsed(bytes32 nonce) external {\\n        require(!usedNonces[nonce], \\\"Nonce already used\\\");\\n        usedNonces[nonce] = true;\\n        emit NonceUsed(nonce, msg.sender);\\n    }\\n    \\n    /**\\n     * @notice Check if a nonce has been used\\n     * @param nonce The nonce to check\\n     * @return bool indicating if nonce is used\\n     */\\n    function isNonceUsed(bytes32 nonce) external view returns (bool) {\\n        return usedNonces[nonce];\\n    }\\n}\",\"keccak256\":\"0x787df2f9286e3b9c7ca3ad2492868880a1450103baded1afe6317c6215a06cdd\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50604080516c0100000000000000000000000060208083019190915282518083036014018152603483018452805190820120600090815260058083528482208054600160ff1991821681179092556c0200000000000000000000000060548701528651808703604801815260689096018752855195850195909520835292529290922080549091169091179055610cd1806100ac6000396000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c8063043153f3146100675780630e8d4ae7146100905780637cab7322146100a5578063b90665e5146100d8578063e883a3c9146100fb578063fbf8f6061461010e575b600080fd5b61007a6100753660046107b3565b61012e565b60405161008791906108a6565b60405180910390f35b6100a361009e366004610934565b610453565b005b6100c86100b3366004610934565b60056020526000908152604090205460ff1681565b6040519015158152602001610087565b6100c86100e6366004610934565b60009081526004602052604090205460ff1690565b6100a3610109366004610934565b6104c8565b61012161011c3660046107b3565b61051d565b604051610087919061094d565b6101626040518060a00160405280606081526020016060815260200160608152602001606081526020016000151581525090565b46615aff1480610173575046615afe145b156101a557610180610739565b6101a55760405162461bcd60e51b815260040161019c90610981565b60405180910390fd5b60008080808080806101b9898b018b610ae5565b965096509650965096509650965085518751146102185760405162461bcd60e51b815260206004820152601b60248201527f4861736820617272617973206c656e677468206d69736d617463680000000000604482015260640161019c565b60008751116102635760405162461bcd60e51b8152602060048201526017602482015276139bc819185d18481a185cda195cc81c1c9bdd9a591959604a1b604482015260640161019c565b60008551116102b45760405162461bcd60e51b815260206004820152601760248201527f4e6f20726563697069656e74207075626c6963206b6579000000000000000000604482015260640161019c565b60008451116102fe5760405162461bcd60e51b8152602060048201526016602482015275139bc81cd9585b1959081ad95e481c1c9bdd9a59195960521b604482015260640161019c565b60008281526004602052604090205460ff161561032d5760405162461bcd60e51b815260040161019c90610bca565b61033961012c42610bf6565b81116103775760405162461bcd60e51b815260206004820152600d60248201526c141c9bdbd9881d1bdbc81bdb19609a1b604482015260640161019c565b60008651885114801561038b575060008851115b8015610398575060008651115b80156103a5575060008551115b80156103b2575060008451115b80156103c857506103c561012c42610bf6565b82115b9050801561041f5760405133906103e2908d908d90610c17565b6040519081900381208315158252907f3a4a33223eeacd19149239ca01db55986c99bb5d00aeee3897e514b354bd68bc9060200160405180910390a35b6040805160a08101825298895260208901979097529587019490945250506060840152501515608082015290505b92915050565b60008181526004602052604090205460ff16156104825760405162461bcd60e51b815260040161019c90610bca565b600081815260046020526040808220805460ff1916600117905551339183917fabaa20a7409f654576020b2eb2bd09961d12bb1b297018ebbf8310528d4127339190a350565b46615aff14806104d9575046615afe145b15610502576104e6610739565b6105025760405162461bcd60e51b815260040161019c90610981565b6000908152600560205260409020805460ff19166001179055565b60408051808201909152606081526000602082015246615aff1480610543575046615afe145b1561056c57610550610739565b61056c5760405162461bcd60e51b815260040161019c90610981565b600080808061057d86880188610c27565b935093509350935060008451116105d05760405162461bcd60e51b8152602060048201526017602482015276139bc819185d18481a185cda195cc81c1c9bdd9a591959604a1b604482015260640161019c565b60008351116106215760405162461bcd60e51b815260206004820152601b60248201527f4e6f20544545206174746573746174696f6e2070726f76696465640000000000604482015260640161019c565b60008281526004602052604090205460ff16156106505760405162461bcd60e51b815260040161019c90610bca565b61065c61012c42610bf6565b811161069a5760405162461bcd60e51b815260206004820152600d60248201526c141c9bdbd9881d1bdbc81bdb19609a1b604482015260640161019c565b60008085511180156106ad575060008451115b80156106c357506106c061012c42610bf6565b82115b9050801561071a5760405133906106dd908a908a90610c17565b6040519081900381208315158252907f3a4a33223eeacd19149239ca01db55986c99bb5d00aeee3897e514b354bd68bc9060200160405180910390a35b6040805180820190915294855215156020850152509195945050505050565b33600090815260026020526040812054819060ff168061076857503260009081526002602052604090205460ff165b80610771575060015b6040805133815282151560208201529192507f0f6a0f5482203131919707994262ffc1a2ac3fbc258968c4a16319baf9c14174910160405180910390a1919050565b600080602083850312156107c657600080fd5b823567ffffffffffffffff808211156107de57600080fd5b818501915085601f8301126107f257600080fd5b81358181111561080157600080fd5b86602082850101111561081357600080fd5b60209290920196919550909350505050565b600081518084526020808501945080840160005b8381101561085557815187529582019590820190600101610839565b509495945050505050565b6000815180845260005b818110156108865760208185018101518683018201520161086a565b506000602082860101526020601f19601f83011685010191505092915050565b602081526000825160a060208401526108c260c0840182610825565b90506020840151601f19808584030160408601526108e08383610825565b925060408601519150808584030160608601526108fd8383610860565b925060608601519150808584030160808601525061091b8282610860565b9150506080840151151560a08401528091505092915050565b60006020828403121561094657600080fd5b5035919050565b6020815260008251604060208401526109696060840182610825565b90506020840151151560408401528091505092915050565b6020808252601390820152724d757374206578656375746520696e2054454560681b604082015260600190565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff811182821017156109ed576109ed6109ae565b604052919050565b600082601f830112610a0657600080fd5b8135602067ffffffffffffffff821115610a2257610a226109ae565b8160051b610a318282016109c4565b9283528481018201928281019087851115610a4b57600080fd5b83870192505b84831015610a6a57823582529183019190830190610a51565b979650505050505050565b600082601f830112610a8657600080fd5b813567ffffffffffffffff811115610aa057610aa06109ae565b610ab3601f8201601f19166020016109c4565b818152846020838601011115610ac857600080fd5b816020850160208301376000918101602001919091529392505050565b600080600080600080600060e0888a031215610b0057600080fd5b873567ffffffffffffffff80821115610b1857600080fd5b610b248b838c016109f5565b985060208a0135915080821115610b3a57600080fd5b610b468b838c016109f5565b975060408a0135915080821115610b5c57600080fd5b610b688b838c01610a75565b965060608a0135915080821115610b7e57600080fd5b610b8a8b838c01610a75565b955060808a0135915080821115610ba057600080fd5b50610bad8a828b01610a75565b93505060a0880135915060c0880135905092959891949750929550565b602080825260129082015271139bdb98d948185b1c9958591e481d5cd95960721b604082015260600190565b8181038181111561044d57634e487b7160e01b600052601160045260246000fd5b8183823760009101908152919050565b60008060008060808587031215610c3d57600080fd5b843567ffffffffffffffff80821115610c5557600080fd5b610c61888389016109f5565b95506020870135915080821115610c7757600080fd5b50610c8487828801610a75565b94979496505050506040830135926060013591905056fea26469706673582212201a8e82b6f052e7ea341cc1e49e0c657af7775132508f5d70ef12a73f5d72385c64736f6c63430008140033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100625760003560e01c8063043153f3146100675780630e8d4ae7146100905780637cab7322146100a5578063b90665e5146100d8578063e883a3c9146100fb578063fbf8f6061461010e575b600080fd5b61007a6100753660046107b3565b61012e565b60405161008791906108a6565b60405180910390f35b6100a361009e366004610934565b610453565b005b6100c86100b3366004610934565b60056020526000908152604090205460ff1681565b6040519015158152602001610087565b6100c86100e6366004610934565b60009081526004602052604090205460ff1690565b6100a3610109366004610934565b6104c8565b61012161011c3660046107b3565b61051d565b604051610087919061094d565b6101626040518060a00160405280606081526020016060815260200160608152602001606081526020016000151581525090565b46615aff1480610173575046615afe145b156101a557610180610739565b6101a55760405162461bcd60e51b815260040161019c90610981565b60405180910390fd5b60008080808080806101b9898b018b610ae5565b965096509650965096509650965085518751146102185760405162461bcd60e51b815260206004820152601b60248201527f4861736820617272617973206c656e677468206d69736d617463680000000000604482015260640161019c565b60008751116102635760405162461bcd60e51b8152602060048201526017602482015276139bc819185d18481a185cda195cc81c1c9bdd9a591959604a1b604482015260640161019c565b60008551116102b45760405162461bcd60e51b815260206004820152601760248201527f4e6f20726563697069656e74207075626c6963206b6579000000000000000000604482015260640161019c565b60008451116102fe5760405162461bcd60e51b8152602060048201526016602482015275139bc81cd9585b1959081ad95e481c1c9bdd9a59195960521b604482015260640161019c565b60008281526004602052604090205460ff161561032d5760405162461bcd60e51b815260040161019c90610bca565b61033961012c42610bf6565b81116103775760405162461bcd60e51b815260206004820152600d60248201526c141c9bdbd9881d1bdbc81bdb19609a1b604482015260640161019c565b60008651885114801561038b575060008851115b8015610398575060008651115b80156103a5575060008551115b80156103b2575060008451115b80156103c857506103c561012c42610bf6565b82115b9050801561041f5760405133906103e2908d908d90610c17565b6040519081900381208315158252907f3a4a33223eeacd19149239ca01db55986c99bb5d00aeee3897e514b354bd68bc9060200160405180910390a35b6040805160a08101825298895260208901979097529587019490945250506060840152501515608082015290505b92915050565b60008181526004602052604090205460ff16156104825760405162461bcd60e51b815260040161019c90610bca565b600081815260046020526040808220805460ff1916600117905551339183917fabaa20a7409f654576020b2eb2bd09961d12bb1b297018ebbf8310528d4127339190a350565b46615aff14806104d9575046615afe145b15610502576104e6610739565b6105025760405162461bcd60e51b815260040161019c90610981565b6000908152600560205260409020805460ff19166001179055565b60408051808201909152606081526000602082015246615aff1480610543575046615afe145b1561056c57610550610739565b61056c5760405162461bcd60e51b815260040161019c90610981565b600080808061057d86880188610c27565b935093509350935060008451116105d05760405162461bcd60e51b8152602060048201526017602482015276139bc819185d18481a185cda195cc81c1c9bdd9a591959604a1b604482015260640161019c565b60008351116106215760405162461bcd60e51b815260206004820152601b60248201527f4e6f20544545206174746573746174696f6e2070726f76696465640000000000604482015260640161019c565b60008281526004602052604090205460ff16156106505760405162461bcd60e51b815260040161019c90610bca565b61065c61012c42610bf6565b811161069a5760405162461bcd60e51b815260206004820152600d60248201526c141c9bdbd9881d1bdbc81bdb19609a1b604482015260640161019c565b60008085511180156106ad575060008451115b80156106c357506106c061012c42610bf6565b82115b9050801561071a5760405133906106dd908a908a90610c17565b6040519081900381208315158252907f3a4a33223eeacd19149239ca01db55986c99bb5d00aeee3897e514b354bd68bc9060200160405180910390a35b6040805180820190915294855215156020850152509195945050505050565b33600090815260026020526040812054819060ff168061076857503260009081526002602052604090205460ff165b80610771575060015b6040805133815282151560208201529192507f0f6a0f5482203131919707994262ffc1a2ac3fbc258968c4a16319baf9c14174910160405180910390a1919050565b600080602083850312156107c657600080fd5b823567ffffffffffffffff808211156107de57600080fd5b818501915085601f8301126107f257600080fd5b81358181111561080157600080fd5b86602082850101111561081357600080fd5b60209290920196919550909350505050565b600081518084526020808501945080840160005b8381101561085557815187529582019590820190600101610839565b509495945050505050565b6000815180845260005b818110156108865760208185018101518683018201520161086a565b506000602082860101526020601f19601f83011685010191505092915050565b602081526000825160a060208401526108c260c0840182610825565b90506020840151601f19808584030160408601526108e08383610825565b925060408601519150808584030160608601526108fd8383610860565b925060608601519150808584030160808601525061091b8282610860565b9150506080840151151560a08401528091505092915050565b60006020828403121561094657600080fd5b5035919050565b6020815260008251604060208401526109696060840182610825565b90506020840151151560408401528091505092915050565b6020808252601390820152724d757374206578656375746520696e2054454560681b604082015260600190565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff811182821017156109ed576109ed6109ae565b604052919050565b600082601f830112610a0657600080fd5b8135602067ffffffffffffffff821115610a2257610a226109ae565b8160051b610a318282016109c4565b9283528481018201928281019087851115610a4b57600080fd5b83870192505b84831015610a6a57823582529183019190830190610a51565b979650505050505050565b600082601f830112610a8657600080fd5b813567ffffffffffffffff811115610aa057610aa06109ae565b610ab3601f8201601f19166020016109c4565b818152846020838601011115610ac857600080fd5b816020850160208301376000918101602001919091529392505050565b600080600080600080600060e0888a031215610b0057600080fd5b873567ffffffffffffffff80821115610b1857600080fd5b610b248b838c016109f5565b985060208a0135915080821115610b3a57600080fd5b610b468b838c016109f5565b975060408a0135915080821115610b5c57600080fd5b610b688b838c01610a75565b965060608a0135915080821115610b7e57600080fd5b610b8a8b838c01610a75565b955060808a0135915080821115610ba057600080fd5b50610bad8a828b01610a75565b93505060a0880135915060c0880135905092959891949750929550565b602080825260129082015271139bdb98d948185b1c9958591e481d5cd95960721b604082015260600190565b8181038181111561044d57634e487b7160e01b600052601160045260246000fd5b8183823760009101908152919050565b60008060008060808587031215610c3d57600080fd5b843567ffffffffffffffff80821115610c5557600080fd5b610c61888389016109f5565b95506020870135915080821115610c7757600080fd5b50610c8487828801610a75565b94979496505050506040830135926060013591905056fea26469706673582212201a8e82b6f052e7ea341cc1e49e0c657af7775132508f5d70ef12a73f5d72385c64736f6c63430008140033",
+  "devdoc": {
+    "custom:security": "All verifications must occur within TEE environment using roflEnsureAuthorizedOrigin()",
+    "details": "Implements IDataVerifier interface using Oasis ROFL-Sapphire for secure verification",
+    "kind": "dev",
+    "methods": {
+      "addTrustedTEEKey(bytes32)": {
+        "details": "Would be used to register new TEE attestation keys",
+        "params": {
+          "keyHash": "Hash of the TEE public key to trust"
+        }
+      },
+      "isNonceUsed(bytes32)": {
+        "params": {
+          "nonce": "The nonce to check"
+        },
+        "returns": {
+          "_0": "bool indicating if nonce is used"
+        }
+      },
+      "markNonceUsed(bytes32)": {
+        "params": {
+          "nonce": "The nonce to mark as used"
+        }
+      },
+      "verifyOwnership(bytes)": {
+        "details": "Must be called within TEE environment for security",
+        "params": {
+          "_proof": "TEE attestation proof containing data hashes and signature"
+        },
+        "returns": {
+          "_0": "OwnershipProofOutput with validation result and data hashes"
+        }
+      },
+      "verifyTransferValidity(bytes)": {
+        "details": "Validates secure data transfer between parties through TEE",
+        "params": {
+          "_proof": "TEE proof containing old/new hashes, keys, and attestation"
+        },
+        "returns": {
+          "_0": "TransferValidityProofOutput with transfer validation details"
+        }
+      }
+    },
+    "title": "OasisTEEVerifier",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "addTrustedTEEKey(bytes32)": {
+        "notice": "Add trusted TEE key (admin only)"
+      },
+      "isNonceUsed(bytes32)": {
+        "notice": "Check if a nonce has been used"
+      },
+      "markNonceUsed(bytes32)": {
+        "notice": "Mark nonce as used (separate transaction to handle view function limitation)"
+      },
+      "verifyOwnership(bytes)": {
+        "notice": "Verify ownership of AI agent data through TEE attestation"
+      },
+      "verifyTransferValidity(bytes)": {
+        "notice": "Verify validity of data transfer with re-encryption proof"
+      }
+    },
+    "notice": "TEE-based data verification system for ERC-7857 AI Agent NFTs",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 48,
+        "contract": "contracts/OasisTEEVerifier.sol:OasisTEEVerifier",
+        "label": "_mockROFLStorage",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_bytes_storage)"
+      },
+      {
+        "astId": 52,
+        "contract": "contracts/OasisTEEVerifier.sol:OasisTEEVerifier",
+        "label": "_keyExists",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_bytes32,t_bool)"
+      },
+      {
+        "astId": 56,
+        "contract": "contracts/OasisTEEVerifier.sol:OasisTEEVerifier",
+        "label": "_authorizedOrigins",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_address,t_bool)"
+      },
+      {
+        "astId": 214,
+        "contract": "contracts/OasisTEEVerifier.sol:OasisTEEVerifier",
+        "label": "roflStorage",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_struct(ROFLStorageInterface)211_storage"
+      },
+      {
+        "astId": 422,
+        "contract": "contracts/OasisTEEVerifier.sol:OasisTEEVerifier",
+        "label": "usedNonces",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_bytes32,t_bool)"
+      },
+      {
+        "astId": 426,
+        "contract": "contracts/OasisTEEVerifier.sol:OasisTEEVerifier",
+        "label": "trustedTEEKeys",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_bytes32,t_bool)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_bytes_storage": {
+        "encoding": "bytes",
+        "label": "bytes",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_bytes32,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_bytes32,t_bytes_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bytes)",
+        "numberOfBytes": "32",
+        "value": "t_bytes_storage"
+      },
+      "t_struct(ROFLStorageInterface)211_storage": {
+        "encoding": "inplace",
+        "label": "struct MockSapphire.ROFLStorageInterface",
+        "members": [
+          {
+            "astId": 210,
+            "contract": "contracts/OasisTEEVerifier.sol:OasisTEEVerifier",
+            "label": "data",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_bytes32,t_bytes_storage)"
+          }
+        ],
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

@@ -276,7 +276,7 @@ describe("🤖 Chainlink Functions AI Integration", function () {
       const promises = [];
       
       for (let i = 0; i < 10; i++) {
-        promises.push(marketplace.connect(user1).runModel(1, \`test input \${i}\`));
+        promises.push(marketplace.connect(user1).runModel(1, `test input ${i}`));
       }
       
       await Promise.all(promises);

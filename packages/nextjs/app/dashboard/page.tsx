@@ -33,7 +33,7 @@ import {
   ShieldCheckIcon,
   ArrowDownTrayIcon,
   CalendarIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   UserGroupIcon,
   StarIcon,
   CheckBadgeIcon
@@ -315,7 +315,7 @@ export default function EnhancedCreatorDashboard() {
   const tabs = [
     { id: 'overview', name: 'Overview', icon: ChartBarIcon },
     { id: 'agents', name: 'My Agents', icon: RocketLaunchIcon },
-    { id: 'analytics', name: 'Analytics', icon: TrendingUpIcon },
+    { id: 'analytics', name: 'Analytics', icon: ArrowTrendingUpIcon },
     { id: 'tools', name: 'Creator Tools', icon: StarIcon },
   ] as const;
 
@@ -800,7 +800,7 @@ export default function EnhancedCreatorDashboard() {
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
                     <div className="flex items-center space-x-2 mb-2">
-                      <TrendingUpIcon className="h-5 w-5 text-blue-400" />
+                      <ArrowTrendingUpIcon className="h-5 w-5 text-blue-400" />
                       <span className="text-blue-300 font-medium">Growth Strategy</span>
                     </div>
                     <p className="text-sm text-blue-200">

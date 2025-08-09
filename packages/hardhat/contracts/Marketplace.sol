@@ -18,7 +18,7 @@ pragma solidity ^0.8.20;
 // ✅ CHAINLINK FUNCTIONS + OASIS SAPPHIRE INTEGRATION
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "@chainlink/contracts/src/v0.8/functions/v1_0_0/FunctionsClient.sol";
 import "@chainlink/contracts/src/v0.8/functions/v1_0_0/libraries/FunctionsRequest.sol";
 // Mock Sapphire contracts for local development
@@ -638,6 +638,6 @@ contract Marketplace is ReentrancyGuard, Ownable, MockSapphire, FunctionsClient 
         require(_newEncryptedApiKey.length > 0, "New API key required");
         
         // Update TEE storage with new encrypted key
-        roflStorage.set(products[_productId].apiKeyHash, _newEncryptedApiKey);
+        _setROFLStorage(products[_productId].apiKeyHash, _newEncryptedApiKey);
     }
 }

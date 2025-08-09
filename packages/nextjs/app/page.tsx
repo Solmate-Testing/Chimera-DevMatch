@@ -9,6 +9,7 @@ import { VerificationTest } from "../components/VerificationTest";
 import { ModelExecution } from "../components/ModelExecution";
 import { useTopAgentsByStake, useAgentsByTag, useSearchAgents, useMarketplaceAnalytics, formatEthAmount } from "../hooks/useSubgraphQueries";
 import { Agent } from "../hooks/useSubgraphQueries";
+import { useMockData, ALL_MOCK_AGENTS } from "../utils/mockAnalyticsData";
 import AgentLeaderboard from "../components/AgentLeaderboard";
 import MarketplaceAnalytics from "../components/MarketplaceAnalytics";
 import WagmiTestComponent from "../components/WagmiTestComponent";
@@ -19,11 +20,36 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showSearch, setShowSearch] = useState(false);
 
-  // Subgraph queries
+  // Mock data for demo
+  const mockData = useMockData();
+
+  // Subgraph queries with mock data fallback
   const { data: topAgentsData, isLoading: topAgentsLoading, error: topAgentsError } = useTopAgentsByStake(10);
   const { data: categoryAgentsData, isLoading: categoryLoading } = useAgentsByTag(selectedCategory === "all" ? "" : selectedCategory, 20);
   const { data: searchResults, isLoading: searchLoading } = useSearchAgents(searchTerm, 20);
   const { data: marketplaceStats, isLoading: statsLoading } = useMarketplaceAnalytics();
+
+  // Use mock data when subgraph data is unavailable
+  const hasSubgraphData = topAgentsData?.agents && topAgentsData.agents.length > 0;
+  const displayStats = hasSubgraphData ? marketplaceStats?.marketplaceStats : mockData.marketplaceStats;
+  
+  // Convert mock agents to Agent format for display
+  const convertMockToAgent = (mockAgent: any): Agent => ({
+    id: mockAgent.id,
+    name: mockAgent.name,
+    description: mockAgent.description,
+    creator: mockAgent.creator,
+    totalStaked: mockAgent.totalStaked,
+    loves: mockAgent.loves,
+    rankingScore: mockAgent.rankingScore,
+    category: mockAgent.category,
+    tags: mockAgent.tags,
+    createdAt: mockAgent.createdAt,
+    isPrivate: mockAgent.isPrivate,
+    ipfsHash: mockAgent.ipfsHash
+  });
+
+  const mockAgentsAsAgents = ALL_MOCK_AGENTS.map(convertMockToAgent);
 
   // Mock product for staking demo (fallback)
   const mockProduct = {
@@ -47,12 +73,35 @@ export default function Home() {
     { value: "Education", label: "Education", icon: "🎓" }
   ];
 
-  // Determine which agents to display
-  const displayAgents = searchTerm.length > 2 ? searchResults?.agents : 
-    (selectedCategory === "all" ? topAgentsData?.agents : categoryAgentsData?.agents);
-  
-  const isLoadingAgents = searchTerm.length > 2 ? searchLoading : 
-    (selectedCategory === "all" ? topAgentsLoading : categoryLoading);
+  // Determine which agents to display (with mock data fallback)
+  let displayAgents: Agent[] | undefined;
+  let isLoadingAgents: boolean;
+
+  if (hasSubgraphData) {
+    // Use real subgraph data when available
+    displayAgents = searchTerm.length > 2 ? searchResults?.agents : 
+      (selectedCategory === "all" ? topAgentsData?.agents : categoryAgentsData?.agents);
+    isLoadingAgents = searchTerm.length > 2 ? searchLoading : 
+      (selectedCategory === "all" ? topAgentsLoading : categoryLoading);
+  } else {
+    // Use mock data when subgraph data unavailable
+    let filteredMockAgents = mockAgentsAsAgents;
+    
+    if (searchTerm.length > 2) {
+      filteredMockAgents = mockAgentsAsAgents.filter(agent => 
+        agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        agent.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        agent.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    } else if (selectedCategory !== "all") {
+      filteredMockAgents = mockAgentsAsAgents.filter(agent => 
+        agent.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+    
+    displayAgents = filteredMockAgents.slice(0, 20); // Limit to 20 for performance
+    isLoadingAgents = false; // Mock data is always loaded
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -87,31 +136,40 @@ export default function Home() {
           </div>
           
           {/* Live Marketplace Statistics */}
-          {!statsLoading && marketplaceStats?.marketplaceStats && (
+          {displayStats && (
             <div className="flex justify-center space-x-8 text-sm font-medium text-gray-700 mb-6">
               <div className="flex flex-col items-center">
                 <span className="text-2xl font-bold text-blue-600">
-                  {marketplaceStats.marketplaceStats.totalAgents || 0}
+                  {displayStats.totalAgents || 0}
                 </span>
                 <span className="text-xs text-gray-500">Agents</span>
               </div>
               <div className="flex flex-col items-center">
                 <span className="text-2xl font-bold text-green-600">
-                  {formatEthAmount(marketplaceStats.marketplaceStats.totalStakedAmount || "0")}
+                  {mockData.formatEthAmount(displayStats.totalStakedAmount || "0")} ETH
                 </span>
-                <span className="text-xs text-gray-500">ETH Staked</span>
+                <span className="text-xs text-gray-500">Staked</span>
               </div>
               <div className="flex flex-col items-center">
                 <span className="text-2xl font-bold text-purple-600">
-                  {marketplaceStats.marketplaceStats.totalLoves || 0}
+                  {displayStats.totalLoves || 0}
                 </span>
                 <span className="text-xs text-gray-500">Loves</span>
               </div>
               <div className="flex flex-col items-center">
                 <span className="text-2xl font-bold text-orange-600">
-                  {marketplaceStats.marketplaceStats.totalCreators || 0}
+                  {displayStats.totalCreators || 0}
                 </span>
                 <span className="text-xs text-gray-500">Creators</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Demo Data Indicator */}
+          {!hasSubgraphData && (
+            <div className="flex justify-center mb-4">
+              <div className="bg-blue-100 border border-blue-300 rounded-lg px-4 py-2 text-blue-800 text-sm">
+                📊 <strong>Demo Mode:</strong> Showing mock data for analytics demonstration
               </div>
             </div>
           )}
@@ -233,21 +291,21 @@ export default function Home() {
                     <div className="flex justify-between items-center text-sm">
                       <div className="flex items-center space-x-4">
                         <span className="text-green-600 font-medium">
-                          💰 {formatEthAmount(agent.totalStaked)} ETH
+                          💰 {mockData.formatEthAmount(agent.totalStaked)} ETH
                         </span>
                         <span className="text-purple-600 font-medium">
                           ❤️ {agent.loves}
                         </span>
                       </div>
                       <div className="text-blue-600 font-bold">
-                        🏆 {parseFloat(agent.rankingScore).toFixed(2)}
+                        🏆 {parseFloat(agent.rankingScore).toFixed(1)}
                       </div>
                     </div>
                     
                     {/* Creator */}
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <p className="text-xs text-gray-500">
-                        By {agent.creator?.slice(0, 8)}...{agent.creator?.slice(-6)}
+                        By {mockData.formatShortAddress(agent.creator)}
                       </p>
                       <p className="text-xs text-gray-400">
                         Created {new Date(parseInt(agent.createdAt) * 1000).toLocaleDateString()}

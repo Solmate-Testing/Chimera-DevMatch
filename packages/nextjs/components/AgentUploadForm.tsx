@@ -11,18 +11,17 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAgentContract } from '../hooks/useAgentContract';
 import { uploadToIPFS, type UploadProgress } from '../utils/web3Storage';
 import { LoadingSpinner, ButtonLoading } from './LoadingSpinner';
-import { ErrorMessage, Web3ErrorMessage } from './ErrorMessage';
+// import { ErrorMessage, Web3ErrorMessage } from './ErrorMessage';
 import { TransactionStatus } from './TransactionStatus';
 import { 
   processApiKey, 
   validateApiKey, 
-  detectServiceFromKey,
-  DEMO_API_PRESETS,
-  type ApiKeyConfig 
+  detectServiceFromKey
 } from '../utils/apiKeyGenerator';
 import { 
   CloudArrowUpIcon, 
@@ -75,7 +74,8 @@ const mockEncryptApiKey = async (apiKey: string): Promise<`0x${string}`> => {
 };
 
 export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated }) => {
-  const { ready, authenticated, login, user } = usePrivy();
+  const router = useRouter();
+  const { ready, authenticated, login, logout, user } = usePrivy();
   
   // Form state
   const [formData, setFormData] = useState<AgentFormData>({
@@ -101,7 +101,6 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
   const { 
     createAgent, 
     transactionStatus, 
-    formatError, 
     resetStatus,
     isLoading: isContractLoading 
   } = useAgentContract();
@@ -256,7 +255,7 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
       // Generate or validate API key based on type
       const processedApiKey = await processApiKey({
         type: formData.apiKeyType === 'auto-detect' ? 'user-provided' : formData.apiKeyType,
-        service: formData.apiService as any,
+        service: formData.apiService as 'openai' | 'anthropic' | 'huggingface' | 'replicate' | 'custom',
         userKey: formData.apiKey || undefined
       }, formData.name, user?.wallet?.address || 'unknown');
       
@@ -276,7 +275,7 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
         name: formData.name,
         description: formData.description,
         tags: formData.tags,
-        ipfsHash: fileUpload!.ipfsHash!,
+        ipfsHash: fileUpload?.ipfsHash || '',
         encryptedApiKey,
         isPrivate: formData.isPrivate,
       });
@@ -314,7 +313,7 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
     } finally {
       setIsSubmitting(false);
     }
-  }, [authenticated, login, validateForm, formData, fileUpload, createAgent, onAgentCreated]);
+  }, [authenticated, login, validateForm, formData, fileUpload, createAgent, onAgentCreated, user?.wallet?.address]);
 
   // Loading state
   if (!ready) {
@@ -334,10 +333,10 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
           Upload Your AI Agent
         </h2>
         <p className="text-slate-300 mb-6">
-          Connect your account to start uploading AI agents to the marketplace.
+          Connect your wallet to start uploading AI agents to the marketplace.
         </p>
         <button onClick={login} className="button-primary">
-          Login to Upload
+          Connect Wallet
         </button>
       </div>
     );
@@ -362,7 +361,7 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
             Create Another
           </button>
           <button 
-            onClick={() => window.location.href = '/dashboard'} 
+            onClick={() => router.push('/dashboard')} 
             className="button-primary"
           >
             View Dashboard
@@ -378,9 +377,25 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
       <div className="card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white">Create AI Agent</h2>
-          <div className="flex items-center space-x-2 text-sm text-slate-400">
-            <ShieldCheckIcon className="h-4 w-4" />
-            <span>TEE Protected</span>
+          <div className="flex items-center space-x-4">
+            {user?.wallet?.address && (
+              <div className="flex items-center space-x-2 text-sm">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span className="text-slate-300">
+                  {user.wallet.address.slice(0, 6)}...{user.wallet.address.slice(-4)}
+                </span>
+                <button
+                  onClick={logout}
+                  className="text-slate-400 hover:text-white text-xs underline"
+                >
+                  Disconnect
+                </button>
+              </div>
+            )}
+            <div className="flex items-center space-x-2 text-sm text-slate-400">
+              <ShieldCheckIcon className="h-4 w-4" />
+              <span>TEE Protected</span>
+            </div>
           </div>
         </div>
         
@@ -638,14 +653,18 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
               )}
             </div>
 
-            {/* API Key Configuration */}
+            {/* Optional API Key Configuration */}
             <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                API Key Configuration * (TEE Protected)
+                External API Configuration (Optional)
               </label>
               
-              {/* API Key Type Selection */}
-              <div className="grid grid-cols-1 gap-3">
+              <div className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
+                <div className="text-sm text-slate-300 mb-3">
+                  💡 <strong>Note:</strong> Since you're uploading your own AI agent, external API keys are typically not required.
+                </div>
+                
+                {/* API Key Type Selection */}
                 <div className="space-y-3">
                   {/* Demo Generated Option */}
                   <label className="flex items-start space-x-3 cursor-pointer">
@@ -656,18 +675,18 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
                       checked={formData.apiKeyType === 'demo-generated'}
                       onChange={(e) => setFormData(prev => ({ 
                         ...prev, 
-                        apiKeyType: e.target.value as any,
-                        apiKey: '' // Clear existing key
+                        apiKeyType: e.target.value as 'user-provided' | 'demo-generated' | 'auto-detect',
+                        apiKey: ''
                       }))}
                       className="mt-1"
                       disabled={isSubmitting}
                     />
                     <div className="flex-1">
                       <div className="text-sm font-medium text-slate-200">
-                        🎯 Auto-Generate Demo Key (Recommended)
+                        🎯 No External API Required (Recommended)
                       </div>
                       <div className="text-xs text-slate-400">
-                        Perfect for hackathon demo - generates realistic API keys automatically
+                        Your uploaded agent handles its own inference
                       </div>
                     </div>
                   </label>
@@ -681,44 +700,43 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
                       checked={formData.apiKeyType === 'user-provided'}
                       onChange={(e) => setFormData(prev => ({ 
                         ...prev, 
-                        apiKeyType: e.target.value as any 
+                        apiKeyType: e.target.value as 'user-provided' | 'demo-generated' | 'auto-detect' 
                       }))}
                       className="mt-1"
                       disabled={isSubmitting}
                     />
                     <div className="flex-1">
                       <div className="text-sm font-medium text-slate-200">
-                        🔑 Provide Your Own API Key
+                        🔑 Use External API Service
                       </div>
                       <div className="text-xs text-slate-400">
-                        Use real API keys for production agents (OpenAI, Anthropic, etc.)
+                        Only if your agent needs to call external AI APIs
                       </div>
                     </div>
                   </label>
                 </div>
 
-                {/* Service Selection */}
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-2">
-                    AI Service Provider
-                  </label>
-                  <select
-                    value={formData.apiService}
-                    onChange={(e) => setFormData(prev => ({ ...prev, apiService: e.target.value }))}
-                    className="input w-full text-sm"
-                    disabled={isSubmitting}
-                  >
-                    <option value="openai">🤖 OpenAI (GPT-4, GPT-3.5)</option>
-                    <option value="anthropic">🧠 Anthropic (Claude)</option>
-                    <option value="huggingface">🤗 Hugging Face (Open Models)</option>
-                    <option value="replicate">🔄 Replicate (Various Models)</option>
-                    <option value="custom">⚙️ Custom API</option>
-                  </select>
-                </div>
-
                 {/* API Key Input - Only show for user-provided */}
                 {formData.apiKeyType === 'user-provided' && (
-                  <div>
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-2">
+                        External Service
+                      </label>
+                      <select
+                        value={formData.apiService}
+                        onChange={(e) => setFormData(prev => ({ ...prev, apiService: e.target.value }))}
+                        className="input w-full text-sm"
+                        disabled={isSubmitting}
+                      >
+                        <option value="openai">🤖 OpenAI (GPT-4, GPT-3.5)</option>
+                        <option value="anthropic">🧠 Anthropic (Claude)</option>
+                        <option value="huggingface">🤗 Hugging Face</option>
+                        <option value="replicate">🔄 Replicate</option>
+                        <option value="custom">⚙️ Custom API</option>
+                      </select>
+                    </div>
+                    
                     <div className="relative">
                       <input
                         type={showApiKey ? 'text' : 'password'}
@@ -746,37 +764,16 @@ export const AgentUploadForm: React.FC<AgentUploadFormProps> = ({ onAgentCreated
                     </div>
                   </div>
                 )}
-
-                {/* Demo Preview - Show for demo-generated */}
-                {formData.apiKeyType === 'demo-generated' && (
-                  <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600">
-                    <div className="text-xs text-slate-400 mb-2">Demo Key Preview:</div>
-                    <div className="font-mono text-xs text-green-400">
-                      {formData.apiService === 'openai' && 'sk-demo_1a2b3c4d5e6f7g8h9i0j...'}
-                      {formData.apiService === 'anthropic' && 'sk-ant-demo_1a2b3c4d5e6f7g8h9i0j...'}
-                      {formData.apiService === 'huggingface' && 'hf_demo1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p'}
-                      {formData.apiService === 'replicate' && 'r8_demo1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8'}
-                      {formData.apiService === 'custom' && 'ck_demo_1a2b3c4d5e6f7g8h9i0j1k2l3m4n'}
-                    </div>
-                    <div className="text-xs text-slate-500 mt-2">
-                      ✨ Will be generated automatically based on your agent name and creator address
-                    </div>
-                  </div>
-                )}
               </div>
               
               <div className="mt-2 space-y-1 text-xs text-slate-400">
                 <div className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-3 w-3 text-green-400" />
-                  <span>Encrypted client-side before transmission</span>
+                  <span>All keys encrypted client-side before transmission</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <CheckCircleIcon className="h-3 w-3 text-green-400" />
                   <span>Stored in TEE-protected environment</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircleIcon className="h-3 w-3 text-green-400" />
-                  <span>Never exposed outside secure execution</span>
                 </div>
               </div>
               

@@ -17,7 +17,7 @@ import generateTsAbis from "./scripts/generateTsAbis";
 // Environment variables with fallbacks
 const providerApiKey = process.env.ALCHEMY_API_KEY || "alchemy_api_key";
 const deployerPrivateKey =
-  process.env.DEPLOYER_PRIVATE_KEY ?? "deployer_key";
+  process.env.DEPLOYER_PRIVATE_KEY ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY || "etherscan_api_key";
 
 const config: HardhatUserConfig = {
