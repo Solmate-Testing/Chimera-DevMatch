@@ -6,7 +6,7 @@
 
 ---
 
-## 🎯 **The Confidentiality Crisis** (20 seconds)
+## 🎯 **The Confidentiality Crisis**
 
 **AI creators face a critical security problem:**
 - 💸 **$2M+ in OpenAI credits stolen monthly** from exposed API keys
@@ -18,7 +18,7 @@
 
 ---
 
-## 🔒 **Oasis Integration Deep Dive** (40 seconds)
+## 🔒 **Oasis Integration Deep Dive**
 
 ### **TEE-Protected AI Agent Lifecycle**
 
@@ -49,9 +49,9 @@ contract SecureMarketplace {
 
 ---
 
-## 🎬 **TEE Security Demo** (60 seconds)
+## 🎬 **TEE Security Demo**
 
-### **Step 1: Vulnerable Traditional Flow** (15 seconds)
+### **Step 1: Vulnerable Traditional Flow**
 ```javascript
 // ❌ Traditional approach - API key exposed
 const apiKey = "sk-proj-abc123...";  // Visible in logs, database, blockchain
@@ -62,7 +62,7 @@ await openai.createCompletion({
 });
 ```
 
-### **Step 2: Oasis TEE Protection** (25 seconds)
+### **Step 2: Oasis TEE Protection**
 ```javascript
 // ✅ Our approach - TEE encrypted
 const encryptedKey = await oasis.encrypt(apiKey);  // Oasis precompile
@@ -73,7 +73,7 @@ const decryptedKey = await oasis.decrypt(encryptedKey);  // Only in TEE
 const response = await callAIAPI(decryptedKey, userPrompt);  // Secure execution
 ```
 
-### **Step 3: ROFL Verification** (20 seconds)
+### **Step 3: ROFL Verification**
 
 ![TEE Oracle Transfer Flow](https://docs.0g.ai/developer-hub/building-on-0g/inft/inft-overview)
 *TEE-Oracle Integration: How Chimera DevMatch secures AI agent transfers*
@@ -93,7 +93,7 @@ function executeAIAgent(uint256 agentId, string memory prompt) external {
 
 ---
 
-## 🏗️ **Technical Architecture** (40 seconds)
+## 🏗️ **Technical Architecture**
 
 ### **Multi-Layer Security Model**
 
@@ -126,21 +126,21 @@ function executeAIAgent(uint256 agentId, string memory prompt) external {
 
 ---
 
-## 🎯 **Live Security Demonstration** (50 seconds)
+## 🎯 **Live Security Demonstration**
 
-### **Attack Scenario: Traditional Platform** (15 seconds)
+### **Attack Scenario: Traditional Platform**
 1. Creator uploads AI agent with OpenAI key
 2. 👀 **Key visible in database/logs** - Compromised immediately  
 3. 💸 **$500/day unauthorized usage** - Creator's account drained
 4. ⛔ **OpenAI account banned** - Creator loses all access
 
-### **Defense: Chimera + Oasis TEE** (20 seconds)
+### **Defense: Chimera + Oasis TEE**
 1. Creator uploads same AI agent
 2. 🔐 **API key encrypted by Oasis precompile** - Never in plaintext
 3. 🛡️ **TEE execution only** - `roflEnsureAuthorizedOrigin()` protection
 4. ✅ **Zero compromise risk** - Key never leaves secure environment
 
-### **Verification Process** (15 seconds)
+### **Verification Process**
 ```bash
 # 1. Check ROFL verification
 $ cast call $MARKETPLACE "verifyTEEExecution(uint256)" $AGENT_ID
@@ -157,7 +157,7 @@ $ cast call $MARKETPLACE "getEncryptedKey(uint256)" $AGENT_ID
 
 ---
 
-## 🚀 **Oasis-Specific Value Proposition** (30 seconds)
+## 🚀 **Oasis-Specific Value Proposition**
 
 ### **Why Oasis is Essential for AI Marketplaces**
 
@@ -183,7 +183,7 @@ $ cast call $MARKETPLACE "getEncryptedKey(uint256)" $AGENT_ID
 
 ---
 
-## 🔮 **Oasis Roadmap** (20 seconds)
+## 🔮 **Oasis Roadmap**
 
 ### **Phase 1: Core TEE Integration** ✅
 - ROFL verification in marketplace functions
@@ -202,7 +202,7 @@ $ cast call $MARKETPLACE "getEncryptedKey(uint256)" $AGENT_ID
 
 ---
 
-## 🏆 **Technical Achievement** (20 seconds)
+## 🏆 **Technical Achievement**
 
 ### **Technical Excellence**
 - ✅ **Real ROFL integration** - Not just documentation, actual working code
@@ -218,7 +218,7 @@ $ cast call $MARKETPLACE "getEncryptedKey(uint256)" $AGENT_ID
 
 ---
 
-## 📞 **Call to Action** (20 seconds)
+## 📞 **Call to Action**
 
 **Experience the future of confidential AI computing:**
 

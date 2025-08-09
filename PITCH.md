@@ -4,7 +4,7 @@
 
 ---
 
-## 🎯 **The Problem** (30 seconds)
+## 🎯 **The Problem**
 
 **Current AI landscape is broken:**
 - 🏢 **Centralized platforms** take 30-70% cuts from AI creators
@@ -16,7 +16,7 @@
 
 ---
 
-## 💡 **Our Solution** (45 seconds)
+## 💡 **Our Solution**
 
 **Chimera DevMatch** - The first TEE-secured AI agent marketplace with complete ownership model:
 
@@ -34,7 +34,7 @@
 
 ---
 
-## 🛠️ **Technology Stack** (45 seconds)
+## 🛠️ **Technology Stack**
 
 ### **Built on Modern Web3 Infrastructure**
 ```
@@ -53,21 +53,21 @@ Storage: IPFS + Encrypted Metadata
 
 ---
 
-## 🎬 **Live Demo** (90 seconds)
+## 🎬 **Live Demo**
 
-### **Step 1: Creator Flow** (30 seconds)
+### **Step 1: Creator Flow**
 1. **Visit `/upload`** - Clean, intuitive agent creation interface
 2. **Upload AI agent** - GPT-4 trading bot with API key
 3. **TEE encryption** - API key automatically secured by Oasis Sapphire
 4. **Gasless deploy** - Zero fees, agent live in marketplace immediately
 
-### **Step 2: User Flow** (30 seconds)
+### **Step 2: User Flow**
 1. **Browse `/marketplace`** - 40+ AI agents with beautiful UI
 2. **Google login** - Social auth creates smart wallet automatically  
 3. **Stake 0.01 ETH** - One click, gasless transaction
 4. **Chat with AI** - Real-time conversation with purchased agent
 
-### **Step 3: Platform Features** (30 seconds)
+### **Step 3: Platform Features**
 1. **Creator Dashboard** - Earnings: 15.7 ETH, 289 loves, 6 active agents
 2. **Analytics** - Live rankings, performance metrics, export data
 3. **White theme** - Clean, professional design throughout
@@ -75,7 +75,7 @@ Storage: IPFS + Encrypted Metadata
 
 ---
 
-## 🏆 **Technical Achievements** (30 seconds)
+## 🏆 **Technical Achievements**
 
 ### **Scaffold-ETH 2 Implementation**
 - ✅ **Framework mastery** - Extensive use of hooks, components, patterns
@@ -94,7 +94,7 @@ Storage: IPFS + Encrypted Metadata
 
 ---
 
-## 💰 **Business Model & Market Opportunity** (30 seconds)
+## 💰 **Business Model & Market Opportunity**
 
 ### **Revenue Streams**
 - **Transaction fees** - 2-5% on stake transactions (optional)
@@ -110,7 +110,7 @@ Storage: IPFS + Encrypted Metadata
 
 ---
 
-## 🔮 **Future Vision** (30 seconds)
+## 🔮 **Future Vision**
 
 ### **Phase 1: Marketplace Foundation** ✅ 
 - Core platform with TEE security
@@ -130,7 +130,7 @@ Storage: IPFS + Encrypted Metadata
 
 ---
 
-## 🚀 **Why We'll Win** (30 seconds)
+## 🚀 **Why We'll Win**
 
 ### **Technical Advantages**
 - **First-mover**: Only TEE-secured AI marketplace
@@ -146,7 +146,7 @@ Storage: IPFS + Encrypted Metadata
 
 ---
 
-## 📞 **Call to Action** (15 seconds)
+## 📞 **Call to Action**
 
 **Ready to revolutionize AI monetization?**
 
