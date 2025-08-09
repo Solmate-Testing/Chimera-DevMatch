@@ -18,6 +18,18 @@ Chimera DevMatch revolutionizes AI monetization by creating the first **gasless,
 - 📊 **Real-time analytics** via The Graph show live rankings and marketplace stats
 - 🌟 **3D NFT Avatars** - Coming soon! Turn your AI character into tradeable NFTs
 
+## 🏗️ **Built on Scaffold-ETH Extension**
+
+This project showcases the **LingSiewWin/ERC-7857** extension for Scaffold-ETH 2:
+
+- ✅ **ERC-7857 Standard**: Intelligent Non-Fungible Tokens (INFTs) for AI agents
+- ✅ **TEE Integration**: Oasis ROFL-Sapphire for secure metadata encryption  
+- ✅ **Extension Components**: `MintINFT`, `TransferINFT`, `ViewINFT` React components
+- ✅ **Enhanced Marketplace**: USDC micropayments + gasless staking integration
+- ✅ **Subgraph Indexing**: Real-time analytics for agent rankings and usage
+
+**Extension Repository**: https://github.com/LingSiewWin/ERC-7857
+
 ---
 
 ## 🏆 **Hackathon Track Alignment**
