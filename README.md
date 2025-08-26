@@ -2,7 +2,7 @@
 
 **The Ultimate AI Agent Marketplace - Secure, Decentralized, and Multi-Chain**
 
-Chimera DevMatch is a revolutionary decentralized marketplace where developers can create, deploy, and monetize AI agents while users can discover, purchase, and interact with specialized AI services. Built with cutting-edge blockchain technology and secured by Trusted Execution Environments (TEE).
+Chimera DevMatch is a decentralized marketplace where developers can create, deploy, and monetize AI agents while users can discover, purchase, and interact with specialized AI services. Built with cutting-edge blockchain technology and secured by Trusted Execution Environments (TEE).
 
 [![Oasis](https://img.shields.io/badge/Oasis-TEE%20Protected-purple)](https://oasisprotocol.org/)
 [![Ethereum](https://img.shields.io/badge/Ethereum-Scaffold--ETH%202-blue)](https://scaffoldeth.io/)
